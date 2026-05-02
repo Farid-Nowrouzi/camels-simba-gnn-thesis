@@ -1,0 +1,39 @@
+# Python cache
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ipynb_checkpoints/
+
+# Virtual environments
+env/
+envs/
+venv/
+.venv/
+camels-gnn/
+
+# Raw and processed datasets
+data/raw/
+data/processed/
+data/splits/
+*.pt
+*.pth
+
+# Model checkpoints
+checkpoints/
+*.ckpt
+best_model.pt
+
+# Logs and temporary files
+logs/
+*.log
+*.tmp
+
+# Large generated outputs
+outputs/
+*.zip
+*.tar.gz
+
+# OS / editor files
+.DS_Store
+Thumbs.db
+.vscode/

@@ -1,0 +1,18 @@
+===== ENVIRONMENT CHECK =====
+Torch: 2.6.0+cu124
+Torch Geometric: 2.7.0
+NumPy: 2.2.6
+Pandas: 2.3.3
+Scikit-learn: 1.7.2
+Matplotlib: 3.10.9
+NetworkX: 3.4.2
+SciPy: 1.15.3
+h5py: 3.16.0
+tqdm: 4.67.3
+
+===== GPU CHECK =====
+CUDA available: True
+CUDA used by PyTorch: 12.4
+Number of GPUs: 1
+GPU name: NVIDIA L40
+GPU tensor test successful: torch.Size([1000, 1000])
