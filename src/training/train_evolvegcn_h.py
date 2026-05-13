@@ -1,16 +1,87 @@
 from __future__ import annotations
 
+"""
+train_evolvegcn_h.py
+
+Train an EvolveGCN-H temporal graph regressor on CAMELS-SIMBA temporal graph datasets.
+
+Purpose
+-------
+This script trains the temporal graph model in the thesis pipeline.
+
+Comparison ladder:
+    1. Mean Omega_m baseline
+    2. Static GCN baseline
+    3. Temporal EvolveGCN-H model
+
+Expected temporal dataset format
+--------------------------------
+The temporal dataset should be created by:
+
+    src.data.build_temporal_sequences
+
+Expected saved format:
+
+    {
+        "LH_0": {
+            "A_list": [Tensor(N, N), ...],
+            "Nodes_list": [Tensor(N, F), ...],
+            "mask_list": [Tensor(N, 1), ...],
+            "target": Tensor scalar,
+            "snapshots": [...metadata...],
+            ...
+        },
+        ...
+    }
+
+Each universe becomes one training sample:
+    A_seq:    [T, N, N]
+    X_seq:    [T, N, F]
+    mask_seq: [T, N, 1]
+    target:   [1]
+
+Official preprocessing:
+    v2_logmass_minmax_top100_periodic_knn
+
+Official node features:
+    [log10_Mvir, X, Y, Z, VX, VY, VZ]
+
+Example command
+---------------
+python -m src.training.train_evolvegcn_h \
+  --dataset_path data/processed/temporal_100u_minmax/camels_100u_temporal_logmass_minmax_top100_periodic_knn.pt \
+  --experiment_name evolvegcn_h_100u_seed123 \
+  --output_root experiments \
+  --seed 123 \
+  --batch_size 4 \
+  --epochs 300 \
+  --patience 40 \
+  --learning_rate 0.001 \
+  --weight_decay 0.00001 \
+  --hidden_dim 64 \
+  --num_layers 2 \
+  --dropout 0.2 \
+  --temporal_pooling mean \
+  --graph_pooling mean \
+  --add_self_loops \
+  --train_ratio 0.70 \
+  --val_ratio 0.15 \
+  --test_ratio 0.15 \
+  --grad_clip_norm 1.0 \
+  --device auto
+"""
+
 import argparse
 import csv
 import json
 import random
 from pathlib import Path
-from typing import Dict, List, Tuple, Any
+from typing import Any, Dict, List, Tuple
 
 import numpy as np
 import torch
 import torch.nn as nn
-from torch.utils.data import Dataset, DataLoader
+from torch.utils.data import DataLoader, Dataset
 
 from src.models.evolvegcn_h import EvolveGCNHRegressor, count_parameters
 
@@ -28,7 +99,6 @@ def set_seed(seed: int) -> None:
     torch.manual_seed(seed)
     torch.cuda.manual_seed_all(seed)
 
-    # Safer reproducibility settings.
     torch.backends.cudnn.deterministic = True
     torch.backends.cudnn.benchmark = False
 
@@ -39,23 +109,9 @@ def set_seed(seed: int) -> None:
 
 class CamelsTemporalDataset(Dataset):
     """
-    PyTorch Dataset wrapper for CAMELS temporal graph sequences.
-
-    Expected saved dataset format:
-
-        {
-            "LH_0": {
-                "A_list": [Tensor(100,100), ...],
-                "Nodes_list": [Tensor(100,7), ...],
-                "mask_list": [Tensor(100,1), ...],
-                "target": Tensor scalar,
-                ...
-            },
-            ...
-        }
+    PyTorch Dataset wrapper for CAMELS-SIMBA temporal graph sequences.
 
     Each item returned:
-
         universe_id: str
         A_seq: Tensor [T, N, N]
         X_seq: Tensor [T, N, F]
@@ -63,7 +119,11 @@ class CamelsTemporalDataset(Dataset):
         target: Tensor [1]
     """
 
-    def __init__(self, data_dict: Dict[str, Dict[str, Any]], universe_ids: List[str]):
+    def __init__(
+        self,
+        data_dict: Dict[str, Dict[str, Any]],
+        universe_ids: List[str],
+    ) -> None:
         self.data_dict = data_dict
         self.universe_ids = universe_ids
 
@@ -74,11 +134,17 @@ class CamelsTemporalDataset(Dataset):
         universe_id = self.universe_ids[index]
         sample = self.data_dict[universe_id]
 
+        required_keys = ["A_list", "Nodes_list", "mask_list", "target"]
+        for key in required_keys:
+            if key not in sample:
+                raise KeyError(f"{universe_id}: missing required key {key}")
+
         A_seq = torch.stack(sample["A_list"], dim=0).float()
         X_seq = torch.stack(sample["Nodes_list"], dim=0).float()
         mask_seq = torch.stack(sample["mask_list"], dim=0).float()
 
         target = sample["target"]
+
         if not torch.is_tensor(target):
             target = torch.tensor(float(target), dtype=torch.float32)
 
@@ -92,6 +158,7 @@ def collate_fn(batch):
     Custom collate function because universe_id is a string.
     """
     universe_ids = [item[0] for item in batch]
+
     A_seq = torch.stack([item[1] for item in batch], dim=0)
     X_seq = torch.stack([item[2] for item in batch], dim=0)
     mask_seq = torch.stack([item[3] for item in batch], dim=0)
@@ -106,12 +173,12 @@ def collate_fn(batch):
 
 def load_temporal_dataset(path: str | Path) -> Dict[str, Dict[str, Any]]:
     """
-    Load temporal dataset safely.
+    Load a saved temporal graph dataset.
     """
     path = Path(path)
 
     if not path.exists():
-        raise FileNotFoundError(f"Dataset file not found: {path}")
+        raise FileNotFoundError(f"Temporal dataset file not found: {path}")
 
     try:
         data = torch.load(path, map_location="cpu", weights_only=False)
@@ -119,12 +186,24 @@ def load_temporal_dataset(path: str | Path) -> Dict[str, Dict[str, Any]]:
         data = torch.load(path, map_location="cpu")
 
     if not isinstance(data, dict):
-        raise TypeError(f"Expected dataset to be a dict, got: {type(data)}")
+        raise TypeError(f"Expected dataset to be a dict, got {type(data)}")
 
     if len(data) == 0:
-        raise ValueError("Dataset is empty.")
+        raise ValueError("Loaded temporal dataset is empty.")
 
     return data
+
+
+def universe_sort_key(universe_id: str) -> int:
+    """
+    Sort universe IDs like LH_0, LH_1, LH_2, ...
+    """
+    text = str(universe_id)
+
+    if text.lower().startswith("lh_"):
+        return int(text.split("_", 1)[1])
+
+    return int(text)
 
 
 def split_universes(
@@ -136,16 +215,25 @@ def split_universes(
 ) -> Tuple[List[str], List[str], List[str]]:
     """
     Split universe IDs into train, validation, and test sets.
-    """
-    total = train_ratio + val_ratio + test_ratio
 
-    if abs(total - 1.0) > 1e-6:
+    Use the same seed/ratios across mean baseline, static GCN, and EvolveGCN-H
+    for fair comparison.
+    """
+    total_ratio = train_ratio + val_ratio + test_ratio
+
+    if abs(total_ratio - 1.0) > 1e-6:
         raise ValueError(
-            f"train_ratio + val_ratio + test_ratio must equal 1. "
-            f"Got {total}"
+            f"train_ratio + val_ratio + test_ratio must equal 1. Got {total_ratio}"
         )
 
     universe_ids = list(universe_ids)
+
+    if len(universe_ids) < 5:
+        raise ValueError(
+            "Dataset is too small for train/val/test splitting. "
+            "Use at least 5 universes."
+        )
+
     rng = random.Random(seed)
     rng.shuffle(universe_ids)
 
@@ -154,19 +242,17 @@ def split_universes(
     n_train = int(n * train_ratio)
     n_val = int(n * val_ratio)
 
-    # Make sure all splits exist when possible.
-    if n >= 5:
-        n_train = max(n_train, 1)
-        n_val = max(n_val, 1)
-        n_test = n - n_train - n_val
+    n_train = max(n_train, 1)
+    n_val = max(n_val, 1)
+    n_test = n - n_train - n_val
 
-        if n_test < 1:
-            n_train -= 1
-            n_test = 1
-    else:
+    if n_test < 1:
+        n_train -= 1
+        n_test = 1
+
+    if n_train < 1 or n_val < 1 or n_test < 1:
         raise ValueError(
-            "Dataset is too small for train/val/test splitting. "
-            "Use at least 5 universes."
+            f"Invalid split sizes: train={n_train}, val={n_val}, test={n_test}"
         )
 
     train_ids = universe_ids[:n_train]
@@ -185,9 +271,9 @@ def create_loaders(
     test_ratio: float,
 ):
     """
-    Create train, validation, and test loaders.
+    Create train, validation, and test DataLoaders.
     """
-    universe_ids = sorted(data.keys(), key=lambda x: int(x.replace("LH_", "")))
+    universe_ids = sorted(data.keys(), key=universe_sort_key)
 
     train_ids, val_ids, test_ids = split_universes(
         universe_ids=universe_ids,
@@ -226,16 +312,85 @@ def create_loaders(
 
 
 # ============================================================
-# Training and evaluation helpers
+# Batch validation and movement
 # ============================================================
 
-def move_batch_to_device(A_seq, X_seq, mask_seq, target, device):
+def validate_example_batch(
+    A_seq: torch.Tensor,
+    X_seq: torch.Tensor,
+    mask_seq: torch.Tensor,
+    target: torch.Tensor,
+) -> None:
+    """
+    Validate one example batch before training.
+    """
+    if A_seq.ndim != 4:
+        raise ValueError(f"Expected A_seq [B, T, N, N], got {tuple(A_seq.shape)}")
+
+    if X_seq.ndim != 4:
+        raise ValueError(f"Expected X_seq [B, T, N, F], got {tuple(X_seq.shape)}")
+
+    if mask_seq.ndim != 4:
+        raise ValueError(
+            f"Expected mask_seq [B, T, N, 1], got {tuple(mask_seq.shape)}"
+        )
+
+    if target.ndim != 2 or target.shape[1] != 1:
+        raise ValueError(f"Expected target [B, 1], got {tuple(target.shape)}")
+
+    batch_a, time_a, nodes_a, nodes_a_2 = A_seq.shape
+    batch_x, time_x, nodes_x, _ = X_seq.shape
+    batch_m, time_m, nodes_m, mask_features = mask_seq.shape
+
+    if nodes_a != nodes_a_2:
+        raise ValueError(f"A_seq must contain square matrices, got {tuple(A_seq.shape)}")
+
+    if batch_a != batch_x or time_a != time_x or nodes_a != nodes_x:
+        raise ValueError(
+            f"A_seq and X_seq mismatch: A_seq={tuple(A_seq.shape)}, "
+            f"X_seq={tuple(X_seq.shape)}"
+        )
+
+    if batch_m != batch_a or time_m != time_a or nodes_m != nodes_a:
+        raise ValueError(
+            f"mask_seq mismatch: mask_seq={tuple(mask_seq.shape)}, "
+            f"A_seq={tuple(A_seq.shape)}"
+        )
+
+    if mask_features != 1:
+        raise ValueError(f"Expected mask last dimension 1, got {mask_features}")
+
+    if torch.isnan(X_seq).any() or torch.isinf(X_seq).any():
+        raise ValueError("Example X_seq contains NaN or Inf values.")
+
+    if torch.isnan(A_seq).any() or torch.isinf(A_seq).any():
+        raise ValueError("Example A_seq contains NaN or Inf values.")
+
+    if torch.isnan(mask_seq).any() or torch.isinf(mask_seq).any():
+        raise ValueError("Example mask_seq contains NaN or Inf values.")
+
+
+def move_batch_to_device(
+    A_seq: torch.Tensor,
+    X_seq: torch.Tensor,
+    mask_seq: torch.Tensor,
+    target: torch.Tensor,
+    device: torch.device,
+):
+    """
+    Move batch tensors to selected device.
+    """
     A_seq = A_seq.to(device)
     X_seq = X_seq.to(device)
     mask_seq = mask_seq.to(device)
     target = target.to(device)
+
     return A_seq, X_seq, mask_seq, target
 
+
+# ============================================================
+# Training and evaluation helpers
+# ============================================================
 
 def run_one_epoch(
     model: nn.Module,
@@ -243,9 +398,10 @@ def run_one_epoch(
     optimizer: torch.optim.Optimizer,
     criterion: nn.Module,
     device: torch.device,
+    grad_clip_norm: float,
 ) -> float:
     """
-    One training epoch.
+    Run one training epoch.
     """
     model.train()
 
@@ -254,18 +410,30 @@ def run_one_epoch(
 
     for _, A_seq, X_seq, mask_seq, target in loader:
         A_seq, X_seq, mask_seq, target = move_batch_to_device(
-            A_seq, X_seq, mask_seq, target, device
+            A_seq=A_seq,
+            X_seq=X_seq,
+            mask_seq=mask_seq,
+            target=target,
+            device=device,
         )
 
         optimizer.zero_grad()
 
-        prediction = model(A_seq, X_seq, mask_seq)
+        prediction = model(
+            A_seq=A_seq,
+            X_seq=X_seq,
+            mask_seq=mask_seq,
+        )
+
         loss = criterion(prediction, target)
 
         loss.backward()
 
-        # Helps avoid unstable gradients.
-        torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
+        if grad_clip_norm > 0:
+            torch.nn.utils.clip_grad_norm_(
+                model.parameters(),
+                max_norm=grad_clip_norm,
+            )
 
         optimizer.step()
 
@@ -293,10 +461,19 @@ def evaluate_loss(
 
     for _, A_seq, X_seq, mask_seq, target in loader:
         A_seq, X_seq, mask_seq, target = move_batch_to_device(
-            A_seq, X_seq, mask_seq, target, device
+            A_seq=A_seq,
+            X_seq=X_seq,
+            mask_seq=mask_seq,
+            target=target,
+            device=device,
         )
 
-        prediction = model(A_seq, X_seq, mask_seq)
+        prediction = model(
+            A_seq=A_seq,
+            X_seq=X_seq,
+            mask_seq=mask_seq,
+        )
+
         loss = criterion(prediction, target)
 
         batch_size = target.size(0)
@@ -317,14 +494,22 @@ def collect_predictions(
     """
     model.eval()
 
-    rows = []
+    rows: List[Dict[str, float | str]] = []
 
     for universe_ids, A_seq, X_seq, mask_seq, target in loader:
         A_seq, X_seq, mask_seq, target = move_batch_to_device(
-            A_seq, X_seq, mask_seq, target, device
+            A_seq=A_seq,
+            X_seq=X_seq,
+            mask_seq=mask_seq,
+            target=target,
+            device=device,
         )
 
-        prediction = model(A_seq, X_seq, mask_seq)
+        prediction = model(
+            A_seq=A_seq,
+            X_seq=X_seq,
+            mask_seq=mask_seq,
+        )
 
         prediction_cpu = prediction.detach().cpu().view(-1)
         target_cpu = target.detach().cpu().view(-1)
@@ -336,6 +521,7 @@ def collect_predictions(
         ):
             pred_float = float(pred_value)
             true_float = float(true_value)
+
             abs_error = abs(pred_float - true_float)
             sq_error = (pred_float - true_float) ** 2
 
@@ -379,7 +565,25 @@ def compute_metrics(rows: List[Dict[str, float | str]]) -> Dict[str, float | int
     }
 
 
-def save_predictions_csv(rows: List[Dict[str, float | str]], path: str | Path) -> None:
+# ============================================================
+# Saving helpers
+# ============================================================
+
+def save_json(data: Dict[str, Any], path: str | Path) -> None:
+    """
+    Save dictionary as JSON.
+    """
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+
+    with path.open("w", encoding="utf-8") as f:
+        json.dump(data, f, indent=2)
+
+
+def save_predictions_csv(
+    rows: List[Dict[str, float | str]],
+    path: str | Path,
+) -> None:
     """
     Save prediction rows as CSV.
     """
@@ -394,15 +598,18 @@ def save_predictions_csv(rows: List[Dict[str, float | str]], path: str | Path) -
         "squared_error",
     ]
 
-    with open(path, "w", newline="", encoding="utf-8") as f:
+    with path.open("w", newline="", encoding="utf-8") as f:
         writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
         writer.writerows(rows)
 
 
-def save_train_log_csv(log_rows: List[Dict[str, float | int]], path: str | Path) -> None:
+def save_train_log_csv(
+    log_rows: List[Dict[str, float | int]],
+    path: str | Path,
+) -> None:
     """
-    Save epoch training log.
+    Save epoch training log as CSV.
     """
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -413,23 +620,13 @@ def save_train_log_csv(log_rows: List[Dict[str, float | int]], path: str | Path)
         "val_mse",
         "best_val_mse",
         "best_epoch",
+        "learning_rate",
     ]
 
-    with open(path, "w", newline="", encoding="utf-8") as f:
+    with path.open("w", newline="", encoding="utf-8") as f:
         writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
         writer.writerows(log_rows)
-
-
-def save_json(data: Dict[str, Any], path: str | Path) -> None:
-    """
-    Save dictionary as JSON.
-    """
-    path = Path(path)
-    path.parent.mkdir(parents=True, exist_ok=True)
-
-    with open(path, "w", encoding="utf-8") as f:
-        json.dump(data, f, indent=2)
 
 
 # ============================================================
@@ -442,25 +639,30 @@ def train_evolvegcn_h(
     output_root: str | Path = "experiments",
     seed: int = 123,
     batch_size: int = 4,
-    epochs: int = 100,
-    patience: int = 20,
+    epochs: int = 300,
+    patience: int = 40,
     learning_rate: float = 1e-3,
     weight_decay: float = 1e-5,
-    hidden_dim: int = 16,
-    num_layers: int = 1,
+    hidden_dim: int = 64,
+    num_layers: int = 2,
     dropout: float = 0.2,
+    temporal_pooling: str = "mean",
+    graph_pooling: str = "mean",
+    add_self_loops: bool = True,
     train_ratio: float = 0.70,
     val_ratio: float = 0.15,
     test_ratio: float = 0.15,
+    grad_clip_norm: float = 1.0,
     device_name: str = "auto",
 ) -> Dict[str, Any]:
     """
-    Train EvolveGCN-H regressor on CAMELS temporal graph dataset.
+    Train EvolveGCN-H regressor on a CAMELS-SIMBA temporal graph dataset.
     """
     set_seed(seed)
 
     dataset_path = Path(dataset_path)
     output_root = Path(output_root)
+
     experiment_dir = output_root / experiment_name
     checkpoints_dir = experiment_dir / "checkpoints"
     predictions_dir = experiment_dir / "predictions"
@@ -490,6 +692,10 @@ def train_evolvegcn_h(
     print(f"Hidden dim:         {hidden_dim}")
     print(f"Num layers:         {num_layers}")
     print(f"Dropout:            {dropout}")
+    print(f"Temporal pooling:   {temporal_pooling}")
+    print(f"Graph pooling:      {graph_pooling}")
+    print(f"Add self loops:     {add_self_loops}")
+    print(f"Grad clip norm:     {grad_clip_norm}")
     print("=" * 90)
 
     data = load_temporal_dataset(dataset_path)
@@ -503,10 +709,16 @@ def train_evolvegcn_h(
         test_ratio=test_ratio,
     )
 
-    # Inspect one batch to infer dimensions.
     _, A_seq, X_seq, mask_seq, target = next(iter(train_loader))
 
-    batch_size_real, num_snapshots, num_nodes, node_features = X_seq.shape
+    validate_example_batch(
+        A_seq=A_seq,
+        X_seq=X_seq,
+        mask_seq=mask_seq,
+        target=target,
+    )
+
+    _, num_snapshots, num_nodes, node_features = X_seq.shape
 
     print()
     print("Data summary")
@@ -518,10 +730,10 @@ def train_evolvegcn_h(
     print(f"Num snapshots:       {num_snapshots}")
     print(f"Num nodes:           {num_nodes}")
     print(f"Node features:       {node_features}")
-    print(f"Example A_seq:       {A_seq.shape}")
-    print(f"Example X_seq:       {X_seq.shape}")
-    print(f"Example mask_seq:    {mask_seq.shape}")
-    print(f"Example target:      {target.shape}")
+    print(f"Example A_seq:       {tuple(A_seq.shape)}")
+    print(f"Example X_seq:       {tuple(X_seq.shape)}")
+    print(f"Example mask_seq:    {tuple(mask_seq.shape)}")
+    print(f"Example target:      {tuple(target.shape)}")
 
     print()
     print("Split details")
@@ -535,7 +747,9 @@ def train_evolvegcn_h(
         hidden_dim=hidden_dim,
         num_layers=num_layers,
         dropout=dropout,
-        temporal_pooling="mean",
+        temporal_pooling=temporal_pooling,
+        graph_pooling=graph_pooling,
+        add_self_loops=add_self_loops,
     ).to(device)
 
     criterion = nn.MSELoss()
@@ -544,6 +758,14 @@ def train_evolvegcn_h(
         model.parameters(),
         lr=learning_rate,
         weight_decay=weight_decay,
+    )
+
+    scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
+        optimizer,
+        mode="min",
+        factor=0.5,
+        patience=max(patience // 4, 5),
+        min_lr=1e-6,
     )
 
     trainable_params = count_parameters(model)
@@ -555,8 +777,10 @@ def train_evolvegcn_h(
     print(f"Trainable parameters: {trainable_params}")
 
     config = {
+        "model": "EvolveGCNHRegressor",
         "dataset_path": str(dataset_path),
         "experiment_name": experiment_name,
+        "output_root": str(output_root),
         "seed": seed,
         "batch_size": batch_size,
         "epochs": epochs,
@@ -566,9 +790,13 @@ def train_evolvegcn_h(
         "hidden_dim": hidden_dim,
         "num_layers": num_layers,
         "dropout": dropout,
+        "temporal_pooling": temporal_pooling,
+        "graph_pooling": graph_pooling,
+        "add_self_loops": add_self_loops,
         "train_ratio": train_ratio,
         "val_ratio": val_ratio,
         "test_ratio": test_ratio,
+        "grad_clip_norm": grad_clip_norm,
         "device": str(device),
         "num_total_universes": len(data),
         "num_train_universes": len(train_ids),
@@ -588,7 +816,7 @@ def train_evolvegcn_h(
     best_val_mse = float("inf")
     best_epoch = -1
     patience_counter = 0
-    train_log_rows = []
+    train_log_rows: List[Dict[str, float | int]] = []
 
     best_checkpoint_path = checkpoints_dir / "best_model.pt"
 
@@ -603,6 +831,7 @@ def train_evolvegcn_h(
             optimizer=optimizer,
             criterion=criterion,
             device=device,
+            grad_clip_norm=grad_clip_norm,
         )
 
         val_mse = evaluate_loss(
@@ -612,6 +841,9 @@ def train_evolvegcn_h(
             device=device,
         )
 
+        scheduler.step(val_mse)
+
+        current_lr = float(optimizer.param_groups[0]["lr"])
         improved = val_mse < best_val_mse
 
         if improved:
@@ -629,7 +861,6 @@ def train_evolvegcn_h(
                 },
                 best_checkpoint_path,
             )
-
         else:
             patience_counter += 1
 
@@ -640,6 +871,7 @@ def train_evolvegcn_h(
                 "val_mse": val_mse,
                 "best_val_mse": best_val_mse,
                 "best_epoch": best_epoch,
+                "learning_rate": current_lr,
             }
         )
 
@@ -647,7 +879,8 @@ def train_evolvegcn_h(
             f"Epoch {epoch:03d} | "
             f"Train MSE: {train_mse:.8f} | "
             f"Val MSE: {val_mse:.8f} | "
-            f"Best Val: {best_val_mse:.8f} at epoch {best_epoch}"
+            f"Best Val: {best_val_mse:.8f} at epoch {best_epoch} | "
+            f"LR: {current_lr:.8f}"
         )
 
         if patience_counter >= patience:
@@ -690,6 +923,7 @@ def train_evolvegcn_h(
         "test": test_metrics,
         "best_epoch": best_epoch,
         "best_val_mse": best_val_mse,
+        "trainable_parameters": trainable_params,
     }
 
     save_json(metrics, experiment_dir / "metrics.json")
@@ -701,7 +935,7 @@ def train_evolvegcn_h(
 
     print()
     print("=" * 90)
-    print("TRAINING COMPLETE")
+    print("EVOLVEGCN-H TRAINING COMPLETE")
     print("=" * 90)
     print(f"Best checkpoint:     {best_checkpoint_path}")
     print(f"Train log:           {train_log_path}")
@@ -726,19 +960,49 @@ def main() -> None:
 
     parser.add_argument("--seed", type=int, default=123)
     parser.add_argument("--batch_size", type=int, default=4)
-    parser.add_argument("--epochs", type=int, default=100)
-    parser.add_argument("--patience", type=int, default=20)
+    parser.add_argument("--epochs", type=int, default=300)
+    parser.add_argument("--patience", type=int, default=40)
 
     parser.add_argument("--learning_rate", type=float, default=1e-3)
     parser.add_argument("--weight_decay", type=float, default=1e-5)
 
-    parser.add_argument("--hidden_dim", type=int, default=16)
-    parser.add_argument("--num_layers", type=int, default=1)
+    parser.add_argument("--hidden_dim", type=int, default=64)
+    parser.add_argument("--num_layers", type=int, default=2)
     parser.add_argument("--dropout", type=float, default=0.2)
+
+    parser.add_argument(
+        "--temporal_pooling",
+        type=str,
+        default="mean",
+        choices=["mean", "last"],
+    )
+
+    parser.add_argument(
+        "--graph_pooling",
+        type=str,
+        default="mean",
+        choices=["mean", "sum"],
+    )
+
+    parser.add_argument(
+        "--add_self_loops",
+        action="store_true",
+        default=True,
+        help="Add self-loops inside EvolveGCN-H adjacency normalization.",
+    )
+
+    parser.add_argument(
+        "--no_self_loops",
+        action="store_false",
+        dest="add_self_loops",
+        help="Disable self-loops inside EvolveGCN-H.",
+    )
 
     parser.add_argument("--train_ratio", type=float, default=0.70)
     parser.add_argument("--val_ratio", type=float, default=0.15)
     parser.add_argument("--test_ratio", type=float, default=0.15)
+
+    parser.add_argument("--grad_clip_norm", type=float, default=1.0)
 
     parser.add_argument(
         "--device",
@@ -762,9 +1026,13 @@ def main() -> None:
         hidden_dim=args.hidden_dim,
         num_layers=args.num_layers,
         dropout=args.dropout,
+        temporal_pooling=args.temporal_pooling,
+        graph_pooling=args.graph_pooling,
+        add_self_loops=args.add_self_loops,
         train_ratio=args.train_ratio,
         val_ratio=args.val_ratio,
         test_ratio=args.test_ratio,
+        grad_clip_norm=args.grad_clip_norm,
         device_name=args.device,
     )
 
