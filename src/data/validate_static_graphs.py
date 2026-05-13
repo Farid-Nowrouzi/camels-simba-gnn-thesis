@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 """
 validate_static_graphs.py
 
@@ -24,8 +26,6 @@ Official preprocessing:
     v2_logmass_minmax_top100_periodic_knn
 """
 
-from __future__ import annotations
-
 import argparse
 import json
 from pathlib import Path
@@ -40,6 +40,10 @@ from src.data.camels_graph_utils import (
 )
 
 
+# ============================================================
+# General helpers
+# ============================================================
+
 def safe_float(value: Any):
     """
     Convert tensor/scalar/list values into a printable float when possible.
@@ -52,16 +56,99 @@ def safe_float(value: Any):
         return None
 
 
+def json_safe(value: Any) -> Any:
+    """
+    Convert common non-JSON-safe objects into JSON-safe values.
+    """
+    if torch.is_tensor(value):
+        if value.numel() == 1:
+            return safe_float(value)
+        return value.detach().cpu().tolist()
+
+    if isinstance(value, Path):
+        return str(value)
+
+    if isinstance(value, dict):
+        return {str(k): json_safe(v) for k, v in value.items()}
+
+    if isinstance(value, list):
+        return [json_safe(v) for v in value]
+
+    if isinstance(value, tuple):
+        return [json_safe(v) for v in value]
+
+    return value
+
+
+def load_dataset(path: Path) -> Dict[str, Any]:
+    """
+    Load static graph dataset safely.
+
+    Uses weights_only=False when supported, with fallback for older PyTorch.
+    """
+    if not path.exists():
+        raise FileNotFoundError(f"Dataset file not found: {path}")
+
+    try:
+        dataset = torch.load(path, map_location="cpu", weights_only=False)
+    except TypeError:
+        dataset = torch.load(path, map_location="cpu")
+
+    if not isinstance(dataset, dict):
+        raise TypeError(f"Expected dataset to be dict, got {type(dataset)}")
+
+    if len(dataset) == 0:
+        raise ValueError("Static dataset is empty.")
+
+    return dataset
+
+
+def sort_universe_ids(keys: List[Any]) -> List[Any]:
+    """
+    Sort universe IDs like LH_0, LH_1, ..., LH_100.
+    """
+    def key_fn(x: Any):
+        text = str(x)
+
+        if "_" in text:
+            try:
+                return int(text.split("_")[-1])
+            except ValueError:
+                return text
+
+        try:
+            return int(text)
+        except ValueError:
+            return text
+
+    return sorted(keys, key=key_fn)
+
+
+# ============================================================
+# Tensor and graph summaries
+# ============================================================
+
 def tensor_summary(name: str, tensor: torch.Tensor) -> Dict[str, Any]:
     """
     Return basic numeric checks for one tensor.
     """
+    if not torch.is_tensor(tensor):
+        return {
+            "name": name,
+            "valid_tensor": False,
+            "type": str(type(tensor)),
+            "error": "Object is not a torch.Tensor.",
+        }
+
     tensor_cpu = tensor.detach().cpu()
 
-    summary = {
+    summary: Dict[str, Any] = {
         "name": name,
+        "valid_tensor": True,
         "shape": list(tensor_cpu.shape),
         "dtype": str(tensor_cpu.dtype),
+        "device": str(tensor_cpu.device),
+        "numel": int(tensor_cpu.numel()),
         "nan_count": (
             int(torch.isnan(tensor_cpu).sum().item())
             if tensor_cpu.is_floating_point()
@@ -95,6 +182,12 @@ def adjacency_stats(A: torch.Tensor) -> Dict[str, Any]:
     """
     Compute graph-level diagnostics for an adjacency matrix.
     """
+    if not torch.is_tensor(A):
+        return {
+            "valid": False,
+            "reason": f"A is not a torch.Tensor. Type={type(A)}",
+        }
+
     A_cpu = A.detach().cpu()
 
     if A_cpu.ndim != 2:
@@ -110,21 +203,24 @@ def adjacency_stats(A: torch.Tensor) -> Dict[str, Any]:
         }
 
     n = A_cpu.shape[0]
-    nonzero = int((A_cpu > 0).sum().item())
+
+    A_binary = A_cpu > 0
+
+    nonzero_entries = int(A_binary.sum().item())
     diag_nonzero = int((torch.diag(A_cpu) > 0).sum().item())
 
-    degree = (A_cpu > 0).sum(dim=1).float()
+    degree = A_binary.sum(dim=1).float()
 
     symmetry_error = float(torch.abs(A_cpu - A_cpu.T).sum().item())
     is_symmetric = symmetry_error == 0.0
 
+    estimated_undirected_edges = nonzero_entries // 2 if is_symmetric else None
+
     return {
         "valid": True,
         "num_nodes": int(n),
-        "nonzero_entries": nonzero,
-        "estimated_undirected_edges_if_symmetric": (
-            nonzero // 2 if is_symmetric else None
-        ),
+        "nonzero_entries": nonzero_entries,
+        "estimated_undirected_edges_if_symmetric": estimated_undirected_edges,
         "diag_nonzero": diag_nonzero,
         "is_symmetric": is_symmetric,
         "symmetry_error": symmetry_error,
@@ -136,34 +232,9 @@ def adjacency_stats(A: torch.Tensor) -> Dict[str, Any]:
     }
 
 
-def load_dataset(path: Path) -> Dict[str, Any]:
-    """
-    Load static graph dataset safely.
-    """
-    if not path.exists():
-        raise FileNotFoundError(f"Dataset file not found: {path}")
-
-    return torch.load(path, map_location="cpu", weights_only=False)
-
-
-def sort_universe_ids(keys: List[Any]) -> List[Any]:
-    """
-    Sort universe IDs like LH_0, LH_1, ..., LH_100.
-    """
-    def key_fn(x: Any):
-        text = str(x)
-        if "_" in text:
-            try:
-                return int(text.split("_")[-1])
-            except ValueError:
-                return text
-        try:
-            return int(text)
-        except ValueError:
-            return text
-
-    return sorted(keys, key=key_fn)
-
+# ============================================================
+# Metadata validation
+# ============================================================
 
 def validate_metadata(
     universe_id: str,
@@ -180,6 +251,8 @@ def validate_metadata(
     errors: List[str] = []
     warnings: List[str] = []
 
+    snapshot_meta = sample.get("snapshot")
+
     metadata_report = {
         "preprocessing_version": sample.get("preprocessing_version"),
         "feature_names": sample.get("feature_names"),
@@ -190,11 +263,16 @@ def validate_metadata(
         "graph_mode": sample.get("graph_mode"),
         "preferred_snapshot": sample.get("preferred_snapshot"),
         "actual_snapshot_value": sample.get("actual_snapshot_value"),
+        "exact_preferred_snapshot_match": sample.get("exact_preferred_snapshot_match"),
         "periodic_boundary": sample.get("periodic_boundary"),
         "periodic_boundary_knn": sample.get("periodic_boundary_knn"),
         "box_size": sample.get("box_size"),
+        "snapshot_metadata_exists": isinstance(snapshot_meta, dict),
     }
 
+    # --------------------------------------------------------
+    # Top-level metadata checks
+    # --------------------------------------------------------
     if sample.get("preprocessing_version") != PREPROCESSING_VERSION:
         errors.append(
             f"{universe_id}: preprocessing_version={sample.get('preprocessing_version')} "
@@ -253,8 +331,15 @@ def validate_metadata(
             warnings.append(
                 f"{universe_id}: actual_snapshot_value={actual_snapshot}, "
                 f"preferred was {expected_preferred_snapshot}. "
-                "This may be okay only if preferred snapshot was unavailable."
+                "This is acceptable only if the preferred snapshot was unavailable."
             )
+
+    exact_match = sample.get("exact_preferred_snapshot_match")
+    if exact_match is False:
+        warnings.append(
+            f"{universe_id}: exact_preferred_snapshot_match=False. "
+            "Static graph was built from a fallback snapshot."
+        )
 
     if sample.get("periodic_boundary") != expected_periodic_boundary:
         errors.append(
@@ -264,6 +349,7 @@ def validate_metadata(
 
     if expected_graph_mode == "knn":
         expected_periodic_knn = bool(expected_periodic_boundary)
+
         if sample.get("periodic_boundary_knn") != expected_periodic_knn:
             errors.append(
                 f"{universe_id}: periodic_boundary_knn="
@@ -281,13 +367,29 @@ def validate_metadata(
                 f"!= expected {expected_box_size}"
             )
 
-    snapshot_meta = sample.get("snapshot")
+    # --------------------------------------------------------
+    # Nested snapshot metadata checks
+    # --------------------------------------------------------
     if isinstance(snapshot_meta, dict):
         if snapshot_meta.get("preprocessing_version") != PREPROCESSING_VERSION:
             errors.append(
                 f"{universe_id}: snapshot metadata preprocessing_version="
                 f"{snapshot_meta.get('preprocessing_version')} "
                 f"!= {PREPROCESSING_VERSION}"
+            )
+
+        if snapshot_meta.get("feature_names") != FEATURE_NAMES:
+            errors.append(
+                f"{universe_id}: snapshot metadata feature_names="
+                f"{snapshot_meta.get('feature_names')} "
+                f"!= {FEATURE_NAMES}"
+            )
+
+        if snapshot_meta.get("mass_feature") != "log10_Mvir":
+            errors.append(
+                f"{universe_id}: snapshot metadata mass_feature="
+                f"{snapshot_meta.get('mass_feature')} "
+                "!= log10_Mvir"
             )
 
         if snapshot_meta.get("periodic_boundary") != expected_periodic_boundary:
@@ -299,17 +401,29 @@ def validate_metadata(
 
         if expected_graph_mode == "knn":
             expected_periodic_knn = bool(expected_periodic_boundary)
+
             if snapshot_meta.get("periodic_boundary_knn") != expected_periodic_knn:
                 errors.append(
                     f"{universe_id}: snapshot metadata periodic_boundary_knn="
                     f"{snapshot_meta.get('periodic_boundary_knn')} "
                     f"!= {expected_periodic_knn}"
                 )
+
+        snapshot_exact = snapshot_meta.get("exact_preferred_snapshot_match")
+        if snapshot_exact is False:
+            warnings.append(
+                f"{universe_id}: nested snapshot exact_preferred_snapshot_match=False."
+            )
+
     else:
         warnings.append(f"{universe_id}: snapshot metadata missing or not a dict")
 
     return errors, warnings, metadata_report
 
+
+# ============================================================
+# Per-universe validation
+# ============================================================
 
 def validate_one_universe(
     universe_id: str,
@@ -362,12 +476,30 @@ def validate_one_universe(
     mask = sample["mask"]
     target = sample["target"]
 
+    # --------------------------------------------------------
+    # Tensor type checks
+    # --------------------------------------------------------
+    if not torch.is_tensor(A):
+        errors.append(f"{universe_id}: A is not a torch.Tensor. Got {type(A)}")
+
+    if not torch.is_tensor(X):
+        errors.append(f"{universe_id}: X is not a torch.Tensor. Got {type(X)}")
+
+    if not torch.is_tensor(mask):
+        errors.append(f"{universe_id}: mask is not a torch.Tensor. Got {type(mask)}")
+
+    if not torch.is_tensor(A) or not torch.is_tensor(X) or not torch.is_tensor(mask):
+        return errors, report
+
     report["target"] = safe_float(target)
     report["A"] = tensor_summary("A", A)
     report["X"] = tensor_summary("X", X)
     report["mask"] = tensor_summary("mask", mask)
     report["graph"] = adjacency_stats(A)
 
+    # --------------------------------------------------------
+    # Shape checks
+    # --------------------------------------------------------
     if tuple(A.shape) != (expected_nodes, expected_nodes):
         errors.append(
             f"{universe_id}: A shape {tuple(A.shape)} != "
@@ -386,7 +518,11 @@ def validate_one_universe(
             f"({expected_nodes}, 1)"
         )
 
+    # --------------------------------------------------------
+    # Target checks
+    # --------------------------------------------------------
     target_value = safe_float(target)
+
     if target_value is None:
         errors.append(f"{universe_id}: target is not convertible to float")
     else:
@@ -395,6 +531,9 @@ def validate_one_universe(
                 f"{universe_id}: target value looks unusual for Omega_m: {target_value}"
             )
 
+    # --------------------------------------------------------
+    # NaN / Inf checks
+    # --------------------------------------------------------
     if X.is_floating_point():
         if torch.isnan(X).any():
             errors.append(f"{universe_id}: X contains NaN values")
@@ -413,6 +552,9 @@ def validate_one_universe(
         if torch.isinf(mask).any():
             errors.append(f"{universe_id}: mask contains Inf values")
 
+    # --------------------------------------------------------
+    # Adjacency graph checks
+    # --------------------------------------------------------
     graph_info = report["graph"]
 
     if graph_info.get("valid"):
@@ -431,28 +573,58 @@ def validate_one_universe(
             warnings.append(
                 f"{universe_id}: adjacency has {graph_info['diag_nonzero']} self-loops"
             )
+
+        if expected_graph_mode == "knn":
+            degree_mean = graph_info.get("degree_mean")
+            if degree_mean is not None and degree_mean <= 0:
+                errors.append(f"{universe_id}: kNN graph has invalid mean degree")
+
     else:
         errors.append(f"{universe_id}: invalid adjacency: {graph_info.get('reason')}")
 
+    # --------------------------------------------------------
+    # Normalization checks
+    # --------------------------------------------------------
     if normalization == "minmax":
         x_min = float(X.min().item())
         x_max = float(X.max().item())
 
         tolerance = 1e-5
+
         if x_min < -tolerance or x_max > 1.0 + tolerance:
             errors.append(
                 f"{universe_id}: normalization=minmax but X range is "
                 f"[{x_min}, {x_max}], expected approximately [0, 1]"
             )
 
+    # --------------------------------------------------------
+    # Mask checks
+    # --------------------------------------------------------
     real_nodes = int(mask.sum().item())
     report["real_nodes"] = real_nodes
 
     if real_nodes <= 0:
         errors.append(f"{universe_id}: mask indicates zero real nodes")
 
+    if real_nodes > expected_nodes:
+        errors.append(
+            f"{universe_id}: mask real nodes {real_nodes} > expected_nodes {expected_nodes}"
+        )
+
+    mask_unique = sorted(torch.unique(mask.detach().cpu()).tolist())
+    report["mask_unique_values"] = mask_unique
+
+    if not set(mask_unique).issubset({0.0, 1.0}):
+        warnings.append(
+            f"{universe_id}: mask contains values other than 0/1: {mask_unique}"
+        )
+
     return errors, report
 
+
+# ============================================================
+# Dataset-level validation
+# ============================================================
 
 def validate_dataset(
     dataset: Dict[str, Any],
@@ -470,7 +642,7 @@ def validate_dataset(
     """
     all_errors: List[str] = []
     all_warnings: List[str] = []
-    universe_reports = {}
+    universe_reports: Dict[str, Any] = {}
 
     if not isinstance(dataset, dict):
         raise TypeError(f"Expected dataset to be dict, got {type(dataset)}")
@@ -482,6 +654,10 @@ def validate_dataset(
             f"Number of universes {len(universe_ids)} != expected {expected_universes}"
         )
 
+    target_values: List[float] = []
+    degree_means: List[float] = []
+    edge_counts: List[int] = []
+
     for universe_id in universe_ids:
         sample = dataset[universe_id]
 
@@ -490,7 +666,7 @@ def validate_dataset(
             continue
 
         errors, report = validate_one_universe(
-            universe_id=universe_id,
+            universe_id=str(universe_id),
             sample=sample,
             expected_nodes=expected_nodes,
             expected_features=expected_features,
@@ -503,7 +679,35 @@ def validate_dataset(
 
         all_errors.extend(errors)
         all_warnings.extend(report.get("warnings", []))
-        universe_reports[universe_id] = report
+        universe_reports[str(universe_id)] = report
+
+        target_value = report.get("target")
+        if target_value is not None:
+            target_values.append(float(target_value))
+
+        graph_info = report.get("graph", {})
+        degree_mean = graph_info.get("degree_mean")
+        if degree_mean is not None:
+            degree_means.append(float(degree_mean))
+
+        edge_count = graph_info.get("estimated_undirected_edges_if_symmetric")
+        if edge_count is not None:
+            edge_counts.append(int(edge_count))
+
+    dataset_summary: Dict[str, Any] = {
+        "target_count": len(target_values),
+        "target_min": min(target_values) if target_values else None,
+        "target_max": max(target_values) if target_values else None,
+        "target_mean": sum(target_values) / len(target_values) if target_values else None,
+        "degree_mean_average": (
+            sum(degree_means) / len(degree_means) if degree_means else None
+        ),
+        "edge_count_min": min(edge_counts) if edge_counts else None,
+        "edge_count_max": max(edge_counts) if edge_counts else None,
+        "edge_count_mean": (
+            sum(edge_counts) / len(edge_counts) if edge_counts else None
+        ),
+    }
 
     return {
         "passed": len(all_errors) == 0,
@@ -519,11 +723,16 @@ def validate_dataset(
         "expected_nodes": expected_nodes,
         "expected_features": expected_features,
         "normalization": normalization,
+        "dataset_summary": dataset_summary,
         "errors": all_errors,
         "warnings": all_warnings,
         "universes": universe_reports,
     }
 
+
+# ============================================================
+# Reporting
+# ============================================================
 
 def print_report(report: Dict[str, Any], max_show: int = 5) -> None:
     """
@@ -533,25 +742,39 @@ def print_report(report: Dict[str, Any], max_show: int = 5) -> None:
     print("CAMELS-SIMBA STATIC GRAPH VALIDATION")
     print("=" * 90)
 
-    print(f"Passed:                    {report['passed']}")
-    print(f"Dataset type:              {report['dataset_type']}")
-    print(f"Expected preprocessing:    {report['preprocessing_version_expected']}")
-    print(f"Expected features:         {report['feature_names_expected']}")
-    print(f"Expected graph mode:       {report['expected_graph_mode']}")
-    print(f"Expected snapshot:         {report['expected_preferred_snapshot']}")
-    print(f"Expected periodic boundary:{report['expected_periodic_boundary']}")
-    print(f"Expected box size:         {report['expected_box_size']}")
-    print(f"Universes found:           {report['num_universes_found']}")
-    print(f"Expected universes:        {report['expected_universes']}")
-    print(f"Expected nodes:            {report['expected_nodes']}")
-    print(f"Expected features count:   {report['expected_features']}")
-    print(f"Normalization:             {report['normalization']}")
+    print(f"Passed:                     {report['passed']}")
+    print(f"Dataset type:               {report['dataset_type']}")
+    print(f"Expected preprocessing:     {report['preprocessing_version_expected']}")
+    print(f"Expected features:          {report['feature_names_expected']}")
+    print(f"Expected graph mode:        {report['expected_graph_mode']}")
+    print(f"Expected snapshot:          {report['expected_preferred_snapshot']}")
+    print(f"Expected periodic boundary: {report['expected_periodic_boundary']}")
+    print(f"Expected box size:          {report['expected_box_size']}")
+    print(f"Universes found:            {report['num_universes_found']}")
+    print(f"Expected universes:         {report['expected_universes']}")
+    print(f"Expected nodes:             {report['expected_nodes']}")
+    print(f"Expected features count:    {report['expected_features']}")
+    print(f"Normalization:              {report['normalization']}")
+
+    print("\nDataset summary:")
+    print("-" * 90)
+    summary = report.get("dataset_summary", {})
+    print(f"Target count:               {summary.get('target_count')}")
+    print(f"Target min:                 {summary.get('target_min')}")
+    print(f"Target max:                 {summary.get('target_max')}")
+    print(f"Target mean:                {summary.get('target_mean')}")
+    print(f"Average degree mean:        {summary.get('degree_mean_average')}")
+    print(f"Edge count min:             {summary.get('edge_count_min')}")
+    print(f"Edge count max:             {summary.get('edge_count_max')}")
+    print(f"Edge count mean:            {summary.get('edge_count_mean')}")
 
     print("\nErrors:")
     print("-" * 90)
+
     if report["errors"]:
         for err in report["errors"][:50]:
             print(f"❌ {err}")
+
         if len(report["errors"]) > 50:
             print(f"... and {len(report['errors']) - 50} more errors")
     else:
@@ -559,9 +782,11 @@ def print_report(report: Dict[str, Any], max_show: int = 5) -> None:
 
     print("\nWarnings:")
     print("-" * 90)
+
     if report["warnings"]:
         for warn in report["warnings"][:50]:
             print(f"⚠️ {warn}")
+
         if len(report["warnings"]) > 50:
             print(f"... and {len(report['warnings']) - 50} more warnings")
     else:
@@ -571,6 +796,7 @@ def print_report(report: Dict[str, Any], max_show: int = 5) -> None:
     print("-" * 90)
 
     shown = 0
+
     for universe_id, u_report in report["universes"].items():
         if shown >= max_show:
             break
@@ -582,32 +808,40 @@ def print_report(report: Dict[str, Any], max_show: int = 5) -> None:
         mask_summary = u_report.get("mask", {})
 
         print(f"\nUniverse: {universe_id}")
-        print(f"  Target Omega_m:       {u_report.get('target')}")
-        print(f"  Preprocessing:        {metadata.get('preprocessing_version')}")
-        print(f"  Mass feature:         {metadata.get('mass_feature')}")
-        print(f"  Preferred snapshot:   {metadata.get('preferred_snapshot')}")
-        print(f"  Actual snapshot:      {metadata.get('actual_snapshot_value')}")
-        print(f"  Periodic boundary:    {metadata.get('periodic_boundary')}")
-        print(f"  Periodic kNN:         {metadata.get('periodic_boundary_knn')}")
-        print(f"  Box size:             {metadata.get('box_size')}")
-        print(f"  A shape:              {a_summary.get('shape')}")
-        print(f"  X shape:              {x_summary.get('shape')}")
-        print(f"  mask shape:           {mask_summary.get('shape')}")
+        print(f"  Target Omega_m:          {u_report.get('target')}")
+        print(f"  Preprocessing:           {metadata.get('preprocessing_version')}")
+        print(f"  Mass feature:            {metadata.get('mass_feature')}")
+        print(f"  Preferred snapshot:      {metadata.get('preferred_snapshot')}")
+        print(f"  Actual snapshot:         {metadata.get('actual_snapshot_value')}")
+        print(f"  Exact snapshot match:    {metadata.get('exact_preferred_snapshot_match')}")
+        print(f"  Periodic boundary:       {metadata.get('periodic_boundary')}")
+        print(f"  Periodic kNN:            {metadata.get('periodic_boundary_knn')}")
+        print(f"  Box size:                {metadata.get('box_size')}")
+        print(f"  A shape:                 {a_summary.get('shape')}")
+        print(f"  X shape:                 {x_summary.get('shape')}")
+        print(f"  mask shape:              {mask_summary.get('shape')}")
         print(
-            f"  Degree:               min={graph.get('degree_min')} "
+            f"  Degree:                  min={graph.get('degree_min')} "
             f"mean={graph.get('degree_mean')} "
             f"max={graph.get('degree_max')}"
         )
-        print(f"  X range:              min={x_summary.get('min')} max={x_summary.get('max')}")
-        print(f"  Real nodes:           {u_report.get('real_nodes')}")
+        print(
+            f"  Estimated edges:         "
+            f"{graph.get('estimated_undirected_edges_if_symmetric')}"
+        )
+        print(f"  X range:                 min={x_summary.get('min')} max={x_summary.get('max')}")
+        print(f"  Real nodes:              {u_report.get('real_nodes')}")
+        print(f"  Mask unique values:      {u_report.get('mask_unique_values')}")
 
         shown += 1
 
     print("\n" + "=" * 90)
+
     if report["passed"]:
         print("✅ Validation complete. Static dataset is structurally and scientifically valid.")
     else:
         print("❌ Validation complete. Static dataset has errors that must be fixed.")
+
     print("=" * 90)
 
 
@@ -618,8 +852,12 @@ def save_report(report: Dict[str, Any], output_path: Path) -> None:
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
     with output_path.open("w", encoding="utf-8") as f:
-        json.dump(report, f, indent=2)
+        json.dump(json_safe(report), f, indent=2)
 
+
+# ============================================================
+# CLI
+# ============================================================
 
 def main() -> None:
     parser = argparse.ArgumentParser(
