@@ -10,7 +10,8 @@ Purpose
 This script creates one static graph per universe using ONE selected snapshot,
 usually the final snapshot at scale factor a = 1.00000.
 
-This is used for the static baseline comparison against temporal models.
+This static dataset is used as the graph-based baseline before training
+temporal models such as EvolveGCN-H.
 
 Static sample format:
 
@@ -31,7 +32,7 @@ Official preprocessing:
     v2_logmass_minmax_top100_periodic_knn
 
 Node selection:
-    top num_nodes halos by raw Mvir
+    Top num_nodes halos by raw Mvir
 
 Node features:
     [log10_Mvir, X, Y, Z, VX, VY, VZ]
@@ -43,9 +44,10 @@ Example command:
 
 python -m src.data.build_static_graphs \
   --raw_dir data/raw/CAMELS_SIMBA_100U \
-  --output_path data/processed/static_2u_logmass_minmax_top100_periodic_knn/camels_2u_static_logmass_minmax_top100_periodic_knn.pt \
-  --num_universes 2 \
+  --output_path data/processed/static_20u_logmass_minmax_top100_periodic_knn/camels_20u_static_logmass_minmax_top100_periodic_knn.pt \
+  --num_universes 20 \
   --num_nodes 100 \
+  --preferred_snapshot 1.0 \
   --normalization minmax \
   --graph_mode knn \
   --k 8 \
@@ -58,7 +60,7 @@ python -m src.data.build_static_graphs \
 import argparse
 import json
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Tuple, Any
 
 import pandas as pd
 import torch
@@ -77,15 +79,20 @@ from src.data.camels_graph_utils import (
 )
 
 
+# ============================================================
+# Small utilities
+# ============================================================
+
 def parse_universe_id(value: object) -> int:
     """
     Convert universe identifiers into integer IDs.
 
     Supported examples:
-        0       -> 0
-        "0"     -> 0
-        "LH_0"  -> 0
-        "lh_0"  -> 0
+        0        -> 0
+        "0"      -> 0
+        "LH_0"   -> 0
+        "lh_0"   -> 0
+        " LH_0 " -> 0
     """
     value_str = str(value).strip()
 
@@ -98,9 +105,12 @@ def parse_universe_id(value: object) -> int:
 def find_column(df: pd.DataFrame, candidates: List[str]) -> str:
     """
     Find a column using flexible candidate names.
+
+    This avoids errors when different scripts save columns as:
+        universe_id, universe_index, Omega_m, omega_m, etc.
     """
     normalized_to_original = {
-        col.strip().lower(): col for col in df.columns
+        str(col).strip().lower(): col for col in df.columns
     }
 
     for candidate in candidates:
@@ -109,18 +119,47 @@ def find_column(df: pd.DataFrame, candidates: List[str]) -> str:
             return normalized_to_original[key]
 
     raise ValueError(
-        f"None of the expected columns were found.\n"
+        "Could not find expected column.\n"
         f"Expected one of: {candidates}\n"
         f"Actual columns: {list(df.columns)}"
     )
 
 
+def safe_tensor_cpu(tensor: torch.Tensor) -> torch.Tensor:
+    """
+    Save tensors on CPU for portability.
+
+    Even if processing happens on GPU later, saved datasets should be CPU-based
+    so they can be loaded on any machine.
+    """
+    if not torch.is_tensor(tensor):
+        raise TypeError(f"Expected torch.Tensor, got {type(tensor)}")
+
+    return tensor.detach().cpu()
+
+
+def save_json(path: str | Path, data: Dict[str, Any]) -> None:
+    """
+    Save metadata/configuration as JSON.
+    """
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+
+    with path.open("w", encoding="utf-8") as f:
+        json.dump(data, f, indent=2)
+
+
+# ============================================================
+# Target loading
+# ============================================================
+
 def load_targets_csv(path: str | Path) -> Dict[int, float]:
     """
-    Load Omega_m labels from a CSV file.
+    Load real Omega_m labels from a CSV file.
 
     Accepted universe columns:
         universe_id
+        universe_index
         Universe
         universe
         Universe_ID
@@ -133,6 +172,10 @@ def load_targets_csv(path: str | Path) -> Dict[int, float]:
         Omega_M
         target
         Target
+        omega_m_value
+
+    Returns:
+        Dictionary mapping integer universe index -> Omega_m value.
     """
     path = Path(path)
 
@@ -141,10 +184,14 @@ def load_targets_csv(path: str | Path) -> Dict[int, float]:
 
     df = pd.read_csv(path)
 
+    if df.empty:
+        raise ValueError(f"Target CSV is empty: {path}")
+
     universe_col = find_column(
         df,
         candidates=[
             "universe_id",
+            "universe_index",
             "Universe",
             "universe",
             "Universe_ID",
@@ -161,6 +208,7 @@ def load_targets_csv(path: str | Path) -> Dict[int, float]:
             "Omega_M",
             "target",
             "Target",
+            "omega_m_value",
         ],
     )
 
@@ -169,6 +217,12 @@ def load_targets_csv(path: str | Path) -> Dict[int, float]:
     for _, row in df.iterrows():
         universe_id = parse_universe_id(row[universe_col])
         omega_m = float(row[omega_col])
+
+        if not (0.0 < omega_m < 1.0):
+            print(
+                f"WARNING: Omega_m for LH_{universe_id} looks unusual: {omega_m}"
+            )
+
         targets[universe_id] = omega_m
 
     print(f"Loaded {len(targets)} Omega_m targets from: {path}")
@@ -178,21 +232,14 @@ def load_targets_csv(path: str | Path) -> Dict[int, float]:
     return targets
 
 
-def save_json(path: str | Path, data: Dict[str, object]) -> None:
-    """
-    Save metadata/configuration as JSON.
-    """
-    path = Path(path)
-    path.parent.mkdir(parents=True, exist_ok=True)
-
-    with path.open("w", encoding="utf-8") as f:
-        json.dump(data, f, indent=2)
-
+# ============================================================
+# Snapshot selection
+# ============================================================
 
 def choose_static_snapshot_file(
     files: List[Path],
     preferred_snapshot: float = 1.0,
-) -> Path:
+) -> Tuple[Path, float, bool]:
     """
     Choose one snapshot file for the static graph.
 
@@ -202,35 +249,37 @@ def choose_static_snapshot_file(
     If exact preferred snapshot is not found, choose the latest available
     snapshot by scale factor.
 
-    This keeps static baselines comparable and interpretable.
+    Returns:
+        selected_path
+        selected_snapshot_value
+        exact_preferred_match
     """
     if not files:
         raise ValueError("No snapshot files provided.")
 
-    snapshot_pairs = []
+    snapshot_pairs: List[Tuple[Path, float]] = []
+
     for path in files:
         value = parse_snapshot_value(path)
-        snapshot_pairs.append((path, value))
+        if value is not None:
+            snapshot_pairs.append((path, float(value)))
 
-    # First try exact match to preferred snapshot.
-    for path, value in snapshot_pairs:
-        if value is not None and abs(float(value) - float(preferred_snapshot)) < 1e-6:
-            return path
-
-    # Otherwise choose latest available snapshot.
-    valid_pairs = [
-        (path, value)
-        for path, value in snapshot_pairs
-        if value is not None
-    ]
-
-    if not valid_pairs:
+    if not snapshot_pairs:
         raise ValueError("Could not parse snapshot values from files.")
 
-    latest_path, _ = max(valid_pairs, key=lambda item: item[1])
+    # Prefer exact selected snapshot.
+    for path, value in snapshot_pairs:
+        if abs(value - float(preferred_snapshot)) < 1e-6:
+            return path, value, True
 
-    return latest_path
+    # Otherwise choose latest available snapshot.
+    latest_path, latest_value = max(snapshot_pairs, key=lambda item: item[1])
+    return latest_path, latest_value, False
 
+
+# ============================================================
+# Static dataset builder
+# ============================================================
 
 def build_static_dataset(
     raw_dir: str | Path,
@@ -247,20 +296,45 @@ def build_static_dataset(
     targets_csv: Optional[str | Path] = None,
     dummy_target: Optional[float] = None,
     device: str = "cpu",
-) -> Dict[str, object]:
+) -> Dict[str, Any]:
     """
     Build static graph dataset from raw CAMELS-SIMBA halo catalogs.
 
     One universe becomes one final-snapshot graph.
 
-    Returns:
-        dataset dictionary and saves it to output_path.
+    Important:
+        - Node features are normalized.
+        - Graph edges are constructed from raw physical XYZ positions.
+        - Tensors are saved on CPU for portability.
     """
     raw_dir = Path(raw_dir)
     output_path = Path(output_path)
 
     if not raw_dir.exists():
         raise FileNotFoundError(f"Raw directory not found: {raw_dir}")
+
+    if num_universes <= 0:
+        raise ValueError(f"num_universes must be positive. Got: {num_universes}")
+
+    if num_nodes <= 0:
+        raise ValueError(f"num_nodes must be positive. Got: {num_nodes}")
+
+    graph_mode = graph_mode.lower()
+    normalization = normalization.lower()
+
+    if graph_mode not in {"knn", "radius"}:
+        raise ValueError(f"graph_mode must be 'knn' or 'radius'. Got: {graph_mode}")
+
+    if normalization not in {"none", "minmax", "zscore"}:
+        raise ValueError(
+            f"normalization must be 'none', 'minmax', or 'zscore'. Got: {normalization}"
+        )
+
+    if graph_mode == "knn" and k <= 0:
+        raise ValueError(f"k must be positive for kNN graphs. Got: {k}")
+
+    if graph_mode == "radius" and radius is None:
+        raise ValueError("radius must be provided when graph_mode='radius'.")
 
     if periodic_boundary and (box_size is None or box_size <= 0):
         raise ValueError("box_size must be positive when periodic_boundary=True.")
@@ -280,8 +354,12 @@ def build_static_dataset(
             "or --dummy_target for testing only."
         )
 
-    dataset: Dict[str, object] = {}
-    failed_universes = []
+    if dummy_target is not None and not (0.0 < float(dummy_target) < 1.0):
+        print(f"WARNING: dummy_target looks unusual for Omega_m: {dummy_target}")
+
+    dataset: Dict[str, Any] = {}
+    failed_universes: List[Tuple[str, str]] = []
+    snapshot_selection_report: Dict[str, Any] = {}
 
     print("=" * 90)
     print("CAMELS-SIMBA STATIC GRAPH BUILDER")
@@ -297,6 +375,7 @@ def build_static_dataset(
     print(f"k:                     {k}")
     print(f"Radius:                {radius}")
     print(f"Periodic boundary:     {periodic_boundary}")
+    print(f"Periodic kNN:          {bool(periodic_boundary and graph_mode == 'knn')}")
     print(f"Box size:              {box_size}")
     print(f"Device:                {device}")
     print(f"Target mode:           {target_mode}")
@@ -324,12 +403,15 @@ def build_static_dataset(
         universe_key = f"LH_{universe_id}"
 
         if universe_id in targets:
-            target = targets[universe_id]
+            target_value = targets[universe_id]
         else:
-            target = dummy_target
+            target_value = dummy_target
 
-        if target is None:
-            error_message = "Missing Omega_m target"
+        if target_value is None:
+            error_message = (
+                f"Missing Omega_m target for {universe_key}. "
+                f"targets_csv={targets_csv}"
+            )
             failed_universes.append((universe_key, error_message))
             print(f"[FAILED] {universe_key}: {error_message}")
             continue
@@ -340,10 +422,25 @@ def build_static_dataset(
                 universe_id=universe_id,
             )
 
-            snapshot_path = choose_static_snapshot_file(
+            snapshot_path, actual_snapshot_value, exact_match = choose_static_snapshot_file(
                 files=all_files,
                 preferred_snapshot=preferred_snapshot,
             )
+
+            snapshot_selection_report[universe_key] = {
+                "selected_snapshot_path": str(snapshot_path),
+                "preferred_snapshot": preferred_snapshot,
+                "actual_snapshot_value": actual_snapshot_value,
+                "exact_preferred_match": exact_match,
+                "num_available_snapshot_files": len(all_files),
+            }
+
+            if not exact_match:
+                print(
+                    f"WARNING: {universe_key} did not have exact preferred snapshot "
+                    f"{preferred_snapshot}. Using latest available snapshot "
+                    f"{actual_snapshot_value}: {snapshot_path}"
+                )
 
             snapshot = process_snapshot(
                 path=snapshot_path,
@@ -358,9 +455,8 @@ def build_static_dataset(
             )
 
             target_tensor = torch.tensor(
-                float(target),
+                float(target_value),
                 dtype=torch.float32,
-                device=torch.device(device),
             )
 
             # --------------------------------------------------------
@@ -408,7 +504,7 @@ def build_static_dataset(
                     f"Expected: {periodic_boundary}"
                 )
 
-            if graph_mode.lower() == "knn":
+            if graph_mode == "knn":
                 expected_periodic_knn = bool(periodic_boundary)
                 if snapshot.get("periodic_boundary_knn") != expected_periodic_knn:
                     raise ValueError(
@@ -423,9 +519,37 @@ def build_static_dataset(
                     f"{snapshot.get('box_size')}. Expected: {box_size}"
                 )
 
-            A = snapshot["A"]
-            X = snapshot["X"]
-            mask = snapshot["mask"]
+            A = safe_tensor_cpu(snapshot["A"]).float()
+            X = safe_tensor_cpu(snapshot["X"]).float()
+            mask = safe_tensor_cpu(snapshot["mask"]).float()
+            target_tensor = safe_tensor_cpu(target_tensor).float()
+
+            if tuple(A.shape) != (num_nodes, num_nodes):
+                raise ValueError(
+                    f"A shape mismatch for {universe_key}: "
+                    f"{tuple(A.shape)} != ({num_nodes}, {num_nodes})"
+                )
+
+            if tuple(X.shape) != (num_nodes, len(FEATURE_NAMES)):
+                raise ValueError(
+                    f"X shape mismatch for {universe_key}: "
+                    f"{tuple(X.shape)} != ({num_nodes}, {len(FEATURE_NAMES)})"
+                )
+
+            if tuple(mask.shape) != (num_nodes, 1):
+                raise ValueError(
+                    f"mask shape mismatch for {universe_key}: "
+                    f"{tuple(mask.shape)} != ({num_nodes}, 1)"
+                )
+
+            if torch.isnan(X).any() or torch.isinf(X).any():
+                raise ValueError(f"X contains NaN or Inf values for {universe_key}")
+
+            if torch.isnan(A).any() or torch.isinf(A).any():
+                raise ValueError(f"A contains NaN or Inf values for {universe_key}")
+
+            if torch.isnan(mask).any() or torch.isinf(mask).any():
+                raise ValueError(f"mask contains NaN or Inf values for {universe_key}")
 
             dataset[universe_key] = {
                 "A": A,
@@ -452,6 +576,7 @@ def build_static_dataset(
                     "periodic_boundary": snapshot["periodic_boundary"],
                     "periodic_boundary_knn": snapshot["periodic_boundary_knn"],
                     "box_size": snapshot["box_size"],
+                    "exact_preferred_snapshot_match": exact_match,
                 },
                 "feature_columns": FEATURE_COLUMNS,
                 "feature_names": FEATURE_NAMES,
@@ -466,15 +591,17 @@ def build_static_dataset(
                 "num_nodes": num_nodes,
                 "preferred_snapshot": preferred_snapshot,
                 "actual_snapshot_value": snapshot["snapshot_value"],
+                "exact_preferred_snapshot_match": exact_match,
                 "preprocessing_version": PREPROCESSING_VERSION,
                 "periodic_boundary": periodic_boundary,
-                "periodic_boundary_knn": bool(periodic_boundary and graph_mode.lower() == "knn"),
+                "periodic_boundary_knn": bool(periodic_boundary and graph_mode == "knn"),
                 "box_size": box_size,
             }
 
             print(
                 f"[OK] {universe_key} | "
                 f"snapshot={snapshot['snapshot_value']} | "
+                f"exact_snapshot={exact_match} | "
                 f"A={tuple(A.shape)} | "
                 f"X={tuple(X.shape)} | "
                 f"mask={tuple(mask.shape)} | "
@@ -511,13 +638,14 @@ def build_static_dataset(
         "k": k,
         "radius": radius,
         "periodic_boundary": periodic_boundary,
-        "periodic_boundary_knn": bool(periodic_boundary and graph_mode.lower() == "knn"),
+        "periodic_boundary_knn": bool(periodic_boundary and graph_mode == "knn"),
         "box_size": box_size,
         "targets_csv": str(targets_csv) if targets_csv is not None else None,
         "target_mode": target_mode,
         "used_dummy_target": dummy_target is not None,
         "dummy_target": dummy_target,
-        "device": device,
+        "device_used_for_processing": device,
+        "saved_tensors_device": "cpu",
         "feature_names": FEATURE_NAMES,
         "feature_columns": FEATURE_COLUMNS,
         "mass_column": MASS_COLUMN,
@@ -526,6 +654,7 @@ def build_static_dataset(
         "position_columns": POSITION_COLUMNS,
         "velocity_columns": VELOCITY_COLUMNS,
         "graph_positions": "raw_physical_XYZ_before_feature_normalization",
+        "snapshot_selection_report": snapshot_selection_report,
         "failed_universes": failed_universes,
     }
 
@@ -547,8 +676,9 @@ def build_static_dataset(
     print("Graph positions:      raw_physical_XYZ_before_feature_normalization")
     print(f"Preferred snapshot:   {preferred_snapshot}")
     print(f"Periodic boundary:    {periodic_boundary}")
-    print(f"Periodic kNN:         {bool(periodic_boundary and graph_mode.lower() == 'knn')}")
+    print(f"Periodic kNN:         {bool(periodic_boundary and graph_mode == 'knn')}")
     print(f"Box size:             {box_size}")
+    print("Saved tensors device: cpu")
 
     if failed_universes:
         print()
@@ -558,6 +688,10 @@ def build_static_dataset(
 
     return dataset
 
+
+# ============================================================
+# CLI
+# ============================================================
 
 def main() -> None:
     parser = argparse.ArgumentParser(
@@ -590,6 +724,7 @@ def main() -> None:
         type=str,
         default="knn",
         choices=["knn", "radius"],
+        help="Graph construction mode.",
     )
 
     parser.add_argument("--k", type=int, default=8)
@@ -619,7 +754,12 @@ def main() -> None:
     parser.add_argument("--targets_csv", type=str, default=None)
     parser.add_argument("--dummy_target", type=float, default=None)
 
-    parser.add_argument("--device", type=str, default="cpu")
+    parser.add_argument(
+        "--device",
+        type=str,
+        default="cpu",
+        help="Processing device. Recommended: cpu for dataset building.",
+    )
 
     args = parser.parse_args()
 
