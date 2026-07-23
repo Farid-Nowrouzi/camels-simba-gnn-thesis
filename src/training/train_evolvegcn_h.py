@@ -123,9 +123,21 @@ class CamelsTemporalDataset(Dataset):
         self,
         data_dict: Dict[str, Dict[str, Any]],
         universe_ids: List[str],
+        use_summary_features: bool = False,
+        summary_feature_mean: torch.Tensor | None = None,
+        summary_feature_std: torch.Tensor | None = None,
     ) -> None:
         self.data_dict = data_dict
         self.universe_ids = universe_ids
+        self.use_summary_features = use_summary_features
+        self.summary_feature_mean = summary_feature_mean
+        self.summary_feature_std = summary_feature_std
+
+        if (summary_feature_mean is None) != (summary_feature_std is None):
+            raise ValueError(
+                "summary_feature_mean and summary_feature_std must both be "
+                "provided or both be None."
+            )
 
     def __len__(self) -> int:
         return len(self.universe_ids)
@@ -150,7 +162,184 @@ class CamelsTemporalDataset(Dataset):
 
         target = target.float().view(1)
 
+        if self.use_summary_features:
+            summary_features = compute_temporal_summary_features(
+                X_seq=X_seq,
+                mask_seq=mask_seq,
+            )
+
+            if self.summary_feature_mean is not None:
+                summary_features = (
+                    (summary_features - self.summary_feature_mean)
+                    / self.summary_feature_std
+                )
+
+            return universe_id, A_seq, X_seq, mask_seq, target, summary_features
+
         return universe_id, A_seq, X_seq, mask_seq, target
+
+
+def compute_temporal_summary_features(
+    X_seq: torch.Tensor,
+    mask_seq: torch.Tensor,
+) -> torch.Tensor:
+    """
+    Compute the same per-snapshot summary features as the summary baseline.
+
+    For 5 snapshots, this returns 100 features:
+        20 summary statistics per snapshot * 5 snapshots.
+    """
+    features: List[float] = []
+
+    for timestep in range(X_seq.shape[0]):
+        X_t = X_seq[timestep]
+        mask_t = mask_seq[timestep].squeeze(-1) > 0
+
+        valid = X_t[mask_t]
+
+        if valid.shape[0] == 0:
+            features.extend([0.0] * 20)
+            continue
+
+        mass = valid[:, 0]
+        pos = valid[:, 1:4]
+        vel = valid[:, 4:7]
+
+        speed = torch.linalg.norm(vel, dim=1)
+
+        summary = [
+            float(valid.shape[0]),
+
+            float(mass.mean()),
+            float(mass.std(unbiased=False)),
+            float(mass.min()),
+            float(mass.max()),
+            float(torch.quantile(mass, 0.5)),
+
+            float(pos[:, 0].mean()),
+            float(pos[:, 1].mean()),
+            float(pos[:, 2].mean()),
+            float(pos[:, 0].std(unbiased=False)),
+            float(pos[:, 1].std(unbiased=False)),
+            float(pos[:, 2].std(unbiased=False)),
+
+            float(vel[:, 0].mean()),
+            float(vel[:, 1].mean()),
+            float(vel[:, 2].mean()),
+            float(vel[:, 0].std(unbiased=False)),
+            float(vel[:, 1].std(unbiased=False)),
+            float(vel[:, 2].std(unbiased=False)),
+
+            float(speed.mean()),
+            float(speed.std(unbiased=False)),
+        ]
+
+        features.extend(summary)
+
+    return torch.tensor(features, dtype=torch.float32)
+
+
+def compute_summary_feature_scaler(
+    data: Dict[str, Dict[str, Any]],
+    train_ids: List[str],
+    eps: float = 1e-6,
+) -> Tuple[torch.Tensor, torch.Tensor]:
+    """
+    Fit summary-feature normalization statistics on the train split only.
+    """
+    if len(train_ids) == 0:
+        raise ValueError("Cannot compute summary feature scaler with empty train_ids.")
+
+    summary_rows = []
+
+    for universe_id in train_ids:
+        sample = data[universe_id]
+
+        required_keys = ["Nodes_list", "mask_list"]
+        for key in required_keys:
+            if key not in sample:
+                raise KeyError(f"{universe_id}: missing required key {key}")
+
+        X_seq = torch.stack(sample["Nodes_list"], dim=0).float()
+        mask_seq = torch.stack(sample["mask_list"], dim=0).float()
+
+        summary_rows.append(
+            compute_temporal_summary_features(
+                X_seq=X_seq,
+                mask_seq=mask_seq,
+            )
+        )
+
+    summary_matrix = torch.stack(summary_rows, dim=0).float()
+
+    if torch.isnan(summary_matrix).any() or torch.isinf(summary_matrix).any():
+        raise ValueError("Raw train summary features contain NaN or Inf values.")
+
+    mean = summary_matrix.mean(dim=0)
+    std = summary_matrix.std(dim=0, unbiased=False).clamp(min=eps)
+
+    return mean, std
+
+
+def compute_target_scaler(
+    data: Dict[str, Dict[str, Any]],
+    train_ids: List[str],
+    eps: float = 1e-6,
+) -> Tuple[float, float]:
+    """
+    Fit target normalization statistics on the train split only.
+    """
+    if len(train_ids) == 0:
+        raise ValueError("Cannot compute target scaler with empty train_ids.")
+
+    targets = []
+
+    for universe_id in train_ids:
+        sample = data[universe_id]
+
+        if "target" not in sample:
+            raise KeyError(f"{universe_id}: missing required key target")
+
+        target = sample["target"]
+
+        if torch.is_tensor(target):
+            target_value = float(target.detach().cpu().view(-1)[0])
+        else:
+            target_value = float(target)
+
+        targets.append(target_value)
+
+    target_tensor = torch.tensor(targets, dtype=torch.float32)
+
+    if torch.isnan(target_tensor).any() or torch.isinf(target_tensor).any():
+        raise ValueError("Train targets contain NaN or Inf values.")
+
+    target_mean = float(target_tensor.mean().item())
+    target_std = float(target_tensor.std(unbiased=False).clamp(min=eps).item())
+
+    return target_mean, target_std
+
+
+def normalize_target_tensor(
+    target: torch.Tensor,
+    target_mean: float | None,
+    target_std: float | None,
+) -> torch.Tensor:
+    if target_mean is None or target_std is None:
+        return target
+
+    return (target - target_mean) / target_std
+
+
+def denormalize_prediction_tensor(
+    prediction: torch.Tensor,
+    target_mean: float | None,
+    target_std: float | None,
+) -> torch.Tensor:
+    if target_mean is None or target_std is None:
+        return prediction
+
+    return prediction * target_std + target_mean
 
 
 def collate_fn(batch):
@@ -163,6 +352,10 @@ def collate_fn(batch):
     X_seq = torch.stack([item[2] for item in batch], dim=0)
     mask_seq = torch.stack([item[3] for item in batch], dim=0)
     target = torch.stack([item[4] for item in batch], dim=0)
+
+    if len(batch[0]) == 6:
+        summary_features = torch.stack([item[5] for item in batch], dim=0)
+        return universe_ids, A_seq, X_seq, mask_seq, target, summary_features
 
     return universe_ids, A_seq, X_seq, mask_seq, target
 
@@ -269,6 +462,8 @@ def create_loaders(
     train_ratio: float,
     val_ratio: float,
     test_ratio: float,
+    use_summary_features: bool = False,
+    summary_feature_scaler_eps: float = 1e-6,
 ):
     """
     Create train, validation, and test DataLoaders.
@@ -283,9 +478,37 @@ def create_loaders(
         test_ratio=test_ratio,
     )
 
-    train_dataset = CamelsTemporalDataset(data, train_ids)
-    val_dataset = CamelsTemporalDataset(data, val_ids)
-    test_dataset = CamelsTemporalDataset(data, test_ids)
+    summary_feature_mean = None
+    summary_feature_std = None
+
+    if use_summary_features:
+        summary_feature_mean, summary_feature_std = compute_summary_feature_scaler(
+            data=data,
+            train_ids=train_ids,
+            eps=summary_feature_scaler_eps,
+        )
+
+    train_dataset = CamelsTemporalDataset(
+        data_dict=data,
+        universe_ids=train_ids,
+        use_summary_features=use_summary_features,
+        summary_feature_mean=summary_feature_mean,
+        summary_feature_std=summary_feature_std,
+    )
+    val_dataset = CamelsTemporalDataset(
+        data_dict=data,
+        universe_ids=val_ids,
+        use_summary_features=use_summary_features,
+        summary_feature_mean=summary_feature_mean,
+        summary_feature_std=summary_feature_std,
+    )
+    test_dataset = CamelsTemporalDataset(
+        data_dict=data,
+        universe_ids=test_ids,
+        use_summary_features=use_summary_features,
+        summary_feature_mean=summary_feature_mean,
+        summary_feature_std=summary_feature_std,
+    )
 
     train_loader = DataLoader(
         train_dataset,
@@ -308,7 +531,16 @@ def create_loaders(
         collate_fn=collate_fn,
     )
 
-    return train_loader, val_loader, test_loader, train_ids, val_ids, test_ids
+    return (
+        train_loader,
+        val_loader,
+        test_loader,
+        train_ids,
+        val_ids,
+        test_ids,
+        summary_feature_mean,
+        summary_feature_std,
+    )
 
 
 # ============================================================
@@ -320,6 +552,7 @@ def validate_example_batch(
     X_seq: torch.Tensor,
     mask_seq: torch.Tensor,
     target: torch.Tensor,
+    summary_features: torch.Tensor | None = None,
 ) -> None:
     """
     Validate one example batch before training.
@@ -369,6 +602,23 @@ def validate_example_batch(
     if torch.isnan(mask_seq).any() or torch.isinf(mask_seq).any():
         raise ValueError("Example mask_seq contains NaN or Inf values.")
 
+    if summary_features is not None:
+        if summary_features.ndim != 2:
+            raise ValueError(
+                "Expected summary_features [B, S], "
+                f"got {tuple(summary_features.shape)}"
+            )
+
+        if summary_features.shape[0] != batch_a:
+            raise ValueError(
+                "summary_features batch size does not match A_seq batch: "
+                f"summary_features={tuple(summary_features.shape)}, "
+                f"A_seq={tuple(A_seq.shape)}"
+            )
+
+        if torch.isnan(summary_features).any() or torch.isinf(summary_features).any():
+            raise ValueError("Example summary_features contains NaN or Inf values.")
+
 
 def move_batch_to_device(
     A_seq: torch.Tensor,
@@ -376,6 +626,7 @@ def move_batch_to_device(
     mask_seq: torch.Tensor,
     target: torch.Tensor,
     device: torch.device,
+    summary_features: torch.Tensor | None = None,
 ):
     """
     Move batch tensors to selected device.
@@ -385,7 +636,22 @@ def move_batch_to_device(
     mask_seq = mask_seq.to(device)
     target = target.to(device)
 
-    return A_seq, X_seq, mask_seq, target
+    if summary_features is not None:
+        summary_features = summary_features.to(device)
+
+    return A_seq, X_seq, mask_seq, target, summary_features
+
+
+def unpack_batch(batch):
+    """
+    Support the original 5-item batch and the optional 6-item hybrid batch.
+    """
+    if len(batch) == 6:
+        universe_ids, A_seq, X_seq, mask_seq, target, summary_features = batch
+        return universe_ids, A_seq, X_seq, mask_seq, target, summary_features
+
+    universe_ids, A_seq, X_seq, mask_seq, target = batch
+    return universe_ids, A_seq, X_seq, mask_seq, target, None
 
 
 # ============================================================
@@ -399,6 +665,8 @@ def run_one_epoch(
     criterion: nn.Module,
     device: torch.device,
     grad_clip_norm: float,
+    target_mean: float | None = None,
+    target_std: float | None = None,
 ) -> float:
     """
     Run one training epoch.
@@ -408,13 +676,16 @@ def run_one_epoch(
     total_loss = 0.0
     total_samples = 0
 
-    for _, A_seq, X_seq, mask_seq, target in loader:
-        A_seq, X_seq, mask_seq, target = move_batch_to_device(
+    for batch in loader:
+        _, A_seq, X_seq, mask_seq, target, summary_features = unpack_batch(batch)
+
+        A_seq, X_seq, mask_seq, target, summary_features = move_batch_to_device(
             A_seq=A_seq,
             X_seq=X_seq,
             mask_seq=mask_seq,
             target=target,
             device=device,
+            summary_features=summary_features,
         )
 
         optimizer.zero_grad()
@@ -423,9 +694,16 @@ def run_one_epoch(
             A_seq=A_seq,
             X_seq=X_seq,
             mask_seq=mask_seq,
+            summary_features=summary_features,
         )
 
-        loss = criterion(prediction, target)
+        loss_target = normalize_target_tensor(
+            target=target,
+            target_mean=target_mean,
+            target_std=target_std,
+        )
+
+        loss = criterion(prediction, loss_target)
 
         loss.backward()
 
@@ -450,6 +728,8 @@ def evaluate_loss(
     loader: DataLoader,
     criterion: nn.Module,
     device: torch.device,
+    target_mean: float | None = None,
+    target_std: float | None = None,
 ) -> float:
     """
     Evaluate average MSE loss.
@@ -459,22 +739,32 @@ def evaluate_loss(
     total_loss = 0.0
     total_samples = 0
 
-    for _, A_seq, X_seq, mask_seq, target in loader:
-        A_seq, X_seq, mask_seq, target = move_batch_to_device(
+    for batch in loader:
+        _, A_seq, X_seq, mask_seq, target, summary_features = unpack_batch(batch)
+
+        A_seq, X_seq, mask_seq, target, summary_features = move_batch_to_device(
             A_seq=A_seq,
             X_seq=X_seq,
             mask_seq=mask_seq,
             target=target,
             device=device,
+            summary_features=summary_features,
         )
 
         prediction = model(
             A_seq=A_seq,
             X_seq=X_seq,
             mask_seq=mask_seq,
+            summary_features=summary_features,
         )
 
-        loss = criterion(prediction, target)
+        loss_target = normalize_target_tensor(
+            target=target,
+            target_mean=target_mean,
+            target_std=target_std,
+        )
+
+        loss = criterion(prediction, loss_target)
 
         batch_size = target.size(0)
         total_loss += loss.item() * batch_size
@@ -488,6 +778,8 @@ def collect_predictions(
     model: nn.Module,
     loader: DataLoader,
     device: torch.device,
+    target_mean: float | None = None,
+    target_std: float | None = None,
 ) -> List[Dict[str, float | str]]:
     """
     Collect prediction rows for CSV saving.
@@ -496,19 +788,28 @@ def collect_predictions(
 
     rows: List[Dict[str, float | str]] = []
 
-    for universe_ids, A_seq, X_seq, mask_seq, target in loader:
-        A_seq, X_seq, mask_seq, target = move_batch_to_device(
+    for batch in loader:
+        universe_ids, A_seq, X_seq, mask_seq, target, summary_features = unpack_batch(batch)
+
+        A_seq, X_seq, mask_seq, target, summary_features = move_batch_to_device(
             A_seq=A_seq,
             X_seq=X_seq,
             mask_seq=mask_seq,
             target=target,
             device=device,
+            summary_features=summary_features,
         )
 
         prediction = model(
             A_seq=A_seq,
             X_seq=X_seq,
             mask_seq=mask_seq,
+            summary_features=summary_features,
+        )
+        prediction = denormalize_prediction_tensor(
+            prediction=prediction,
+            target_mean=target_mean,
+            target_std=target_std,
         )
 
         prediction_cpu = prediction.detach().cpu().view(-1)
@@ -646,13 +947,17 @@ def train_evolvegcn_h(
     hidden_dim: int = 64,
     num_layers: int = 2,
     dropout: float = 0.2,
+    activation: str = "relu",
     temporal_pooling: str = "mean",
     graph_pooling: str = "mean",
+    head_type: str = "mlp",
     add_self_loops: bool = True,
     train_ratio: float = 0.70,
     val_ratio: float = 0.15,
     test_ratio: float = 0.15,
     grad_clip_norm: float = 1.0,
+    use_summary_features: bool = False,
+    normalize_target: bool = False,
     device_name: str = "auto",
 ) -> Dict[str, Any]:
     """
@@ -692,33 +997,65 @@ def train_evolvegcn_h(
     print(f"Hidden dim:         {hidden_dim}")
     print(f"Num layers:         {num_layers}")
     print(f"Dropout:            {dropout}")
+    print(f"Activation:         {activation}")
     print(f"Temporal pooling:   {temporal_pooling}")
     print(f"Graph pooling:      {graph_pooling}")
+    print(f"Head type:          {head_type}")
     print(f"Add self loops:     {add_self_loops}")
     print(f"Grad clip norm:     {grad_clip_norm}")
+    print(f"Summary features:   {use_summary_features}")
+    print(f"Normalize target:   {normalize_target}")
     print("=" * 90)
 
     data = load_temporal_dataset(dataset_path)
 
-    train_loader, val_loader, test_loader, train_ids, val_ids, test_ids = create_loaders(
+    summary_feature_scaler_eps = 1e-6
+
+    (
+        train_loader,
+        val_loader,
+        test_loader,
+        train_ids,
+        val_ids,
+        test_ids,
+        summary_feature_mean,
+        summary_feature_std,
+    ) = create_loaders(
         data=data,
         seed=seed,
         batch_size=batch_size,
         train_ratio=train_ratio,
         val_ratio=val_ratio,
         test_ratio=test_ratio,
+        use_summary_features=use_summary_features,
+        summary_feature_scaler_eps=summary_feature_scaler_eps,
     )
 
-    _, A_seq, X_seq, mask_seq, target = next(iter(train_loader))
+    target_mean = None
+    target_std = None
+
+    if normalize_target:
+        target_mean, target_std = compute_target_scaler(
+            data=data,
+            train_ids=train_ids,
+        )
+
+    example_batch = next(iter(train_loader))
+    _, A_seq, X_seq, mask_seq, target, summary_features = unpack_batch(example_batch)
 
     validate_example_batch(
         A_seq=A_seq,
         X_seq=X_seq,
         mask_seq=mask_seq,
         target=target,
+        summary_features=summary_features,
     )
 
     _, num_snapshots, num_nodes, node_features = X_seq.shape
+    summary_feature_dim = 0
+
+    if summary_features is not None:
+        summary_feature_dim = int(summary_features.shape[1])
 
     print()
     print("Data summary")
@@ -734,6 +1071,13 @@ def train_evolvegcn_h(
     print(f"Example X_seq:       {tuple(X_seq.shape)}")
     print(f"Example mask_seq:    {tuple(mask_seq.shape)}")
     print(f"Example target:      {tuple(target.shape)}")
+    print(f"Summary features:    {use_summary_features}")
+    print(f"Summary feature dim: {summary_feature_dim}")
+    print(f"Normalize target:    {normalize_target}")
+
+    if normalize_target:
+        print(f"Target mean:         {target_mean:.8f}")
+        print(f"Target std:          {target_std:.8f}")
 
     print()
     print("Split details")
@@ -747,9 +1091,12 @@ def train_evolvegcn_h(
         hidden_dim=hidden_dim,
         num_layers=num_layers,
         dropout=dropout,
+        activation=activation,
         temporal_pooling=temporal_pooling,
         graph_pooling=graph_pooling,
         add_self_loops=add_self_loops,
+        summary_feature_dim=summary_feature_dim,
+        head_type=head_type,
     ).to(device)
 
     criterion = nn.MSELoss()
@@ -790,13 +1137,40 @@ def train_evolvegcn_h(
         "hidden_dim": hidden_dim,
         "num_layers": num_layers,
         "dropout": dropout,
+        "activation": activation,
         "temporal_pooling": temporal_pooling,
         "graph_pooling": graph_pooling,
+        "head_type": head_type,
         "add_self_loops": add_self_loops,
         "train_ratio": train_ratio,
         "val_ratio": val_ratio,
         "test_ratio": test_ratio,
         "grad_clip_norm": grad_clip_norm,
+        "use_summary_features": use_summary_features,
+        "summary_feature_dim": summary_feature_dim,
+        "summary_features_normalized": bool(use_summary_features),
+        "summary_feature_mean": (
+            summary_feature_mean.detach().cpu().tolist()
+            if summary_feature_mean is not None
+            else None
+        ),
+        "summary_feature_std": (
+            summary_feature_std.detach().cpu().tolist()
+            if summary_feature_std is not None
+            else None
+        ),
+        "summary_feature_scaler_source": (
+            "train_split_only" if use_summary_features else None
+        ),
+        "summary_feature_scaler_eps": (
+            summary_feature_scaler_eps if use_summary_features else None
+        ),
+        "normalize_target": normalize_target,
+        "target_mean": target_mean,
+        "target_std": target_std,
+        "target_scaler_source": (
+            "train_split_only" if normalize_target else None
+        ),
         "device": str(device),
         "num_total_universes": len(data),
         "num_train_universes": len(train_ids),
@@ -832,6 +1206,8 @@ def train_evolvegcn_h(
             criterion=criterion,
             device=device,
             grad_clip_norm=grad_clip_norm,
+            target_mean=target_mean,
+            target_std=target_std,
         )
 
         val_mse = evaluate_loss(
@@ -839,6 +1215,8 @@ def train_evolvegcn_h(
             loader=val_loader,
             criterion=criterion,
             device=device,
+            target_mean=target_mean,
+            target_std=target_std,
         )
 
         scheduler.step(val_mse)
@@ -905,9 +1283,27 @@ def train_evolvegcn_h(
 
     model.load_state_dict(checkpoint["model_state_dict"])
 
-    train_rows = collect_predictions(model, train_loader, device)
-    val_rows = collect_predictions(model, val_loader, device)
-    test_rows = collect_predictions(model, test_loader, device)
+    train_rows = collect_predictions(
+        model,
+        train_loader,
+        device,
+        target_mean=target_mean,
+        target_std=target_std,
+    )
+    val_rows = collect_predictions(
+        model,
+        val_loader,
+        device,
+        target_mean=target_mean,
+        target_std=target_std,
+    )
+    test_rows = collect_predictions(
+        model,
+        test_loader,
+        device,
+        target_mean=target_mean,
+        target_std=target_std,
+    )
 
     train_metrics = compute_metrics(train_rows)
     val_metrics = compute_metrics(val_rows)
@@ -971,6 +1367,14 @@ def main() -> None:
     parser.add_argument("--dropout", type=float, default=0.2)
 
     parser.add_argument(
+        "--activation",
+        type=str,
+        default="relu",
+        choices=["relu", "leaky_relu", "elu"],
+        help="Activation function used inside EvolveGCN-H layers.",
+    )
+
+    parser.add_argument(
         "--temporal_pooling",
         type=str,
         default="mean",
@@ -981,7 +1385,15 @@ def main() -> None:
         "--graph_pooling",
         type=str,
         default="mean",
-        choices=["mean", "sum"],
+        choices=["mean", "sum", "mean_max"],
+    )
+
+    parser.add_argument(
+        "--head_type",
+        type=str,
+        default="mlp",
+        choices=["mlp", "linear"],
+        help="Regression head type after graph/temporal pooling.",
     )
 
     parser.add_argument(
@@ -1005,6 +1417,18 @@ def main() -> None:
     parser.add_argument("--grad_clip_norm", type=float, default=1.0)
 
     parser.add_argument(
+        "--use_summary_features",
+        action="store_true",
+        help="Concatenate universe-level summary features with the EvolveGCN-H embedding.",
+    )
+
+    parser.add_argument(
+        "--normalize_target",
+        action="store_true",
+        help="Train on train-split normalized targets and report metrics in original scale.",
+    )
+
+    parser.add_argument(
         "--device",
         type=str,
         default="auto",
@@ -1026,13 +1450,17 @@ def main() -> None:
         hidden_dim=args.hidden_dim,
         num_layers=args.num_layers,
         dropout=args.dropout,
+        activation=args.activation,
         temporal_pooling=args.temporal_pooling,
         graph_pooling=args.graph_pooling,
+        head_type=args.head_type,
         add_self_loops=args.add_self_loops,
         train_ratio=args.train_ratio,
         val_ratio=args.val_ratio,
         test_ratio=args.test_ratio,
         grad_clip_norm=args.grad_clip_norm,
+        use_summary_features=args.use_summary_features,
+        normalize_target=args.normalize_target,
         device_name=args.device,
     )
 

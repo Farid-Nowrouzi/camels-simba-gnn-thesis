@@ -37,7 +37,6 @@ from typing import Literal, Optional
 
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
 
 
 # ============================================================
@@ -230,6 +229,7 @@ class EvolveGCNHLayer(nn.Module):
         in_features: int,
         out_features: int,
         activation: bool = True,
+        activation_name: Literal["relu", "leaky_relu", "elu"] = "relu",
         dropout: float = 0.0,
         add_self_loops: bool = True,
     ) -> None:
@@ -244,12 +244,19 @@ class EvolveGCNHLayer(nn.Module):
         if not 0.0 <= dropout < 1.0:
             raise ValueError("dropout must be in the range [0, 1).")
 
+        if activation_name not in {"relu", "leaky_relu", "elu"}:
+            raise ValueError(
+                "activation_name must be one of: 'relu', 'leaky_relu', 'elu'."
+            )
+
         self.in_features = in_features
         self.out_features = out_features
         self.activation = activation
+        self.activation_name = activation_name
         self.add_self_loops = add_self_loops
 
         self.dropout = nn.Dropout(dropout)
+        self.activation_layer = self._build_activation_layer(activation_name)
 
         self.weight_size = in_features * out_features
 
@@ -268,6 +275,21 @@ class EvolveGCNHLayer(nn.Module):
         )
 
         self.reset_parameters()
+
+    @staticmethod
+    def _build_activation_layer(
+        activation_name: Literal["relu", "leaky_relu", "elu"],
+    ) -> nn.Module:
+        if activation_name == "relu":
+            return nn.ReLU()
+
+        if activation_name == "leaky_relu":
+            return nn.LeakyReLU(negative_slope=0.01)
+
+        if activation_name == "elu":
+            return nn.ELU()
+
+        raise ValueError(f"Unknown activation_name: {activation_name}")
 
     def reset_parameters(self) -> None:
         """
@@ -360,7 +382,7 @@ class EvolveGCNHLayer(nn.Module):
             H_t = torch.bmm(A_norm_t, support) + self.bias
 
             if self.activation:
-                H_t = F.relu(H_t)
+                H_t = self.activation_layer(H_t)
 
             H_t = self.dropout(H_t)
 
@@ -405,9 +427,12 @@ class EvolveGCNHRegressor(nn.Module):
         hidden_dim: int = 64,
         num_layers: int = 2,
         dropout: float = 0.2,
+        activation: Literal["relu", "leaky_relu", "elu"] = "relu",
         temporal_pooling: Literal["mean", "last"] = "mean",
-        graph_pooling: Literal["mean", "sum"] = "mean",
+        graph_pooling: Literal["mean", "sum", "mean_max"] = "mean",
         add_self_loops: bool = True,
+        summary_feature_dim: int = 0,
+        head_type: Literal["mlp", "linear"] = "mlp",
     ) -> None:
         super().__init__()
 
@@ -423,19 +448,33 @@ class EvolveGCNHRegressor(nn.Module):
         if not 0.0 <= dropout < 1.0:
             raise ValueError("dropout must be in the range [0, 1).")
 
+        if activation not in {"relu", "leaky_relu", "elu"}:
+            raise ValueError("activation must be one of: 'relu', 'leaky_relu', 'elu'.")
+
         if temporal_pooling not in {"mean", "last"}:
             raise ValueError("temporal_pooling must be either 'mean' or 'last'.")
 
-        if graph_pooling not in {"mean", "sum"}:
-            raise ValueError("graph_pooling must be either 'mean' or 'sum'.")
+        if graph_pooling not in {"mean", "sum", "mean_max"}:
+            raise ValueError(
+                "graph_pooling must be one of: 'mean', 'sum', 'mean_max'."
+            )
+
+        if summary_feature_dim < 0:
+            raise ValueError("summary_feature_dim must be non-negative.")
+
+        if head_type not in {"mlp", "linear"}:
+            raise ValueError("head_type must be either 'mlp' or 'linear'.")
 
         self.node_features = node_features
         self.hidden_dim = hidden_dim
         self.num_layers = num_layers
         self.dropout_rate = dropout
+        self.activation = activation
         self.temporal_pooling = temporal_pooling
         self.graph_pooling = graph_pooling
         self.add_self_loops = add_self_loops
+        self.summary_feature_dim = summary_feature_dim
+        self.head_type = head_type
 
         layers = []
 
@@ -447,6 +486,7 @@ class EvolveGCNHRegressor(nn.Module):
                     in_features=in_dim,
                     out_features=hidden_dim,
                     activation=True,
+                    activation_name=activation,
                     dropout=dropout,
                     add_self_loops=add_self_loops,
                 )
@@ -454,18 +494,24 @@ class EvolveGCNHRegressor(nn.Module):
 
         self.layers = nn.ModuleList(layers)
 
-        self.regressor = nn.Sequential(
-            nn.Linear(hidden_dim, hidden_dim),
-            nn.ReLU(),
-            nn.Dropout(dropout),
-            nn.Linear(hidden_dim, 1),
-        )
+        graph_embedding_dim = hidden_dim * 2 if graph_pooling == "mean_max" else hidden_dim
+        regressor_input_dim = graph_embedding_dim + summary_feature_dim
+
+        if head_type == "linear":
+            self.regressor = nn.Linear(regressor_input_dim, 1)
+        else:
+            self.regressor = nn.Sequential(
+                nn.Linear(regressor_input_dim, hidden_dim),
+                nn.ReLU(),
+                nn.Dropout(dropout),
+                nn.Linear(hidden_dim, 1),
+            )
 
     @staticmethod
     def masked_graph_pool(
         X_seq: torch.Tensor,
         mask_seq: Optional[torch.Tensor] = None,
-        mode: Literal["mean", "sum"] = "mean",
+        mode: Literal["mean", "sum", "mean_max"] = "mean",
     ) -> torch.Tensor:
         """
         Pool node embeddings into graph embeddings for each time step.
@@ -478,18 +524,22 @@ class EvolveGCNHRegressor(nn.Module):
                 Optional node mask sequence [B, T, N, 1].
 
             mode:
-                'mean' or 'sum'.
+                'mean', 'sum', or 'mean_max'.
 
         Returns:
             graph_seq:
-                Graph embedding sequence [B, T, H].
+                Graph embedding sequence [B, T, H], or [B, T, 2H] for mean_max.
         """
-        if mode not in {"mean", "sum"}:
-            raise ValueError("mode must be either 'mean' or 'sum'.")
+        if mode not in {"mean", "sum", "mean_max"}:
+            raise ValueError("mode must be one of: 'mean', 'sum', 'mean_max'.")
 
         if mask_seq is None:
             if mode == "sum":
                 return X_seq.sum(dim=2)
+            if mode == "mean_max":
+                mean_pool = X_seq.mean(dim=2)
+                max_pool = X_seq.max(dim=2).values
+                return torch.cat([mean_pool, max_pool], dim=-1)
             return X_seq.mean(dim=2)
 
         mask_seq = mask_seq.float()
@@ -501,8 +551,15 @@ class EvolveGCNHRegressor(nn.Module):
             return summed
 
         denominator = mask_seq.sum(dim=2).clamp(min=1.0)
+        mean_pool = summed / denominator
 
-        return summed / denominator
+        if mode == "mean_max":
+            very_negative = torch.finfo(X_seq.dtype).min
+            max_input = X_seq.masked_fill(mask_seq <= 0, very_negative)
+            max_pool = max_input.max(dim=2).values
+            return torch.cat([mean_pool, max_pool], dim=-1)
+
+        return mean_pool
 
     def temporal_pool(
         self,
@@ -532,6 +589,7 @@ class EvolveGCNHRegressor(nn.Module):
         A_seq: torch.Tensor,
         X_seq: torch.Tensor,
         mask_seq: Optional[torch.Tensor] = None,
+        summary_features: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
         """
         Forward pass.
@@ -545,6 +603,9 @@ class EvolveGCNHRegressor(nn.Module):
 
             mask_seq:
                 Optional node mask sequence [B, T, N, 1].
+
+            summary_features:
+                Optional universe-level summary features [B, S].
 
         Returns:
             prediction:
@@ -573,6 +634,42 @@ class EvolveGCNHRegressor(nn.Module):
         )
 
         universe_embedding = self.temporal_pool(graph_seq)
+
+        if self.summary_feature_dim > 0:
+            if summary_features is None:
+                raise ValueError(
+                    "summary_features must be provided when "
+                    "summary_feature_dim > 0."
+                )
+
+            if summary_features.dim() != 2:
+                raise ValueError(
+                    "Expected summary_features with shape [B, S], "
+                    f"got {tuple(summary_features.shape)}"
+                )
+
+            if summary_features.shape[0] != universe_embedding.shape[0]:
+                raise ValueError(
+                    "summary_features batch size does not match graph batch: "
+                    f"summary_features={tuple(summary_features.shape)}, "
+                    f"universe_embedding={tuple(universe_embedding.shape)}"
+                )
+
+            if summary_features.shape[1] != self.summary_feature_dim:
+                raise ValueError(
+                    f"Expected summary feature dim {self.summary_feature_dim}, "
+                    f"got {summary_features.shape[1]}"
+                )
+
+            universe_embedding = torch.cat(
+                [universe_embedding, summary_features.float()],
+                dim=-1,
+            )
+
+        elif summary_features is not None:
+            raise ValueError(
+                "summary_features were provided, but summary_feature_dim is 0."
+            )
 
         prediction = self.regressor(universe_embedding)
 
