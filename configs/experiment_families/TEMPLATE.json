@@ -1,0 +1,137 @@
+{
+  "schema_version": "1.0",
+  "family_id": "replace_with_stable_family_id",
+  "family_title": "Replace with a concise controlled-family title",
+  "scientific_question": "State one question answered by changing only the grouping field.",
+  "model_name": "Verified model label",
+  "training_module": "verified.python.training.module",
+  "output_root": "experiments",
+  "expected_artifacts": [
+    "config.json",
+    "metrics.json",
+    "train_log.csv",
+    "predictions/test_predictions.csv",
+    "checkpoints/best_model.pt"
+  ],
+  "fixed_scientific_settings": {
+    "config": {
+      "replace_with_verified_config_field": "replace_with_verified_value"
+    },
+    "legacy_config_defaults": {},
+    "dataset_metadata": {
+      "replace_with_verified_metadata_field": "replace_with_verified_value"
+    }
+  },
+  "allowed_varying_fields": [
+    "replace_with_grouping_field",
+    "seed",
+    "dataset_path",
+    "experiment_name",
+    "experiment_path",
+    "train_ids",
+    "val_ids",
+    "test_ids"
+  ],
+  "required_seeds": [
+    42,
+    123,
+    2025
+  ],
+  "grouping_field": "replace_with_universes_top_n_k_normalization_or_pooling",
+  "grouping_values": [
+    "replace_with_verified_group_value"
+  ],
+  "grouping_config_field": "replace_with_matching_config_field",
+  "grouping_metadata_field": "replace_with_matching_metadata_field_or_remove",
+  "aggregation_metrics": [
+    "test_mae",
+    "test_rmse",
+    "test_r2",
+    "test_pearson"
+  ],
+  "prediction_file": "predictions/test_predictions.csv",
+  "target_column_aliases": [
+    "true_omega_m",
+    "target",
+    "y_true"
+  ],
+  "prediction_column_aliases": [
+    "pred_omega_m",
+    "prediction",
+    "y_pred"
+  ],
+  "metric_tolerance": 0.000001,
+  "registry": {
+    "experiments_root": "experiments",
+    "report_directory": "reports/experiment_registry"
+  },
+  "results": {
+    "default_output_directory": "reports/experiment_registry/replace_with_family_results",
+    "seed_results_filename": "seed_level_results.csv",
+    "aggregated_results_filename": "aggregated_results.csv",
+    "plotting_data_filename": "plotting_data.csv",
+    "markdown_report_filename": "scientific_report.md",
+    "figure_filename": "family_figure.png"
+  },
+  "figure": {
+    "x_axis_field": "replace_with_grouping_field",
+    "x_axis_label": "Replace with x-axis label",
+    "y_metric": "mean_test_mae",
+    "y_error_metric": "std_test_mae",
+    "y_axis_label": "Mean Test MAE",
+    "title": "Replace with figure title",
+    "use_error_bars": true,
+    "caption": "Mean across independent seeds; error bars are sample standard deviation."
+  },
+  "runner": {
+    "log_directory": "logs/replace_with_family_id",
+    "argument_order": [
+      {
+        "name": "replace_with_argument_name",
+        "flag": "--replace_with_flag",
+        "value": "replace_with_exact_cli_value"
+      }
+    ]
+  },
+  "runs": [
+    {
+      "group_value": "replace_with_verified_group_value",
+      "seed": 42,
+      "dataset_path": "replace_with_verified_repo_relative_dataset_path",
+      "experiment_name": "replace_with_unique_experiment_name",
+      "experiment_path": "experiments/replace_with_unique_experiment_name",
+      "origin": "planned_new",
+      "action": "run_if_missing",
+      "canonical_reference_experiment": "",
+      "exclusion_reason": "",
+      "argument_overrides": {},
+      "notes": "Never populate a path or scientific value without auditing it."
+    },
+    {
+      "group_value": "replace_with_verified_group_value",
+      "seed": 123,
+      "dataset_path": "replace_with_verified_repo_relative_dataset_path",
+      "experiment_name": "replace_with_unique_experiment_name_seed123",
+      "experiment_path": "experiments/replace_with_unique_experiment_name_seed123",
+      "origin": "planned_new",
+      "action": "run_if_missing",
+      "canonical_reference_experiment": "",
+      "exclusion_reason": "",
+      "argument_overrides": {},
+      "notes": "Every grouping value needs one exact row for each required seed."
+    },
+    {
+      "group_value": "replace_with_verified_group_value",
+      "seed": 2025,
+      "dataset_path": "replace_with_verified_repo_relative_dataset_path",
+      "experiment_name": "replace_with_unique_experiment_name_seed2025",
+      "experiment_path": "experiments/replace_with_unique_experiment_name_seed2025",
+      "origin": "planned_new",
+      "action": "run_if_missing",
+      "canonical_reference_experiment": "",
+      "exclusion_reason": "",
+      "argument_overrides": {},
+      "notes": "Keep seed coverage exact and do not infer paths from names."
+    }
+  ]
+}
