@@ -184,6 +184,135 @@ def load_static_dataset(path: str | Path) -> Dict[str, Dict[str, Any]]:
     return data
 
 
+def convert_temporal_final_snapshot_to_static(
+    data: Dict[str, Dict[str, Any]],
+) -> Dict[str, Dict[str, Any]]:
+    """
+    Convert a temporal graph dataset to static samples in memory.
+
+    The final snapshot is selected for each universe:
+        A     = A_list[-1]
+        X     = Nodes_list[-1]
+        mask  = mask_list[-1]
+        target is preserved unchanged.
+    """
+    static_data: Dict[str, Dict[str, Any]] = {}
+
+    for universe_id, sample in data.items():
+        required_keys = ["A_list", "Nodes_list", "mask_list", "target"]
+        for key in required_keys:
+            if key not in sample:
+                raise KeyError(f"{universe_id}: missing required key {key}")
+
+        if len(sample["A_list"]) == 0:
+            raise ValueError(f"{universe_id}: A_list is empty.")
+
+        if len(sample["Nodes_list"]) == 0:
+            raise ValueError(f"{universe_id}: Nodes_list is empty.")
+
+        if len(sample["mask_list"]) == 0:
+            raise ValueError(f"{universe_id}: mask_list is empty.")
+
+        static_data[universe_id] = {
+            "A": sample["A_list"][-1],
+            "X": sample["Nodes_list"][-1],
+            "mask": sample["mask_list"][-1],
+            "target": sample["target"],
+        }
+
+    return static_data
+
+
+def load_dataset(
+    path: str | Path,
+    dataset_format: str = "static",
+) -> Dict[str, Dict[str, Any]]:
+    """
+    Load either a native static dataset or a temporal dataset converted to
+    final-snapshot static samples.
+    """
+    if dataset_format not in {"static", "temporal_final_snapshot"}:
+        raise ValueError(
+            "dataset_format must be one of: 'static', 'temporal_final_snapshot'."
+        )
+
+    data = load_static_dataset(path)
+
+    if dataset_format == "temporal_final_snapshot":
+        data = convert_temporal_final_snapshot_to_static(data)
+
+    return data
+
+
+def load_split_config(path: str | Path) -> Dict[str, Any]:
+    """
+    Load train/validation/test split IDs from an existing experiment config.
+    """
+    path = Path(path)
+
+    if not path.exists():
+        raise FileNotFoundError(f"Split config not found: {path}")
+
+    with path.open("r", encoding="utf-8") as f:
+        config = json.load(f)
+
+    required_keys = ["train_ids", "val_ids", "test_ids"]
+    for key in required_keys:
+        if key not in config:
+            raise KeyError(f"Split config missing required key: {key}")
+
+        if not isinstance(config[key], list):
+            raise TypeError(f"Split config key {key} must be a list.")
+
+    return config
+
+
+def validate_split_ids(
+    train_ids: List[str],
+    val_ids: List[str],
+    test_ids: List[str],
+    dataset_ids: List[str],
+) -> None:
+    """
+    Validate externally provided train/validation/test split IDs.
+    """
+    dataset_id_set = set(dataset_ids)
+    split_name_to_ids = {
+        "train": train_ids,
+        "val": val_ids,
+        "test": test_ids,
+    }
+
+    for split_name, split_ids in split_name_to_ids.items():
+        if len(split_ids) == 0:
+            raise ValueError(f"{split_name} split is empty.")
+
+        duplicate_count = len(split_ids) - len(set(split_ids))
+        if duplicate_count > 0:
+            raise ValueError(
+                f"{split_name} split contains {duplicate_count} duplicate IDs."
+            )
+
+        missing_ids = sorted(set(split_ids) - dataset_id_set)
+        if missing_ids:
+            raise ValueError(
+                f"{split_name} split contains IDs not present in dataset: "
+                f"{missing_ids[:20]}"
+            )
+
+    overlaps = {
+        "train_val": sorted(set(train_ids) & set(val_ids)),
+        "train_test": sorted(set(train_ids) & set(test_ids)),
+        "val_test": sorted(set(val_ids) & set(test_ids)),
+    }
+    nonempty_overlaps = {
+        name: ids for name, ids in overlaps.items() if len(ids) > 0
+    }
+
+    if nonempty_overlaps:
+        raise ValueError(f"Split IDs overlap: {nonempty_overlaps}")
+
+
 def universe_sort_key(universe_id: str) -> int:
     """
     Sort universe IDs like LH_0, LH_1, LH_2, ...
@@ -263,19 +392,32 @@ def create_loaders(
     train_ratio: float,
     val_ratio: float,
     test_ratio: float,
+    split_config_path: str | Path | None = None,
 ):
     """
     Create train, validation, and test DataLoaders.
     """
     universe_ids = sorted(data.keys(), key=universe_sort_key)
 
-    train_ids, val_ids, test_ids = split_universes(
-        universe_ids=universe_ids,
-        seed=seed,
-        train_ratio=train_ratio,
-        val_ratio=val_ratio,
-        test_ratio=test_ratio,
-    )
+    if split_config_path is not None:
+        split_config = load_split_config(split_config_path)
+        train_ids = list(split_config["train_ids"])
+        val_ids = list(split_config["val_ids"])
+        test_ids = list(split_config["test_ids"])
+        validate_split_ids(
+            train_ids=train_ids,
+            val_ids=val_ids,
+            test_ids=test_ids,
+            dataset_ids=universe_ids,
+        )
+    else:
+        train_ids, val_ids, test_ids = split_universes(
+            universe_ids=universe_ids,
+            seed=seed,
+            train_ratio=train_ratio,
+            val_ratio=val_ratio,
+            test_ratio=test_ratio,
+        )
 
     train_dataset = CamelsStaticGraphDataset(data, train_ids)
     val_dataset = CamelsStaticGraphDataset(data, val_ids)
@@ -558,6 +700,8 @@ def train_static_gcn(
     dataset_path: str | Path,
     experiment_name: str,
     output_root: str | Path = "experiments",
+    dataset_format: str = "static",
+    split_config_path: str | Path | None = None,
     seed: int = 123,
     batch_size: int = 8,
     epochs: int = 300,
@@ -568,6 +712,7 @@ def train_static_gcn(
     num_layers: int = 3,
     dropout: float = 0.2,
     graph_pooling: str = "mean",
+    conv_type: str = "gcn",
     train_ratio: float = 0.70,
     val_ratio: float = 0.15,
     test_ratio: float = 0.15,
@@ -599,6 +744,7 @@ def train_static_gcn(
     print("CAMELS-SIMBA Static GCN Training")
     print("=" * 90)
     print(f"Dataset path:       {dataset_path}")
+    print(f"Dataset format:     {dataset_format}")
     print(f"Experiment name:    {experiment_name}")
     print(f"Experiment dir:     {experiment_dir}")
     print(f"Device:             {device}")
@@ -612,10 +758,15 @@ def train_static_gcn(
     print(f"Num layers:         {num_layers}")
     print(f"Dropout:            {dropout}")
     print(f"Graph pooling:      {graph_pooling}")
+    print(f"Conv type:          {conv_type}")
     print(f"Grad clip norm:     {grad_clip_norm}")
+    print(f"Split config path:  {split_config_path}")
     print("=" * 90)
 
-    data = load_static_dataset(dataset_path)
+    data = load_dataset(
+        path=dataset_path,
+        dataset_format=dataset_format,
+    )
 
     train_loader, val_loader, test_loader, train_ids, val_ids, test_ids = create_loaders(
         data=data,
@@ -624,6 +775,7 @@ def train_static_gcn(
         train_ratio=train_ratio,
         val_ratio=val_ratio,
         test_ratio=test_ratio,
+        split_config_path=split_config_path,
     )
 
     _, A_example, X_example, mask_example, target_example = next(iter(train_loader))
@@ -663,6 +815,7 @@ def train_static_gcn(
         num_layers=num_layers,
         dropout=dropout,
         graph_pooling=graph_pooling,
+        conv_type=conv_type,
         add_self_loops=True,
         use_layer_norm=True,
         residual=True,
@@ -695,6 +848,7 @@ def train_static_gcn(
     config = {
         "model": "StaticGCNRegressor",
         "dataset_path": str(dataset_path),
+        "dataset_format": dataset_format,
         "experiment_name": experiment_name,
         "output_root": str(output_root),
         "seed": seed,
@@ -707,9 +861,15 @@ def train_static_gcn(
         "num_layers": num_layers,
         "dropout": dropout,
         "graph_pooling": graph_pooling,
+        "conv_type": conv_type,
         "train_ratio": train_ratio,
         "val_ratio": val_ratio,
         "test_ratio": test_ratio,
+        "split_source": (
+            str(split_config_path)
+            if split_config_path is not None
+            else "generated_from_seed_and_ratios"
+        ),
         "grad_clip_norm": grad_clip_norm,
         "device": str(device),
         "num_total_universes": len(data),
@@ -869,6 +1029,19 @@ def main() -> None:
     )
 
     parser.add_argument("--dataset_path", type=str, required=True)
+    parser.add_argument(
+        "--dataset_format",
+        type=str,
+        default="static",
+        choices=["static", "temporal_final_snapshot"],
+        help="Use a native static dataset or convert a temporal dataset to final snapshots in memory.",
+    )
+    parser.add_argument(
+        "--split_config_path",
+        type=str,
+        default=None,
+        help="Optional config.json containing train_ids, val_ids, and test_ids to reuse.",
+    )
     parser.add_argument("--experiment_name", type=str, required=True)
     parser.add_argument("--output_root", type=str, default="experiments")
 
@@ -891,6 +1064,14 @@ def main() -> None:
         choices=["mean", "max", "mean_max"],
     )
 
+    parser.add_argument(
+        "--conv_type",
+        type=str,
+        default="gcn",
+        choices=["gcn", "graphsage"],
+        help="Message-passing layer type. Default preserves the original Static GCN.",
+    )
+
     parser.add_argument("--train_ratio", type=float, default=0.70)
     parser.add_argument("--val_ratio", type=float, default=0.15)
     parser.add_argument("--test_ratio", type=float, default=0.15)
@@ -910,6 +1091,8 @@ def main() -> None:
         dataset_path=args.dataset_path,
         experiment_name=args.experiment_name,
         output_root=args.output_root,
+        dataset_format=args.dataset_format,
+        split_config_path=args.split_config_path,
         seed=args.seed,
         batch_size=args.batch_size,
         epochs=args.epochs,
@@ -920,6 +1103,7 @@ def main() -> None:
         num_layers=args.num_layers,
         dropout=args.dropout,
         graph_pooling=args.graph_pooling,
+        conv_type=args.conv_type,
         train_ratio=args.train_ratio,
         val_ratio=args.val_ratio,
         test_ratio=args.test_ratio,

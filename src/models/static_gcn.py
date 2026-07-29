@@ -338,6 +338,111 @@ class DenseGCNLayer(nn.Module):
 
 
 # ============================================================
+# Dense GraphSAGE layer
+# ============================================================
+
+class DenseGraphSAGELayer(nn.Module):
+    """
+    Dense GraphSAGE layer for adjacency matrices saved as [B, N, N].
+
+    Operation:
+        H_neighbors = mean_{j in N(i)} H_j
+        H_combined = concat(H_i, H_neighbors)
+        H_out = Linear(H_combined)
+
+    Optional:
+        activation
+        dropout
+        layer normalization
+        residual connection
+    """
+
+    def __init__(
+        self,
+        input_dim: int,
+        output_dim: int,
+        dropout: float = 0.0,
+        activation: Optional[nn.Module] = None,
+        use_layer_norm: bool = True,
+        residual: bool = True,
+        eps: float = 1e-8,
+    ) -> None:
+        super().__init__()
+
+        self.input_dim = input_dim
+        self.output_dim = output_dim
+        self.dropout_rate = dropout
+        self.use_layer_norm = use_layer_norm
+        self.use_residual = residual and input_dim == output_dim
+        self.eps = eps
+
+        self.linear = nn.Linear(input_dim * 2, output_dim)
+
+        self.activation = activation if activation is not None else nn.ReLU()
+        self.dropout = nn.Dropout(dropout)
+        self.layer_norm = (
+            nn.LayerNorm(output_dim)
+            if use_layer_norm
+            else nn.Identity()
+        )
+
+        self.reset_parameters()
+
+    def reset_parameters(self) -> None:
+        """
+        Initialize layer weights.
+        """
+        nn.init.xavier_uniform_(self.linear.weight)
+
+        if self.linear.bias is not None:
+            nn.init.zeros_(self.linear.bias)
+
+    def forward(
+        self,
+        A: torch.Tensor,
+        H: torch.Tensor,
+        mask: Optional[torch.Tensor] = None,
+    ) -> torch.Tensor:
+        """
+        Forward pass.
+
+        Args:
+            A:    adjacency matrix [B, N, N]
+            H:    node embeddings [B, N, input_dim]
+            mask: node mask [B, N, 1]
+
+        Returns:
+            H_out: node embeddings [B, N, output_dim]
+        """
+        H_in = H
+        A_float = A.float()
+
+        if mask is not None:
+            mask_float = mask.float()
+            A_float = A_float * mask_float * mask_float.transpose(1, 2)
+            H = H * mask_float
+
+        degree = A_float.sum(dim=-1, keepdim=True).clamp(min=self.eps)
+        neighbor_sum = torch.bmm(A_float, H)
+        neighbor_mean = neighbor_sum / degree
+
+        combined = torch.cat([H, neighbor_mean], dim=-1)
+
+        H_out = self.linear(combined)
+        H_out = self.activation(H_out)
+        H_out = self.dropout(H_out)
+        H_out = self.layer_norm(H_out)
+
+        if self.use_residual:
+            H_out = H_out + H_in
+
+        if mask is not None:
+            H_out = H_out * mask.float()
+
+        return H_out
+
+
+# ============================================================
 # Static GCN regressor
 # ============================================================
 
@@ -362,6 +467,7 @@ class StaticGCNRegressor(nn.Module):
         num_layers: int = 3,
         dropout: float = 0.2,
         graph_pooling: Literal["mean", "max", "mean_max"] = "mean",
+        conv_type: Literal["gcn", "graphsage"] = "gcn",
         add_self_loops: bool = True,
         use_layer_norm: bool = True,
         residual: bool = True,
@@ -382,11 +488,15 @@ class StaticGCNRegressor(nn.Module):
                 "graph_pooling must be one of: 'mean', 'max', 'mean_max'."
             )
 
+        if conv_type not in {"gcn", "graphsage"}:
+            raise ValueError("conv_type must be one of: 'gcn', 'graphsage'.")
+
         self.node_features = node_features
         self.hidden_dim = hidden_dim
         self.num_layers = num_layers
         self.dropout_rate = dropout
         self.graph_pooling = graph_pooling
+        self.conv_type = conv_type
         self.add_self_loops = add_self_loops
         self.use_layer_norm = use_layer_norm
         self.residual = residual
@@ -401,9 +511,11 @@ class StaticGCNRegressor(nn.Module):
             else nn.Identity()
         )
 
+        layer_cls = DenseGCNLayer if conv_type == "gcn" else DenseGraphSAGELayer
+
         self.layers = nn.ModuleList(
             [
-                DenseGCNLayer(
+                layer_cls(
                     input_dim=hidden_dim,
                     output_dim=hidden_dim,
                     dropout=dropout,
@@ -466,10 +578,13 @@ class StaticGCNRegressor(nn.Module):
         """
         validate_static_batch(A=A, X=X, mask=mask)
 
-        A_norm = normalize_adjacency(
-            A=A,
-            add_self_loops=self.add_self_loops,
-        )
+        if self.conv_type == "gcn":
+            A_message = normalize_adjacency(
+                A=A,
+                add_self_loops=self.add_self_loops,
+            )
+        else:
+            A_message = A.float()
 
         H = self.input_projection(X.float())
         H = self.input_activation(H)
@@ -480,7 +595,10 @@ class StaticGCNRegressor(nn.Module):
             H = H * mask.float()
 
         for layer in self.layers:
-            H = layer(A_norm=A_norm, H=H, mask=mask)
+            if self.conv_type == "gcn":
+                H = layer(A_norm=A_message, H=H, mask=mask)
+            else:
+                H = layer(A=A_message, H=H, mask=mask)
 
         return H
 
