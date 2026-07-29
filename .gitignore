@@ -37,3 +37,33 @@ outputs/
 .DS_Store
 Thumbs.db
 .vscode/
+
+# BEGIN THESIS ARTIFACT POLICY
+
+# Local environments and data
+envs/
+data/
+logs/
+outputs/
+
+# Generated presentation material
+presentation_assets/
+notebooks/**/outputs/
+
+# Python and notebook caches
+**/__pycache__/
+**/.ipynb_checkpoints/
+*.py[cod]
+
+# Model/data binaries
+*.pt
+*.pth
+*.ckpt
+*.tar.gz
+experiments/**/checkpoints/
+
+# Known duplicate and superseded files
+notebooks/07_evolvegcn_500u_top500_vs_750u_top1000_results.ipynb
+src/evaluation/diagnose_predictions.py
+
+# END THESIS ARTIFACT POLICY
