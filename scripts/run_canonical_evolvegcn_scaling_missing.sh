@@ -16,10 +16,12 @@ command -v python3 >/dev/null 2>&1 || {
   exit 2
 }
 
-[[ -x /usr/bin/time ]] || {
-  echo "ERROR: /usr/bin/time is unavailable or not executable." >&2
-  exit 2
-}
+if [[ -x /usr/bin/time ]]; then
+  TIME_PREFIX=(/usr/bin/time -v)
+else
+  TIME_PREFIX=()
+  echo "WARNING: /usr/bin/time unavailable; continuing without GNU resource statistics."
+fi
 
 python3 -c 'import torch; import src.training.train_evolvegcn_h' || {
   echo "ERROR: torch or src.training.train_evolvegcn_h failed to import." >&2
@@ -99,13 +101,14 @@ run_one() {
     df -h "${REPO_ROOT}"
     echo "RAM before:"
     free -h
-    printf 'Command: /usr/bin/time -v'
+    printf 'Command:'
+    printf ' %q' "${TIME_PREFIX[@]}"
     printf ' %q' "${command[@]}"
     printf '\n'
   } 2>&1 | tee "${log_path}"
 
   set +e
-  /usr/bin/time -v "${command[@]}" 2>&1 | tee -a "${log_path}"
+  "${TIME_PREFIX[@]}" "${command[@]}" 2>&1 | tee -a "${log_path}"
   local run_status="${PIPESTATUS[0]}"
   set -e
 
