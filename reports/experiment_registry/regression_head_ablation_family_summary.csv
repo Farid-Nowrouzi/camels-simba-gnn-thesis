@@ -1,0 +1,6 @@
+family_identifier,model,universes,top_n,normalization,k,hidden_dim,layers,graph_pooling,temporal_pooling,head_types,seeds,expected_cells,artifact_complete_cells,missing_cells,partial_cells,split_compatibility,implementation_compatibility,scientific_quality,recommended,reason
+u750_top1000_mean_graph_mean_temporal_linear_vs_mlp,EvolveGCN-H,750,1000,none,8,32,2,mean,mean,linear|mlp,42|123|777|999|2025,10,10,0,0,exact,head only,high,True,complete five-seed controlled family
+u750_linear_temporal_mean_vs_last,EvolveGCN-H,750,1000,none,8,32,2,mean,mean|last,linear,42|123|777|999|2025,10,10,0,0,exact,temporal pooling differs,high for temporal ablation,False,not a head ablation
+u750_linear_mean_vs_meanmax,EvolveGCN-H,750,1000,none,8,32,2,mean|mean_max,mean,linear,42|123|777|999|2025,10,10,0,0,exact,graph pooling differs,high for graph-pooling ablation,False,already finalized graph-pooling analysis
+u500_single_seed_linear_vs_mlp_pilot,EvolveGCN-H,500,500,minmax,8,32,2,mean,mean,linear|mlp,42,2,2,0,0,exact,activation context requires careful anchor choice,pilot only,False,fewer than three matched seeds
+u500_static_mlp_anchor,Static GCN/GraphSAGE,500,500,minmax,8,32,3,mean,not_applicable,static_mlp_readout,42|123|777|999|2025,5,5,0,0,not a two-head family,no configurable linear Static head,anchor only,False,only one head type

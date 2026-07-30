@@ -1,0 +1,2 @@
+family_identifier,model,head_type,seed,required_experiment,status,decision,training_required,replacement_required,graph_rebuild_required,reason,smallest_completion_plan
+u750_top1000_mean_graph_mean_temporal_linear_vs_mlp,EvolveGCN-H,all,all five,none,complete,reuse existing canonical artifacts,False,False,False,all ten canonical cells are complete and verified,none
