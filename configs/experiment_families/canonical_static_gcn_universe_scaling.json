@@ -1,0 +1,488 @@
+{
+  "schema_version": "1.0",
+  "family_id": "canonical_static_gcn_universe_scaling",
+  "family_title": "Canonical Static GCN Top100 universe scaling",
+  "scientific_question": "How does final-snapshot Static GCN Omega_m regression generalization change as the number of simulated universes increases while preprocessing, graph construction, architecture, optimization, split assignments, and seed set remain fixed?",
+  "model_name": "Static GCN",
+  "training_module": "src.training.train_static_gcn",
+  "output_root": "experiments",
+  "expected_artifacts": [
+    "config.json",
+    "metrics.json",
+    "train_log.csv",
+    "predictions/test_predictions.csv",
+    "checkpoints/best_model.pt"
+  ],
+  "fixed_scientific_settings": {
+    "config": {
+      "model": "StaticGCNRegressor",
+      "dataset_format": "static",
+      "batch_size": 8,
+      "epochs": 300,
+      "patience": 40,
+      "learning_rate": 0.001,
+      "weight_decay": 0.00001,
+      "hidden_dim": 32,
+      "num_layers": 2,
+      "dropout": 0.2,
+      "activation": "relu",
+      "graph_pooling": "mean",
+      "conv_type": "gcn",
+      "head_type": "established_static_mlp",
+      "add_self_loops": true,
+      "train_ratio": 0.7,
+      "val_ratio": 0.15,
+      "test_ratio": 0.15,
+      "grad_clip_norm": 1.0,
+      "use_summary_features": false,
+      "normalize_target": false,
+      "num_nodes": 100,
+      "node_features": 7
+    },
+    "legacy_config_defaults": {
+      "dataset_format": "static",
+      "activation": "relu",
+      "conv_type": "gcn",
+      "head_type": "established_static_mlp",
+      "add_self_loops": true,
+      "use_summary_features": false,
+      "normalize_target": false
+    },
+    "dataset_metadata": {
+      "dataset_type": "static_final_snapshot_graphs",
+      "preferred_snapshot": 1.0,
+      "preprocessing_version": "v2_logmass_minmax_top100_periodic_knn",
+      "num_nodes": 100,
+      "normalization": "minmax",
+      "graph_mode": "knn",
+      "k": 8,
+      "periodic_boundary": true,
+      "periodic_boundary_knn": true,
+      "box_size": 25.0,
+      "feature_names": [
+        "log10_Mvir",
+        "X",
+        "Y",
+        "Z",
+        "VX",
+        "VY",
+        "VZ"
+      ],
+      "node_selection": "top_num_nodes_by_raw_Mvir_descending"
+    }
+  },
+  "allowed_varying_fields": [
+    "universes",
+    "seed",
+    "dataset_path",
+    "experiment_name",
+    "experiment_path",
+    "split_source",
+    "train_ids",
+    "val_ids",
+    "test_ids",
+    "num_train_universes",
+    "num_val_universes",
+    "num_test_universes",
+    "device",
+    "trainable_parameters"
+  ],
+  "required_seeds": [
+    42,
+    123,
+    2025
+  ],
+  "grouping_field": "universes",
+  "grouping_values": [
+    20,
+    50,
+    100,
+    200,
+    500
+  ],
+  "grouping_config_field": "num_total_universes",
+  "grouping_metadata_field": "num_universes_successful",
+  "aggregation_metrics": [
+    "test_mae",
+    "test_rmse",
+    "test_r2",
+    "test_pearson"
+  ],
+  "prediction_file": "predictions/test_predictions.csv",
+  "target_column_aliases": [
+    "true_omega_m",
+    "target",
+    "y_true"
+  ],
+  "prediction_column_aliases": [
+    "pred_omega_m",
+    "prediction",
+    "y_pred"
+  ],
+  "metric_tolerance": 0.000001,
+  "registry": {
+    "experiments_root": "experiments",
+    "report_directory": "reports/experiment_registry"
+  },
+  "results": {
+    "default_output_directory": "reports/experiment_registry/canonical_static_scaling_results",
+    "seed_results_filename": "seed_level_results.csv",
+    "aggregated_results_filename": "aggregated_results.csv",
+    "plotting_data_filename": "plotting_data.csv",
+    "markdown_report_filename": "scientific_report.md",
+    "figure_filename": "static_gcn_universe_scaling_test_mae.png"
+  },
+  "figure": {
+    "x_axis_field": "universes",
+    "x_axis_label": "Number of universes",
+    "y_metric": "mean_test_mae",
+    "y_error_metric": "std_test_mae",
+    "y_axis_label": "Mean Test MAE",
+    "title": "Canonical Static GCN universe scaling",
+    "use_error_bars": true,
+    "caption": "Mean Test MAE with sample-standard-deviation error bars across seeds 42, 123, and 2025."
+  },
+  "runner": {
+    "log_directory": "logs/canonical_static_gcn_scaling",
+    "argument_order": [
+      {
+        "name": "dataset_format",
+        "flag": "--dataset_format",
+        "value": "static"
+      },
+      {
+        "name": "split_config_path",
+        "flag": "--split_config_path"
+      },
+      {
+        "name": "batch_size",
+        "flag": "--batch_size",
+        "value": "8"
+      },
+      {
+        "name": "epochs",
+        "flag": "--epochs",
+        "value": "300"
+      },
+      {
+        "name": "patience",
+        "flag": "--patience",
+        "value": "40"
+      },
+      {
+        "name": "learning_rate",
+        "flag": "--learning_rate",
+        "value": "0.001"
+      },
+      {
+        "name": "weight_decay",
+        "flag": "--weight_decay",
+        "value": "0.00001"
+      },
+      {
+        "name": "hidden_dim",
+        "flag": "--hidden_dim",
+        "value": "32"
+      },
+      {
+        "name": "num_layers",
+        "flag": "--num_layers",
+        "value": "2"
+      },
+      {
+        "name": "dropout",
+        "flag": "--dropout",
+        "value": "0.2"
+      },
+      {
+        "name": "graph_pooling",
+        "flag": "--graph_pooling",
+        "value": "mean"
+      },
+      {
+        "name": "conv_type",
+        "flag": "--conv_type",
+        "value": "gcn"
+      },
+      {
+        "name": "train_ratio",
+        "flag": "--train_ratio",
+        "value": "0.70"
+      },
+      {
+        "name": "val_ratio",
+        "flag": "--val_ratio",
+        "value": "0.15"
+      },
+      {
+        "name": "test_ratio",
+        "flag": "--test_ratio",
+        "value": "0.15"
+      },
+      {
+        "name": "grad_clip_norm",
+        "flag": "--grad_clip_norm",
+        "value": "1.0"
+      },
+      {
+        "name": "device",
+        "flag": "--device",
+        "value": "auto"
+      }
+    ]
+  },
+  "runs": [
+    {
+      "group_value": 20,
+      "seed": 42,
+      "dataset_path": "data/processed/static_20u_logmass_minmax_top100_periodic_knn/camels_20u_static_logmass_minmax_top100_periodic_knn.pt",
+      "experiment_name": "static_gcn_u20_top100_norm-minmax_h32_l2_gpool-mean_conv-gcn_batch8_canonical300_seed42",
+      "experiment_path": "experiments/static_gcn_u20_top100_norm-minmax_h32_l2_gpool-mean_conv-gcn_batch8_canonical300_seed42",
+      "origin": "canonical_replacement",
+      "action": "run_if_missing",
+      "canonical_reference_experiment": "static_gcn_20u_seed123_final32",
+      "exclusion_reason": "",
+      "argument_overrides": {
+        "split_config_path": "experiments/evolvegcn_h_u20_top100_norm-minmax_h32_l2_gpool-mean_tpool-mean_head-mlp_canonical300_seed42/config.json"
+      },
+      "expected_config_overrides": {
+        "split_source": "experiments/evolvegcn_h_u20_top100_norm-minmax_h32_l2_gpool-mean_tpool-mean_head-mlp_canonical300_seed42/config.json"
+      },
+      "notes": "Replacement for the historical batch-4, 200-epoch run; exact audited Evolve split IDs are reused."
+    },
+    {
+      "group_value": 20,
+      "seed": 123,
+      "dataset_path": "data/processed/static_20u_logmass_minmax_top100_periodic_knn/camels_20u_static_logmass_minmax_top100_periodic_knn.pt",
+      "experiment_name": "static_gcn_20u_seed123_final32",
+      "experiment_path": "experiments/static_gcn_20u_seed123_final32",
+      "origin": "reusable_existing",
+      "action": "reuse",
+      "canonical_reference_experiment": "static_gcn_20u_seed123_final32",
+      "exclusion_reason": "",
+      "argument_overrides": {
+        "split_config_path": "experiments/evolvegcn_h_20u_seed123_final32/config.json"
+      },
+      "notes": "Audited compatible historical run; legacy config defaults are explicitly recorded in the family settings."
+    },
+    {
+      "group_value": 20,
+      "seed": 2025,
+      "dataset_path": "data/processed/static_20u_logmass_minmax_top100_periodic_knn/camels_20u_static_logmass_minmax_top100_periodic_knn.pt",
+      "experiment_name": "static_gcn_u20_top100_norm-minmax_h32_l2_gpool-mean_conv-gcn_batch8_canonical300_seed2025",
+      "experiment_path": "experiments/static_gcn_u20_top100_norm-minmax_h32_l2_gpool-mean_conv-gcn_batch8_canonical300_seed2025",
+      "origin": "canonical_replacement",
+      "action": "run_if_missing",
+      "canonical_reference_experiment": "static_gcn_20u_seed123_final32",
+      "exclusion_reason": "",
+      "argument_overrides": {
+        "split_config_path": "experiments/evolvegcn_h_u20_top100_norm-minmax_h32_l2_gpool-mean_tpool-mean_head-mlp_canonical300_seed2025/config.json"
+      },
+      "expected_config_overrides": {
+        "split_source": "experiments/evolvegcn_h_u20_top100_norm-minmax_h32_l2_gpool-mean_tpool-mean_head-mlp_canonical300_seed2025/config.json"
+      },
+      "notes": "Replacement for the historical batch-4, 200-epoch run; exact audited Evolve split IDs are reused."
+    },
+    {
+      "group_value": 50,
+      "seed": 42,
+      "dataset_path": "data/processed/static_50u_logmass_minmax_top100_periodic_knn/camels_50u_static_logmass_minmax_top100_periodic_knn.pt",
+      "experiment_name": "static_gcn_u50_top100_norm-minmax_h32_l2_gpool-mean_conv-gcn_batch8_canonical300_seed42",
+      "experiment_path": "experiments/static_gcn_u50_top100_norm-minmax_h32_l2_gpool-mean_conv-gcn_batch8_canonical300_seed42",
+      "origin": "canonical_replacement",
+      "action": "run_if_missing",
+      "canonical_reference_experiment": "static_gcn_50u_seed123_final32",
+      "exclusion_reason": "",
+      "argument_overrides": {
+        "split_config_path": "experiments/evolvegcn_h_u50_top100_norm-minmax_h32_l2_gpool-mean_tpool-mean_head-mlp_canonical300_seed42/config.json"
+      },
+      "expected_config_overrides": {
+        "split_source": "experiments/evolvegcn_h_u50_top100_norm-minmax_h32_l2_gpool-mean_tpool-mean_head-mlp_canonical300_seed42/config.json"
+      },
+      "notes": "Replacement for the historical batch-4, 200-epoch run; exact audited Evolve split IDs are reused."
+    },
+    {
+      "group_value": 50,
+      "seed": 123,
+      "dataset_path": "data/processed/static_50u_logmass_minmax_top100_periodic_knn/camels_50u_static_logmass_minmax_top100_periodic_knn.pt",
+      "experiment_name": "static_gcn_50u_seed123_final32",
+      "experiment_path": "experiments/static_gcn_50u_seed123_final32",
+      "origin": "reusable_existing",
+      "action": "reuse",
+      "canonical_reference_experiment": "static_gcn_50u_seed123_final32",
+      "exclusion_reason": "",
+      "argument_overrides": {
+        "split_config_path": "experiments/evolvegcn_h_50u_seed123_final32/config.json"
+      },
+      "notes": "Audited compatible historical run; legacy config defaults are explicitly recorded in the family settings."
+    },
+    {
+      "group_value": 50,
+      "seed": 2025,
+      "dataset_path": "data/processed/static_50u_logmass_minmax_top100_periodic_knn/camels_50u_static_logmass_minmax_top100_periodic_knn.pt",
+      "experiment_name": "static_gcn_u50_top100_norm-minmax_h32_l2_gpool-mean_conv-gcn_batch8_canonical300_seed2025",
+      "experiment_path": "experiments/static_gcn_u50_top100_norm-minmax_h32_l2_gpool-mean_conv-gcn_batch8_canonical300_seed2025",
+      "origin": "canonical_replacement",
+      "action": "run_if_missing",
+      "canonical_reference_experiment": "static_gcn_50u_seed123_final32",
+      "exclusion_reason": "",
+      "argument_overrides": {
+        "split_config_path": "experiments/evolvegcn_h_u50_top100_norm-minmax_h32_l2_gpool-mean_tpool-mean_head-mlp_canonical300_seed2025/config.json"
+      },
+      "expected_config_overrides": {
+        "split_source": "experiments/evolvegcn_h_u50_top100_norm-minmax_h32_l2_gpool-mean_tpool-mean_head-mlp_canonical300_seed2025/config.json"
+      },
+      "notes": "Replacement for the historical batch-4, 200-epoch run; exact audited Evolve split IDs are reused."
+    },
+    {
+      "group_value": 100,
+      "seed": 42,
+      "dataset_path": "data/processed/static_100u_logmass_minmax_top100_periodic_knn/camels_100u_static_logmass_minmax_top100_periodic_knn.pt",
+      "experiment_name": "static_gcn_u100_top100_norm-minmax_h32_l2_gpool-mean_conv-gcn_batch8_canonical300_seed42",
+      "experiment_path": "experiments/static_gcn_u100_top100_norm-minmax_h32_l2_gpool-mean_conv-gcn_batch8_canonical300_seed42",
+      "origin": "canonical_replacement",
+      "action": "run_if_missing",
+      "canonical_reference_experiment": "static_gcn_100u_seed123_final32",
+      "exclusion_reason": "",
+      "argument_overrides": {
+        "split_config_path": "experiments/evolvegcn_h_u100_top100_norm-minmax_h32_l2_gpool-mean_tpool-mean_head-mlp_canonical300_seed42/config.json"
+      },
+      "expected_config_overrides": {
+        "split_source": "experiments/evolvegcn_h_u100_top100_norm-minmax_h32_l2_gpool-mean_tpool-mean_head-mlp_canonical300_seed42/config.json"
+      },
+      "notes": "Replacement for the historical batch-4, 200-epoch run; exact audited Evolve split IDs are reused."
+    },
+    {
+      "group_value": 100,
+      "seed": 123,
+      "dataset_path": "data/processed/static_100u_logmass_minmax_top100_periodic_knn/camels_100u_static_logmass_minmax_top100_periodic_knn.pt",
+      "experiment_name": "static_gcn_100u_seed123_final32",
+      "experiment_path": "experiments/static_gcn_100u_seed123_final32",
+      "origin": "reusable_existing",
+      "action": "reuse",
+      "canonical_reference_experiment": "static_gcn_100u_seed123_final32",
+      "exclusion_reason": "",
+      "argument_overrides": {
+        "split_config_path": "experiments/evolvegcn_h_100u_seed123_final32/config.json"
+      },
+      "notes": "Audited compatible historical run; legacy config defaults are explicitly recorded in the family settings."
+    },
+    {
+      "group_value": 100,
+      "seed": 2025,
+      "dataset_path": "data/processed/static_100u_logmass_minmax_top100_periodic_knn/camels_100u_static_logmass_minmax_top100_periodic_knn.pt",
+      "experiment_name": "static_gcn_u100_top100_norm-minmax_h32_l2_gpool-mean_conv-gcn_batch8_canonical300_seed2025",
+      "experiment_path": "experiments/static_gcn_u100_top100_norm-minmax_h32_l2_gpool-mean_conv-gcn_batch8_canonical300_seed2025",
+      "origin": "canonical_replacement",
+      "action": "run_if_missing",
+      "canonical_reference_experiment": "static_gcn_100u_seed123_final32",
+      "exclusion_reason": "",
+      "argument_overrides": {
+        "split_config_path": "experiments/evolvegcn_h_u100_top100_norm-minmax_h32_l2_gpool-mean_tpool-mean_head-mlp_canonical300_seed2025/config.json"
+      },
+      "expected_config_overrides": {
+        "split_source": "experiments/evolvegcn_h_u100_top100_norm-minmax_h32_l2_gpool-mean_tpool-mean_head-mlp_canonical300_seed2025/config.json"
+      },
+      "notes": "Replacement for the historical batch-4, 200-epoch run; exact audited Evolve split IDs are reused."
+    },
+    {
+      "group_value": 200,
+      "seed": 42,
+      "dataset_path": "data/processed/static_200u_logmass_minmax_top100_periodic_knn/camels_200u_static_logmass_minmax_top100_periodic_knn.pt",
+      "experiment_name": "static_gcn_200u_seed42_final32",
+      "experiment_path": "experiments/static_gcn_200u_seed42_final32",
+      "origin": "reusable_existing",
+      "action": "reuse",
+      "canonical_reference_experiment": "static_gcn_200u_seed123_final32",
+      "exclusion_reason": "",
+      "argument_overrides": {
+        "split_config_path": "experiments/evolvegcn_h_200u_seed42_final32/config.json"
+      },
+      "notes": "Audited compatible historical run."
+    },
+    {
+      "group_value": 200,
+      "seed": 123,
+      "dataset_path": "data/processed/static_200u_logmass_minmax_top100_periodic_knn/camels_200u_static_logmass_minmax_top100_periodic_knn.pt",
+      "experiment_name": "static_gcn_200u_seed123_final32",
+      "experiment_path": "experiments/static_gcn_200u_seed123_final32",
+      "origin": "reusable_existing",
+      "action": "reuse",
+      "canonical_reference_experiment": "static_gcn_200u_seed123_final32",
+      "exclusion_reason": "",
+      "argument_overrides": {
+        "split_config_path": "experiments/evolvegcn_h_200u_seed123_final32/config.json"
+      },
+      "notes": "Audited compatible historical run."
+    },
+    {
+      "group_value": 200,
+      "seed": 2025,
+      "dataset_path": "data/processed/static_200u_logmass_minmax_top100_periodic_knn/camels_200u_static_logmass_minmax_top100_periodic_knn.pt",
+      "experiment_name": "static_gcn_200u_seed2025_final32",
+      "experiment_path": "experiments/static_gcn_200u_seed2025_final32",
+      "origin": "reusable_existing",
+      "action": "reuse",
+      "canonical_reference_experiment": "static_gcn_200u_seed123_final32",
+      "exclusion_reason": "",
+      "argument_overrides": {
+        "split_config_path": "experiments/evolvegcn_h_200u_seed2025_final32/config.json"
+      },
+      "notes": "Audited compatible historical run."
+    },
+    {
+      "group_value": 500,
+      "seed": 42,
+      "dataset_path": "data/processed/static_500u_logmass_minmax_top100_periodic_knn/camels_500u_static_logmass_minmax_top100_periodic_knn.pt",
+      "experiment_name": "static_gcn_u500_top100_norm-minmax_h32_l2_gpool-mean_conv-gcn_batch8_canonical300_seed42",
+      "experiment_path": "experiments/static_gcn_u500_top100_norm-minmax_h32_l2_gpool-mean_conv-gcn_batch8_canonical300_seed42",
+      "origin": "canonical_replacement",
+      "action": "run_if_missing",
+      "canonical_reference_experiment": "static_gcn_500u_seed123_final32",
+      "exclusion_reason": "",
+      "argument_overrides": {
+        "split_config_path": "experiments/evolvegcn_h_500u_seed42_final32/config.json"
+      },
+      "expected_config_overrides": {
+        "split_source": "experiments/evolvegcn_h_500u_seed42_final32/config.json"
+      },
+      "notes": "Replacement for the historical batch-4 run; exact audited Evolve split IDs are reused."
+    },
+    {
+      "group_value": 500,
+      "seed": 123,
+      "dataset_path": "data/processed/static_500u_logmass_minmax_top100_periodic_knn/camels_500u_static_logmass_minmax_top100_periodic_knn.pt",
+      "experiment_name": "static_gcn_u500_top100_norm-minmax_h32_l2_gpool-mean_conv-gcn_batch8_canonical300_seed123",
+      "experiment_path": "experiments/static_gcn_u500_top100_norm-minmax_h32_l2_gpool-mean_conv-gcn_batch8_canonical300_seed123",
+      "origin": "canonical_replacement",
+      "action": "run_if_missing",
+      "canonical_reference_experiment": "static_gcn_500u_seed123_final32",
+      "exclusion_reason": "",
+      "argument_overrides": {
+        "split_config_path": "experiments/evolvegcn_h_500u_seed123_final32/config.json"
+      },
+      "expected_config_overrides": {
+        "split_source": "experiments/evolvegcn_h_500u_seed123_final32/config.json"
+      },
+      "notes": "Replacement for the historical batch-4 run; exact audited Evolve split IDs are reused."
+    },
+    {
+      "group_value": 500,
+      "seed": 2025,
+      "dataset_path": "data/processed/static_500u_logmass_minmax_top100_periodic_knn/camels_500u_static_logmass_minmax_top100_periodic_knn.pt",
+      "experiment_name": "static_gcn_u500_top100_norm-minmax_h32_l2_gpool-mean_conv-gcn_batch8_canonical300_seed2025",
+      "experiment_path": "experiments/static_gcn_u500_top100_norm-minmax_h32_l2_gpool-mean_conv-gcn_batch8_canonical300_seed2025",
+      "origin": "canonical_replacement",
+      "action": "run_if_missing",
+      "canonical_reference_experiment": "static_gcn_500u_seed123_final32",
+      "exclusion_reason": "",
+      "argument_overrides": {
+        "split_config_path": "experiments/evolvegcn_h_500u_seed2025_final32/config.json"
+      },
+      "expected_config_overrides": {
+        "split_source": "experiments/evolvegcn_h_500u_seed2025_final32/config.json"
+      },
+      "notes": "Replacement for the historical batch-4 run; exact audited Evolve split IDs are reused."
+    }
+  ]
+}
