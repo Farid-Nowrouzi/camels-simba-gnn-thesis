@@ -1,0 +1,354 @@
+{
+  "schema_version": "1.0",
+  "family_id": "canonical_evolvegcn_knn_by_hidden_dim_factorial_500u_top100",
+  "family_title": "Canonical EvolveGCN-H k by hidden-dimension factorial at 500 universes and Top100",
+  "scientific_question": "How do periodic-kNN connectivity and hidden dimension jointly affect EvolveGCN-H Omega_m regression under a fixed two-layer protocol?",
+  "model_name": "EvolveGCN-H",
+  "training_module": "src.training.train_evolvegcn_h",
+  "output_root": "experiments",
+  "expected_artifacts": [
+    "config.json",
+    "metrics.json",
+    "train_log.csv",
+    "predictions/test_predictions.csv",
+    "checkpoints/best_model.pt"
+  ],
+  "fixed_scientific_settings": {
+    "config": {
+      "model": "EvolveGCNHRegressor",
+      "dataset_format": "temporal",
+      "batch_size": 4,
+      "epochs": 300,
+      "patience": 40,
+      "learning_rate": 0.001,
+      "weight_decay": 0.00001,
+      "num_layers": 2,
+      "dropout": 0.2,
+      "activation": "relu",
+      "temporal_pooling": "mean",
+      "graph_pooling": "mean",
+      "conv_type": "evolvegcn_h",
+      "head_type": "mlp",
+      "add_self_loops": true,
+      "train_ratio": 0.7,
+      "val_ratio": 0.15,
+      "test_ratio": 0.15,
+      "grad_clip_norm": 1.0,
+      "use_summary_features": false,
+      "normalize_target": false,
+      "num_total_universes": 500,
+      "num_snapshots": 5,
+      "num_nodes": 100,
+      "node_features": 7
+    },
+    "legacy_config_defaults": {
+      "dataset_format": "temporal",
+      "activation": "relu",
+      "conv_type": "evolvegcn_h",
+      "head_type": "mlp",
+      "use_summary_features": false,
+      "normalize_target": false
+    },
+    "dataset_metadata": {
+      "dataset_type": "temporal_graph_sequences",
+      "preprocessing_version": "v2_logmass_minmax_top100_periodic_knn",
+      "raw_dir": "data/raw/CAMELS_SIMBA_500U",
+      "num_universes_requested": 500,
+      "num_universes_successful": 500,
+      "num_universes_failed": 0,
+      "num_snapshots": 5,
+      "num_nodes": 100,
+      "normalization": "minmax",
+      "graph_mode": "knn",
+      "periodic_boundary": true,
+      "periodic_boundary_knn": true,
+      "box_size": 25.0,
+      "feature_names": ["log10_Mvir", "X", "Y", "Z", "VX", "VY", "VZ"],
+      "node_selection": "top_num_nodes_by_raw_Mvir_descending",
+      "graph_positions": "raw_physical_XYZ_before_feature_normalization"
+    }
+  },
+  "allowed_varying_fields": [
+    "factorial_cell",
+    "hidden_dim",
+    "seed",
+    "dataset_path",
+    "experiment_name",
+    "experiment_path",
+    "train_ids",
+    "val_ids",
+    "test_ids",
+    "device",
+    "trainable_parameters"
+  ],
+  "required_seeds": [42, 123, 2025],
+  "grouping_field": "factorial_cell",
+  "grouping_values": [
+    "h32_k4", "h32_k6", "h32_k8", "h32_k12",
+    "h64_k4", "h64_k6", "h64_k8", "h64_k12"
+  ],
+  "aggregation_metrics": ["test_mae", "test_rmse", "test_r2", "test_pearson"],
+  "prediction_file": "predictions/test_predictions.csv",
+  "target_column_aliases": ["true_omega_m", "target", "y_true"],
+  "prediction_column_aliases": ["pred_omega_m", "prediction", "y_pred"],
+  "metric_tolerance": 0.000001,
+  "runner": {
+    "log_directory": "logs/canonical_evolvegcn_knn_hidden_factorial",
+    "argument_order": [
+      {"name": "batch_size", "flag": "--batch_size", "value": "4"},
+      {"name": "epochs", "flag": "--epochs", "value": "300"},
+      {"name": "patience", "flag": "--patience", "value": "40"},
+      {"name": "learning_rate", "flag": "--learning_rate", "value": "0.001"},
+      {"name": "weight_decay", "flag": "--weight_decay", "value": "0.00001"},
+      {"name": "hidden_dim", "flag": "--hidden_dim", "value": "64"},
+      {"name": "num_layers", "flag": "--num_layers", "value": "2"},
+      {"name": "dropout", "flag": "--dropout", "value": "0.2"},
+      {"name": "activation", "flag": "--activation", "value": "relu"},
+      {"name": "temporal_pooling", "flag": "--temporal_pooling", "value": "mean"},
+      {"name": "graph_pooling", "flag": "--graph_pooling", "value": "mean"},
+      {"name": "head_type", "flag": "--head_type", "value": "mlp"},
+      {"name": "add_self_loops", "flag": "--add_self_loops", "flag_only": true},
+      {"name": "train_ratio", "flag": "--train_ratio", "value": "0.70"},
+      {"name": "val_ratio", "flag": "--val_ratio", "value": "0.15"},
+      {"name": "test_ratio", "flag": "--test_ratio", "value": "0.15"},
+      {"name": "grad_clip_norm", "flag": "--grad_clip_norm", "value": "1.0"},
+      {"name": "device", "flag": "--device", "value": "auto"}
+    ]
+  },
+  "runs": [
+    {
+      "group_value": "h32_k4", "seed": 42,
+      "dataset_path": "data/processed/temporal_500u_logmass_minmax_top100_periodic_knn_k4/camels_500u_temporal_logmass_minmax_top100_periodic_knn_k4.pt",
+      "experiment_name": "evolvegcn_h_u500_top100_norm-minmax_k4_h32_l2_factorial_seed42",
+      "experiment_path": "experiments/evolvegcn_h_u500_top100_norm-minmax_k4_h32_l2_factorial_seed42",
+      "origin": "planned_new", "action": "run_if_missing",
+      "argument_overrides": {"hidden_dim": 32},
+      "expected_config_overrides": {"hidden_dim": 32},
+      "split_source": "experiments/evolvegcn_h_500u_seed42_final32/config.json",
+      "expected_split_signature": "0f963679cd284fca861fc2c59d88bdae8e8f1f21e2cbe1bb73bd593b49056748"
+    },
+    {
+      "group_value": "h32_k4", "seed": 123,
+      "dataset_path": "data/processed/temporal_500u_logmass_minmax_top100_periodic_knn_k4/camels_500u_temporal_logmass_minmax_top100_periodic_knn_k4.pt",
+      "experiment_name": "evolvegcn_h_u500_top100_norm-minmax_k4_h32_l2_factorial_seed123",
+      "experiment_path": "experiments/evolvegcn_h_u500_top100_norm-minmax_k4_h32_l2_factorial_seed123",
+      "origin": "planned_new", "action": "run_if_missing",
+      "argument_overrides": {"hidden_dim": 32},
+      "expected_config_overrides": {"hidden_dim": 32},
+      "split_source": "experiments/evolvegcn_h_500u_seed123_final32/config.json",
+      "expected_split_signature": "853549f16ef8eb3d7f18ae850c94b13c0c8bf0e770bb99cfbffff48b03530266"
+    },
+    {
+      "group_value": "h32_k4", "seed": 2025,
+      "dataset_path": "data/processed/temporal_500u_logmass_minmax_top100_periodic_knn_k4/camels_500u_temporal_logmass_minmax_top100_periodic_knn_k4.pt",
+      "experiment_name": "evolvegcn_h_u500_top100_norm-minmax_k4_h32_l2_factorial_seed2025",
+      "experiment_path": "experiments/evolvegcn_h_u500_top100_norm-minmax_k4_h32_l2_factorial_seed2025",
+      "origin": "planned_new", "action": "run_if_missing",
+      "argument_overrides": {"hidden_dim": 32},
+      "expected_config_overrides": {"hidden_dim": 32},
+      "split_source": "experiments/evolvegcn_h_500u_seed2025_final32/config.json",
+      "expected_split_signature": "3ce48b66c11e30bec459c52ba7f4a900809dd2b45be0995b8b56aeaefc747951"
+    },
+    {
+      "group_value": "h32_k6", "seed": 42,
+      "dataset_path": "data/processed/temporal_500u_logmass_minmax_top100_periodic_knn_k6/camels_500u_temporal_logmass_minmax_top100_periodic_knn_k6.pt",
+      "experiment_name": "evolvegcn_h_u500_top100_norm-minmax_k6_h32_l2_factorial_seed42",
+      "experiment_path": "experiments/evolvegcn_h_u500_top100_norm-minmax_k6_h32_l2_factorial_seed42",
+      "origin": "planned_new", "action": "run_if_missing",
+      "argument_overrides": {"hidden_dim": 32},
+      "expected_config_overrides": {"hidden_dim": 32},
+      "split_source": "experiments/evolvegcn_h_500u_seed42_final32/config.json",
+      "expected_split_signature": "0f963679cd284fca861fc2c59d88bdae8e8f1f21e2cbe1bb73bd593b49056748"
+    },
+    {
+      "group_value": "h32_k6", "seed": 123,
+      "dataset_path": "data/processed/temporal_500u_logmass_minmax_top100_periodic_knn_k6/camels_500u_temporal_logmass_minmax_top100_periodic_knn_k6.pt",
+      "experiment_name": "evolvegcn_h_u500_top100_norm-minmax_k6_h32_l2_factorial_seed123",
+      "experiment_path": "experiments/evolvegcn_h_u500_top100_norm-minmax_k6_h32_l2_factorial_seed123",
+      "origin": "planned_new", "action": "run_if_missing",
+      "argument_overrides": {"hidden_dim": 32},
+      "expected_config_overrides": {"hidden_dim": 32},
+      "split_source": "experiments/evolvegcn_h_500u_seed123_final32/config.json",
+      "expected_split_signature": "853549f16ef8eb3d7f18ae850c94b13c0c8bf0e770bb99cfbffff48b03530266"
+    },
+    {
+      "group_value": "h32_k6", "seed": 2025,
+      "dataset_path": "data/processed/temporal_500u_logmass_minmax_top100_periodic_knn_k6/camels_500u_temporal_logmass_minmax_top100_periodic_knn_k6.pt",
+      "experiment_name": "evolvegcn_h_u500_top100_norm-minmax_k6_h32_l2_factorial_seed2025",
+      "experiment_path": "experiments/evolvegcn_h_u500_top100_norm-minmax_k6_h32_l2_factorial_seed2025",
+      "origin": "planned_new", "action": "run_if_missing",
+      "argument_overrides": {"hidden_dim": 32},
+      "expected_config_overrides": {"hidden_dim": 32},
+      "split_source": "experiments/evolvegcn_h_500u_seed2025_final32/config.json",
+      "expected_split_signature": "3ce48b66c11e30bec459c52ba7f4a900809dd2b45be0995b8b56aeaefc747951"
+    },
+    {
+      "group_value": "h32_k8", "seed": 42,
+      "dataset_path": "data/processed/temporal_500u_minmax/camels_500u_temporal_logmass_minmax_top100_periodic_knn.pt",
+      "experiment_name": "evolvegcn_h_500u_seed42_final32",
+      "experiment_path": "experiments/evolvegcn_h_500u_seed42_final32",
+      "origin": "reusable_existing", "action": "reuse",
+      "argument_overrides": {"hidden_dim": 32},
+      "expected_config_overrides": {"hidden_dim": 32}
+    },
+    {
+      "group_value": "h32_k8", "seed": 123,
+      "dataset_path": "data/processed/temporal_500u_minmax/camels_500u_temporal_logmass_minmax_top100_periodic_knn.pt",
+      "experiment_name": "evolvegcn_h_500u_seed123_final32",
+      "experiment_path": "experiments/evolvegcn_h_500u_seed123_final32",
+      "origin": "reusable_existing", "action": "reuse",
+      "argument_overrides": {"hidden_dim": 32},
+      "expected_config_overrides": {"hidden_dim": 32}
+    },
+    {
+      "group_value": "h32_k8", "seed": 2025,
+      "dataset_path": "data/processed/temporal_500u_minmax/camels_500u_temporal_logmass_minmax_top100_periodic_knn.pt",
+      "experiment_name": "evolvegcn_h_500u_seed2025_final32",
+      "experiment_path": "experiments/evolvegcn_h_500u_seed2025_final32",
+      "origin": "reusable_existing", "action": "reuse",
+      "argument_overrides": {"hidden_dim": 32},
+      "expected_config_overrides": {"hidden_dim": 32}
+    },
+    {
+      "group_value": "h32_k12", "seed": 42,
+      "dataset_path": "data/processed/temporal_500u_logmass_minmax_top100_periodic_knn_k12/camels_500u_temporal_logmass_minmax_top100_periodic_knn_k12.pt",
+      "experiment_name": "evolvegcn_h_u500_top100_norm-minmax_k12_h32_l2_factorial_seed42",
+      "experiment_path": "experiments/evolvegcn_h_u500_top100_norm-minmax_k12_h32_l2_factorial_seed42",
+      "origin": "planned_new", "action": "run_if_missing",
+      "argument_overrides": {"hidden_dim": 32},
+      "expected_config_overrides": {"hidden_dim": 32},
+      "split_source": "experiments/evolvegcn_h_500u_seed42_final32/config.json",
+      "expected_split_signature": "0f963679cd284fca861fc2c59d88bdae8e8f1f21e2cbe1bb73bd593b49056748"
+    },
+    {
+      "group_value": "h32_k12", "seed": 123,
+      "dataset_path": "data/processed/temporal_500u_logmass_minmax_top100_periodic_knn_k12/camels_500u_temporal_logmass_minmax_top100_periodic_knn_k12.pt",
+      "experiment_name": "evolvegcn_h_u500_top100_norm-minmax_k12_h32_l2_factorial_seed123",
+      "experiment_path": "experiments/evolvegcn_h_u500_top100_norm-minmax_k12_h32_l2_factorial_seed123",
+      "origin": "planned_new", "action": "run_if_missing",
+      "argument_overrides": {"hidden_dim": 32},
+      "expected_config_overrides": {"hidden_dim": 32},
+      "split_source": "experiments/evolvegcn_h_500u_seed123_final32/config.json",
+      "expected_split_signature": "853549f16ef8eb3d7f18ae850c94b13c0c8bf0e770bb99cfbffff48b03530266"
+    },
+    {
+      "group_value": "h32_k12", "seed": 2025,
+      "dataset_path": "data/processed/temporal_500u_logmass_minmax_top100_periodic_knn_k12/camels_500u_temporal_logmass_minmax_top100_periodic_knn_k12.pt",
+      "experiment_name": "evolvegcn_h_u500_top100_norm-minmax_k12_h32_l2_factorial_seed2025",
+      "experiment_path": "experiments/evolvegcn_h_u500_top100_norm-minmax_k12_h32_l2_factorial_seed2025",
+      "origin": "planned_new", "action": "run_if_missing",
+      "argument_overrides": {"hidden_dim": 32},
+      "expected_config_overrides": {"hidden_dim": 32},
+      "split_source": "experiments/evolvegcn_h_500u_seed2025_final32/config.json",
+      "expected_split_signature": "3ce48b66c11e30bec459c52ba7f4a900809dd2b45be0995b8b56aeaefc747951"
+    },
+    {
+      "group_value": "h64_k4", "seed": 42,
+      "dataset_path": "data/processed/temporal_500u_logmass_minmax_top100_periodic_knn_k4/camels_500u_temporal_logmass_minmax_top100_periodic_knn_k4.pt",
+      "experiment_name": "evolvegcn_h_500u_k4_seed42",
+      "experiment_path": "experiments/evolvegcn_h_500u_k4_seed42",
+      "origin": "reusable_existing", "action": "reuse",
+      "argument_overrides": {"hidden_dim": 64},
+      "expected_config_overrides": {"hidden_dim": 64}
+    },
+    {
+      "group_value": "h64_k4", "seed": 123,
+      "dataset_path": "data/processed/temporal_500u_logmass_minmax_top100_periodic_knn_k4/camels_500u_temporal_logmass_minmax_top100_periodic_knn_k4.pt",
+      "experiment_name": "evolvegcn_h_500u_k4_seed123",
+      "experiment_path": "experiments/evolvegcn_h_500u_k4_seed123",
+      "origin": "reusable_existing", "action": "reuse",
+      "argument_overrides": {"hidden_dim": 64},
+      "expected_config_overrides": {"hidden_dim": 64}
+    },
+    {
+      "group_value": "h64_k4", "seed": 2025,
+      "dataset_path": "data/processed/temporal_500u_logmass_minmax_top100_periodic_knn_k4/camels_500u_temporal_logmass_minmax_top100_periodic_knn_k4.pt",
+      "experiment_name": "evolvegcn_h_500u_k4_seed2025",
+      "experiment_path": "experiments/evolvegcn_h_500u_k4_seed2025",
+      "origin": "reusable_existing", "action": "reuse",
+      "argument_overrides": {"hidden_dim": 64},
+      "expected_config_overrides": {"hidden_dim": 64}
+    },
+    {
+      "group_value": "h64_k6", "seed": 42,
+      "dataset_path": "data/processed/temporal_500u_logmass_minmax_top100_periodic_knn_k6/camels_500u_temporal_logmass_minmax_top100_periodic_knn_k6.pt",
+      "experiment_name": "evolvegcn_h_500u_k6_seed42",
+      "experiment_path": "experiments/evolvegcn_h_500u_k6_seed42",
+      "origin": "reusable_existing", "action": "reuse",
+      "argument_overrides": {"hidden_dim": 64},
+      "expected_config_overrides": {"hidden_dim": 64}
+    },
+    {
+      "group_value": "h64_k6", "seed": 123,
+      "dataset_path": "data/processed/temporal_500u_logmass_minmax_top100_periodic_knn_k6/camels_500u_temporal_logmass_minmax_top100_periodic_knn_k6.pt",
+      "experiment_name": "evolvegcn_h_500u_k6_seed123",
+      "experiment_path": "experiments/evolvegcn_h_500u_k6_seed123",
+      "origin": "reusable_existing", "action": "reuse",
+      "argument_overrides": {"hidden_dim": 64},
+      "expected_config_overrides": {"hidden_dim": 64}
+    },
+    {
+      "group_value": "h64_k6", "seed": 2025,
+      "dataset_path": "data/processed/temporal_500u_logmass_minmax_top100_periodic_knn_k6/camels_500u_temporal_logmass_minmax_top100_periodic_knn_k6.pt",
+      "experiment_name": "evolvegcn_h_500u_k6_seed2025",
+      "experiment_path": "experiments/evolvegcn_h_500u_k6_seed2025",
+      "origin": "reusable_existing", "action": "reuse",
+      "argument_overrides": {"hidden_dim": 64},
+      "expected_config_overrides": {"hidden_dim": 64}
+    },
+    {
+      "group_value": "h64_k8", "seed": 42,
+      "dataset_path": "data/processed/temporal_500u_minmax/camels_500u_temporal_logmass_minmax_top100_periodic_knn.pt",
+      "experiment_name": "evolvegcn_h_500u_k8_h64_seed42",
+      "experiment_path": "experiments/evolvegcn_h_500u_k8_h64_seed42",
+      "origin": "reusable_existing", "action": "reuse",
+      "argument_overrides": {"hidden_dim": 64},
+      "expected_config_overrides": {"hidden_dim": 64}
+    },
+    {
+      "group_value": "h64_k8", "seed": 123,
+      "dataset_path": "data/processed/temporal_500u_minmax/camels_500u_temporal_logmass_minmax_top100_periodic_knn.pt",
+      "experiment_name": "evolvegcn_h_500u_k8_h64_seed123",
+      "experiment_path": "experiments/evolvegcn_h_500u_k8_h64_seed123",
+      "origin": "reusable_existing", "action": "reuse",
+      "argument_overrides": {"hidden_dim": 64},
+      "expected_config_overrides": {"hidden_dim": 64}
+    },
+    {
+      "group_value": "h64_k8", "seed": 2025,
+      "dataset_path": "data/processed/temporal_500u_minmax/camels_500u_temporal_logmass_minmax_top100_periodic_knn.pt",
+      "experiment_name": "evolvegcn_h_500u_k8_h64_seed2025",
+      "experiment_path": "experiments/evolvegcn_h_500u_k8_h64_seed2025",
+      "origin": "reusable_existing", "action": "reuse",
+      "argument_overrides": {"hidden_dim": 64},
+      "expected_config_overrides": {"hidden_dim": 64}
+    },
+    {
+      "group_value": "h64_k12", "seed": 42,
+      "dataset_path": "data/processed/temporal_500u_logmass_minmax_top100_periodic_knn_k12/camels_500u_temporal_logmass_minmax_top100_periodic_knn_k12.pt",
+      "experiment_name": "evolvegcn_h_500u_k12_seed42",
+      "experiment_path": "experiments/evolvegcn_h_500u_k12_seed42",
+      "origin": "reusable_existing", "action": "reuse",
+      "argument_overrides": {"hidden_dim": 64},
+      "expected_config_overrides": {"hidden_dim": 64}
+    },
+    {
+      "group_value": "h64_k12", "seed": 123,
+      "dataset_path": "data/processed/temporal_500u_logmass_minmax_top100_periodic_knn_k12/camels_500u_temporal_logmass_minmax_top100_periodic_knn_k12.pt",
+      "experiment_name": "evolvegcn_h_500u_k12_seed123",
+      "experiment_path": "experiments/evolvegcn_h_500u_k12_seed123",
+      "origin": "reusable_existing", "action": "reuse",
+      "argument_overrides": {"hidden_dim": 64},
+      "expected_config_overrides": {"hidden_dim": 64}
+    },
+    {
+      "group_value": "h64_k12", "seed": 2025,
+      "dataset_path": "data/processed/temporal_500u_logmass_minmax_top100_periodic_knn_k12/camels_500u_temporal_logmass_minmax_top100_periodic_knn_k12.pt",
+      "experiment_name": "evolvegcn_h_500u_k12_seed2025",
+      "experiment_path": "experiments/evolvegcn_h_500u_k12_seed2025",
+      "origin": "reusable_existing", "action": "reuse",
+      "argument_overrides": {"hidden_dim": 64},
+      "expected_config_overrides": {"hidden_dim": 64}
+    }
+  ]
+}
