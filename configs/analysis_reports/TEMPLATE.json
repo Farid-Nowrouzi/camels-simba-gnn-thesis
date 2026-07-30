@@ -1,0 +1,56 @@
+{
+  "schema_version": "1.0",
+  "analysis_name": "replace_with_unique_analysis_name",
+  "title": "Human-readable analysis title",
+  "scientific_question": "Scientific question answered by this report.",
+  "analysis_type": "multi_family",
+  "families": [
+    {
+      "label": "Model or protocol label",
+      "family_spec_path": "configs/experiment_families/example.json"
+    }
+  ],
+  "grouping_field": "universes",
+  "grouping_axis_label": "Number of universes",
+  "grouping_value_label": "universes",
+  "plot_grouping_suffix": "universes",
+  "grouping_values": [
+    20,
+    50,
+    100
+  ],
+  "required_seeds": [
+    42,
+    123,
+    2025
+  ],
+  "metrics": [
+    "test_mae",
+    "test_rmse",
+    "test_r2",
+    "test_pearson"
+  ],
+  "required_fixed_protocol": {
+    "fixed_scientific_settings.dataset_metadata.normalization": "minmax",
+    "fixed_scientific_settings.dataset_metadata.graph_mode": "knn",
+    "fixed_scientific_settings.dataset_metadata.k": 8
+  },
+  "fields_allowed_to_differ": [
+    {
+      "field": "fixed_scientific_settings.config.model",
+      "reason": "The analysis intentionally compares model architectures."
+    }
+  ],
+  "output_directory": "reports/analysis/replace_with_unique_analysis_name",
+  "prediction_plots_enabled": true,
+  "representative_seed_policy": {
+    "policy": "median_test_mae"
+  },
+  "figure_formats": [
+    "png",
+    "pdf"
+  ],
+  "metric_tolerance": 0.000001,
+  "reference_family": null,
+  "comparison_statement": "Describe what is matched and what intentionally differs."
+}
