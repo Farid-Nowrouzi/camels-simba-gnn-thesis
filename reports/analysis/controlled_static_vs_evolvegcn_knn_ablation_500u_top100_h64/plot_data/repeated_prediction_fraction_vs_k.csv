@@ -1,0 +1,33 @@
+model,k,seed,repeated_prediction_fraction,point_type,sample_standard_deviation
+EvolveGCN-H,4,42,0.0,seed,
+EvolveGCN-H,4,123,0.0,seed,
+EvolveGCN-H,4,2025,0.0,seed,
+EvolveGCN-H,6,42,0.0,seed,
+EvolveGCN-H,6,123,0.0,seed,
+EvolveGCN-H,6,2025,0.0,seed,
+EvolveGCN-H,8,42,0.0,seed,
+EvolveGCN-H,8,123,0.0,seed,
+EvolveGCN-H,8,2025,0.0,seed,
+EvolveGCN-H,12,42,0.0,seed,
+EvolveGCN-H,12,123,0.0,seed,
+EvolveGCN-H,12,2025,0.0,seed,
+EvolveGCN-H,4,,0.0,mean,0.0
+EvolveGCN-H,6,,0.0,mean,0.0
+EvolveGCN-H,8,,0.0,mean,0.0
+EvolveGCN-H,12,,0.0,mean,0.0
+Static GCN,4,42,0.96,seed,
+Static GCN,4,123,0.7333333333333333,seed,
+Static GCN,4,2025,0.0,seed,
+Static GCN,6,42,0.16,seed,
+Static GCN,6,123,0.68,seed,
+Static GCN,6,2025,0.0,seed,
+Static GCN,8,42,0.9733333333333334,seed,
+Static GCN,8,123,0.7866666666666666,seed,
+Static GCN,8,2025,0.0,seed,
+Static GCN,12,42,0.0,seed,
+Static GCN,12,123,0.21333333333333335,seed,
+Static GCN,12,2025,0.0,seed,
+Static GCN,4,,0.5644444444444444,mean,0.5017893906736097
+Static GCN,6,,0.28,mean,0.3555277766926236
+Static GCN,8,,0.5866666666666667,mean,0.5165698834082805
+Static GCN,12,,0.07111111111111111,mean,0.12316805742712017

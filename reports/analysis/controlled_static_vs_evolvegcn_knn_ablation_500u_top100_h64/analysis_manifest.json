@@ -1,0 +1,462 @@
+{
+  "analysis_specification": {
+    "analysis_name": "controlled_static_vs_evolvegcn_knn_ablation_500u_top100_h64",
+    "analysis_type": "paired_family",
+    "comparison_statement": "Mostly controlled: matched population, graph protocol, k values, hidden dimension, seeds, and exact split IDs, with intentional model and temporal-input differences.",
+    "controlled_variables_summary": "Both model families use the same 500-universe population, Top100 raw-mass node selection, seven node features, minmax normalization, periodic kNN construction in a 25 h^-1 Mpc box, k values, hidden dimension, seeds, and exact ordered split IDs.",
+    "families": [
+      {
+        "family_spec_path": "configs/experiment_families/canonical_evolvegcn_knn_ablation_500u_top100_h64.json",
+        "label": "EvolveGCN-H"
+      },
+      {
+        "family_spec_path": "configs/experiment_families/canonical_static_gcn_knn_ablation_500u_top100_h64.json",
+        "label": "Static GCN"
+      }
+    ],
+    "fields_allowed_to_differ": [
+      {
+        "field": "fixed_scientific_settings.config.model",
+        "reason": "The analysis intentionally compares the EvolveGCN-H and Static GCN architectures."
+      },
+      {
+        "field": "fixed_scientific_settings.config.dataset_format",
+        "reason": "EvolveGCN-H uses temporal graph sequences; Static GCN uses final-snapshot static graphs."
+      },
+      {
+        "field": "fixed_scientific_settings.config.batch_size",
+        "reason": "The established model-specific h64 protocols use batch sizes 4 and 8."
+      },
+      {
+        "field": "fixed_scientific_settings.config.num_layers",
+        "reason": "The established h64 protocols use two EvolveGCN-H layers and three Static GCN layers."
+      },
+      {
+        "field": "fixed_scientific_settings.config.temporal_pooling",
+        "reason": "Mean temporal pooling applies only to EvolveGCN-H."
+      },
+      {
+        "field": "fixed_scientific_settings.config.conv_type",
+        "reason": "Convolution implementation is model-specific."
+      },
+      {
+        "field": "fixed_scientific_settings.config.head_type",
+        "reason": "Each architecture retains its established regression head."
+      },
+      {
+        "field": "fixed_scientific_settings.config.num_snapshots",
+        "reason": "EvolveGCN-H uses five snapshots while Static GCN uses the final snapshot."
+      },
+      {
+        "field": "fixed_scientific_settings.dataset_metadata.dataset_type",
+        "reason": "The dataset representation is temporal for EvolveGCN-H and final-snapshot static for Static GCN."
+      },
+      {
+        "field": "fixed_scientific_settings.dataset_metadata.num_snapshots",
+        "reason": "Five temporal snapshots apply only to EvolveGCN-H."
+      },
+      {
+        "field": "fixed_scientific_settings.dataset_metadata.preferred_snapshot",
+        "reason": "Final-snapshot selection metadata applies only to Static GCN."
+      }
+    ],
+    "figure_formats": [
+      "png",
+      "pdf"
+    ],
+    "grouping_axis_label": "Number of periodic-kNN neighbours (k)",
+    "grouping_field": "k",
+    "grouping_value_label": "k",
+    "grouping_values": [
+      4,
+      6,
+      8,
+      12
+    ],
+    "limitations_summary": "This experiment tests kNN connectivity at hidden dimension 64. It does not establish a universal optimal k, isolate temporal processing causally, or imply generalization to h32.",
+    "metric_tolerance": 1e-06,
+    "metrics": [
+      "test_mae",
+      "test_rmse",
+      "test_r2",
+      "test_pearson"
+    ],
+    "output_directory": "reports/analysis/controlled_static_vs_evolvegcn_knn_ablation_500u_top100_h64",
+    "plot_grouping_suffix": "k",
+    "prediction_plots_enabled": true,
+    "reference_family": null,
+    "representative_seed_policy": {
+      "policy": "median_test_mae"
+    },
+    "required_fixed_protocol": {
+      "fixed_scientific_settings.config.hidden_dim": 64,
+      "fixed_scientific_settings.config.num_nodes": 100,
+      "fixed_scientific_settings.config.num_total_universes": 500,
+      "fixed_scientific_settings.dataset_metadata.box_size": 25.0,
+      "fixed_scientific_settings.dataset_metadata.feature_names": [
+        "log10_Mvir",
+        "X",
+        "Y",
+        "Z",
+        "VX",
+        "VY",
+        "VZ"
+      ],
+      "fixed_scientific_settings.dataset_metadata.graph_mode": "knn",
+      "fixed_scientific_settings.dataset_metadata.node_selection": "top_num_nodes_by_raw_Mvir_descending",
+      "fixed_scientific_settings.dataset_metadata.normalization": "minmax",
+      "fixed_scientific_settings.dataset_metadata.num_nodes": 100,
+      "fixed_scientific_settings.dataset_metadata.num_universes_successful": 500,
+      "fixed_scientific_settings.dataset_metadata.periodic_boundary": true,
+      "fixed_scientific_settings.dataset_metadata.periodic_boundary_knn": true
+    },
+    "required_seeds": [
+      42,
+      123,
+      2025
+    ],
+    "schema_version": "1.0",
+    "scientific_question": "How does changing the number of periodic-kNN neighbours affect Omega_m prediction performance for Static GCN and EvolveGCN-H under a fixed h64 protocol?",
+    "title": "Controlled kNN Connectivity Ablation: Static GCN versus EvolveGCN-H at 500 Universes, Top100 Halos, and Hidden Dimension 64"
+  },
+  "excluded_paths": [
+    {
+      "experiment_name": "evolvegcn_h_500u_seed42_final32",
+      "experiment_path": "experiments/evolvegcn_h_500u_seed42_final32",
+      "reason": "Excluded: hidden_dim=32; the official analysis is restricted to h64."
+    },
+    {
+      "experiment_name": "evolvegcn_h_500u_seed123_final32",
+      "experiment_path": "experiments/evolvegcn_h_500u_seed123_final32",
+      "reason": "Excluded: hidden_dim=32; the official analysis is restricted to h64."
+    },
+    {
+      "experiment_name": "evolvegcn_h_500u_seed2025_final32",
+      "experiment_path": "experiments/evolvegcn_h_500u_seed2025_final32",
+      "reason": "Excluded: hidden_dim=32; the official analysis is restricted to h64."
+    },
+    {
+      "experiment_name": "static_gcn_u500_top100_norm-minmax_h32_l2_gpool-mean_conv-gcn_batch8_canonical300_seed42",
+      "experiment_path": "experiments/static_gcn_u500_top100_norm-minmax_h32_l2_gpool-mean_conv-gcn_batch8_canonical300_seed42",
+      "reason": "Excluded: hidden_dim=32; the official analysis is restricted to h64."
+    },
+    {
+      "experiment_name": "static_gcn_u500_top100_norm-minmax_h32_l2_gpool-mean_conv-gcn_batch8_canonical300_seed123",
+      "experiment_path": "experiments/static_gcn_u500_top100_norm-minmax_h32_l2_gpool-mean_conv-gcn_batch8_canonical300_seed123",
+      "reason": "Excluded: hidden_dim=32; the official analysis is restricted to h64."
+    },
+    {
+      "experiment_name": "static_gcn_u500_top100_norm-minmax_h32_l2_gpool-mean_conv-gcn_batch8_canonical300_seed2025",
+      "experiment_path": "experiments/static_gcn_u500_top100_norm-minmax_h32_l2_gpool-mean_conv-gcn_batch8_canonical300_seed2025",
+      "reason": "Excluded: hidden_dim=32; the official analysis is restricted to h64."
+    },
+    {
+      "experiment_name": "static_gcn_500u_seed42_final32",
+      "experiment_path": "experiments/static_gcn_500u_seed42_final32",
+      "reason": "Excluded: historical Static h32 batch-size-4 alternative; incompatible with the official h64 protocol."
+    },
+    {
+      "experiment_name": "static_gcn_500u_seed123_final32",
+      "experiment_path": "experiments/static_gcn_500u_seed123_final32",
+      "reason": "Excluded: historical Static h32 batch-size-4 alternative; incompatible with the official h64 protocol."
+    },
+    {
+      "experiment_name": "static_gcn_500u_seed2025_final32",
+      "experiment_path": "experiments/static_gcn_500u_seed2025_final32",
+      "reason": "Excluded: historical Static h32 batch-size-4 alternative; incompatible with the official h64 protocol."
+    }
+  ],
+  "experiment_paths_used": [
+    "experiments/evolvegcn_h_500u_k4_seed42",
+    "experiments/evolvegcn_h_500u_k4_seed123",
+    "experiments/evolvegcn_h_500u_k4_seed2025",
+    "experiments/evolvegcn_h_500u_k6_seed42",
+    "experiments/evolvegcn_h_500u_k6_seed123",
+    "experiments/evolvegcn_h_500u_k6_seed2025",
+    "experiments/evolvegcn_h_500u_k8_h64_seed42",
+    "experiments/evolvegcn_h_500u_k8_h64_seed123",
+    "experiments/evolvegcn_h_500u_k8_h64_seed2025",
+    "experiments/evolvegcn_h_500u_k12_seed42",
+    "experiments/evolvegcn_h_500u_k12_seed123",
+    "experiments/evolvegcn_h_500u_k12_seed2025",
+    "experiments/static_gcn_500u_k4_seed42",
+    "experiments/static_gcn_500u_k4_seed123",
+    "experiments/static_gcn_500u_k4_seed2025",
+    "experiments/static_gcn_500u_k6_seed42",
+    "experiments/static_gcn_500u_k6_seed123",
+    "experiments/static_gcn_500u_k6_seed2025",
+    "experiments/static_gcn_500u_k8_h64_seed42",
+    "experiments/static_gcn_500u_k8_h64_seed123",
+    "experiments/static_gcn_500u_k8_h64_seed2025",
+    "experiments/static_gcn_500u_k12_seed42",
+    "experiments/static_gcn_500u_k12_seed123",
+    "experiments/static_gcn_500u_k12_seed2025"
+  ],
+  "family_specification_hashes_sha256": {
+    "configs/experiment_families/canonical_evolvegcn_knn_ablation_500u_top100_h64.json": "7f618829eb076712fbf83ceef350a3726f225fac5126b46472d75e6260ce6494",
+    "configs/experiment_families/canonical_static_gcn_knn_ablation_500u_top100_h64.json": "a8fff6819a6ce013fcb08022e206101069c11603984ca9e5510b7a1d430a6005"
+  },
+  "generated_figures": [
+    "test_mae_vs_k",
+    "test_rmse_vs_k",
+    "test_r2_vs_k",
+    "paired_mae_difference_vs_k",
+    "seed_variability_vs_k",
+    "prediction_std_ratio_vs_k",
+    "repeated_prediction_fraction_vs_k",
+    "true_vs_predicted_representative_runs",
+    "residuals_vs_true_representative_runs",
+    "prediction_distribution_representative_runs"
+  ],
+  "generated_row_counts": {
+    "aggregated_results": 8,
+    "paired_model_differences": 12,
+    "seed_level_results": 24
+  },
+  "generation_timestamp_utc": "2026-07-30T02:30:10.949922+00:00",
+  "git": {
+    "commit": "d524124834a6f6cd66a4141ba559fa835bea2ac5",
+    "dirty": true
+  },
+  "input_experiment_count": 24,
+  "prediction_file_mappings": [
+    {
+      "experiment_path": "experiments/evolvegcn_h_500u_k4_seed42",
+      "prediction_file": "experiments/evolvegcn_h_500u_k4_seed42/predictions/test_predictions.csv"
+    },
+    {
+      "experiment_path": "experiments/evolvegcn_h_500u_k4_seed123",
+      "prediction_file": "experiments/evolvegcn_h_500u_k4_seed123/predictions/test_predictions.csv"
+    },
+    {
+      "experiment_path": "experiments/evolvegcn_h_500u_k4_seed2025",
+      "prediction_file": "experiments/evolvegcn_h_500u_k4_seed2025/predictions/test_predictions.csv"
+    },
+    {
+      "experiment_path": "experiments/evolvegcn_h_500u_k6_seed42",
+      "prediction_file": "experiments/evolvegcn_h_500u_k6_seed42/predictions/test_predictions.csv"
+    },
+    {
+      "experiment_path": "experiments/evolvegcn_h_500u_k6_seed123",
+      "prediction_file": "experiments/evolvegcn_h_500u_k6_seed123/predictions/test_predictions.csv"
+    },
+    {
+      "experiment_path": "experiments/evolvegcn_h_500u_k6_seed2025",
+      "prediction_file": "experiments/evolvegcn_h_500u_k6_seed2025/predictions/test_predictions.csv"
+    },
+    {
+      "experiment_path": "experiments/evolvegcn_h_500u_k8_h64_seed42",
+      "prediction_file": "experiments/evolvegcn_h_500u_k8_h64_seed42/predictions/test_predictions.csv"
+    },
+    {
+      "experiment_path": "experiments/evolvegcn_h_500u_k8_h64_seed123",
+      "prediction_file": "experiments/evolvegcn_h_500u_k8_h64_seed123/predictions/test_predictions.csv"
+    },
+    {
+      "experiment_path": "experiments/evolvegcn_h_500u_k8_h64_seed2025",
+      "prediction_file": "experiments/evolvegcn_h_500u_k8_h64_seed2025/predictions/test_predictions.csv"
+    },
+    {
+      "experiment_path": "experiments/evolvegcn_h_500u_k12_seed42",
+      "prediction_file": "experiments/evolvegcn_h_500u_k12_seed42/predictions/test_predictions.csv"
+    },
+    {
+      "experiment_path": "experiments/evolvegcn_h_500u_k12_seed123",
+      "prediction_file": "experiments/evolvegcn_h_500u_k12_seed123/predictions/test_predictions.csv"
+    },
+    {
+      "experiment_path": "experiments/evolvegcn_h_500u_k12_seed2025",
+      "prediction_file": "experiments/evolvegcn_h_500u_k12_seed2025/predictions/test_predictions.csv"
+    },
+    {
+      "experiment_path": "experiments/static_gcn_500u_k4_seed42",
+      "prediction_file": "experiments/static_gcn_500u_k4_seed42/predictions/test_predictions.csv"
+    },
+    {
+      "experiment_path": "experiments/static_gcn_500u_k4_seed123",
+      "prediction_file": "experiments/static_gcn_500u_k4_seed123/predictions/test_predictions.csv"
+    },
+    {
+      "experiment_path": "experiments/static_gcn_500u_k4_seed2025",
+      "prediction_file": "experiments/static_gcn_500u_k4_seed2025/predictions/test_predictions.csv"
+    },
+    {
+      "experiment_path": "experiments/static_gcn_500u_k6_seed42",
+      "prediction_file": "experiments/static_gcn_500u_k6_seed42/predictions/test_predictions.csv"
+    },
+    {
+      "experiment_path": "experiments/static_gcn_500u_k6_seed123",
+      "prediction_file": "experiments/static_gcn_500u_k6_seed123/predictions/test_predictions.csv"
+    },
+    {
+      "experiment_path": "experiments/static_gcn_500u_k6_seed2025",
+      "prediction_file": "experiments/static_gcn_500u_k6_seed2025/predictions/test_predictions.csv"
+    },
+    {
+      "experiment_path": "experiments/static_gcn_500u_k8_h64_seed42",
+      "prediction_file": "experiments/static_gcn_500u_k8_h64_seed42/predictions/test_predictions.csv"
+    },
+    {
+      "experiment_path": "experiments/static_gcn_500u_k8_h64_seed123",
+      "prediction_file": "experiments/static_gcn_500u_k8_h64_seed123/predictions/test_predictions.csv"
+    },
+    {
+      "experiment_path": "experiments/static_gcn_500u_k8_h64_seed2025",
+      "prediction_file": "experiments/static_gcn_500u_k8_h64_seed2025/predictions/test_predictions.csv"
+    },
+    {
+      "experiment_path": "experiments/static_gcn_500u_k12_seed42",
+      "prediction_file": "experiments/static_gcn_500u_k12_seed42/predictions/test_predictions.csv"
+    },
+    {
+      "experiment_path": "experiments/static_gcn_500u_k12_seed123",
+      "prediction_file": "experiments/static_gcn_500u_k12_seed123/predictions/test_predictions.csv"
+    },
+    {
+      "experiment_path": "experiments/static_gcn_500u_k12_seed2025",
+      "prediction_file": "experiments/static_gcn_500u_k12_seed2025/predictions/test_predictions.csv"
+    }
+  ],
+  "representative_runs": [
+    {
+      "experiment_name": "evolvegcn_h_500u_k4_seed123",
+      "experiment_path": "experiments/evolvegcn_h_500u_k4_seed123",
+      "k": 4,
+      "model": "EvolveGCN-H",
+      "seed": 123
+    },
+    {
+      "experiment_name": "evolvegcn_h_500u_k6_seed123",
+      "experiment_path": "experiments/evolvegcn_h_500u_k6_seed123",
+      "k": 6,
+      "model": "EvolveGCN-H",
+      "seed": 123
+    },
+    {
+      "experiment_name": "evolvegcn_h_500u_k8_h64_seed123",
+      "experiment_path": "experiments/evolvegcn_h_500u_k8_h64_seed123",
+      "k": 8,
+      "model": "EvolveGCN-H",
+      "seed": 123
+    },
+    {
+      "experiment_name": "evolvegcn_h_500u_k12_seed123",
+      "experiment_path": "experiments/evolvegcn_h_500u_k12_seed123",
+      "k": 12,
+      "model": "EvolveGCN-H",
+      "seed": 123
+    },
+    {
+      "experiment_name": "static_gcn_500u_k4_seed123",
+      "experiment_path": "experiments/static_gcn_500u_k4_seed123",
+      "k": 4,
+      "model": "Static GCN",
+      "seed": 123
+    },
+    {
+      "experiment_name": "static_gcn_500u_k6_seed123",
+      "experiment_path": "experiments/static_gcn_500u_k6_seed123",
+      "k": 6,
+      "model": "Static GCN",
+      "seed": 123
+    },
+    {
+      "experiment_name": "static_gcn_500u_k8_h64_seed123",
+      "experiment_path": "experiments/static_gcn_500u_k8_h64_seed123",
+      "k": 8,
+      "model": "Static GCN",
+      "seed": 123
+    },
+    {
+      "experiment_name": "static_gcn_500u_k12_seed123",
+      "experiment_path": "experiments/static_gcn_500u_k12_seed123",
+      "k": 12,
+      "model": "Static GCN",
+      "seed": 123
+    }
+  ],
+  "representative_seed_policy": {
+    "policy": "median_test_mae"
+  },
+  "source_file_hashes_sha256": {
+    "configs/analysis_reports/controlled_static_vs_evolvegcn_knn_ablation_500u_top100_h64.json": "9e028e67bd221b2c4e9029198fd80225e491448531f4a14dd8a37f77d505ece1",
+    "configs/experiment_families/canonical_evolvegcn_knn_ablation_500u_top100_h64.json": "7f618829eb076712fbf83ceef350a3726f225fac5126b46472d75e6260ce6494",
+    "configs/experiment_families/canonical_static_gcn_knn_ablation_500u_top100_h64.json": "a8fff6819a6ce013fcb08022e206101069c11603984ca9e5510b7a1d430a6005",
+    "experiments/evolvegcn_h_500u_k12_seed123/config.json": "61747fe5c9756fffd6f7ae53cf6002480d1b46b547b930f639b11eb8728ebb47",
+    "experiments/evolvegcn_h_500u_k12_seed123/metrics.json": "3097ae21a1f376d8d99a311ca631c82bc0c407d734226ae6b8bfc814fb03e8fa",
+    "experiments/evolvegcn_h_500u_k12_seed123/predictions/test_predictions.csv": "1c8f93b1062d7a538b1ee8c278ee79791226f5d26b06066ac086433214880fc7",
+    "experiments/evolvegcn_h_500u_k12_seed2025/config.json": "9277772c19f3b660d1282c386e000cb688a8936b8bcfbd2735a16f48747d0ee9",
+    "experiments/evolvegcn_h_500u_k12_seed2025/metrics.json": "fa89434385f6e1c71825ef3f98f9f8ee03fadd9d7d6cf2c0da3581d1b3e96a7c",
+    "experiments/evolvegcn_h_500u_k12_seed2025/predictions/test_predictions.csv": "a382ed338d7f76a45a23675af0cc1be48697a75912ce97b620515c0d9bf79e57",
+    "experiments/evolvegcn_h_500u_k12_seed42/config.json": "4b7b1dfccbe1a900ba108ca4cbe6a1e97917ad4a9616ef7b2c5c8447bc1a3667",
+    "experiments/evolvegcn_h_500u_k12_seed42/metrics.json": "69b99db4deb22fb02a0cb784cb0bad82ea7538e7603e149c4973b34f7031ffa0",
+    "experiments/evolvegcn_h_500u_k12_seed42/predictions/test_predictions.csv": "2ddbf95bc2d9f69f547d7dfa0b2d06434001ef8ab6e4d6c03acea75c727cffaa",
+    "experiments/evolvegcn_h_500u_k4_seed123/config.json": "ae83e34d9af70a6dbba8b49d314df0b23193dceaf6ceccaf32d9eaf447700afa",
+    "experiments/evolvegcn_h_500u_k4_seed123/metrics.json": "f7b2fc4c206df2462769eab2cde398bdb0ed02ddb0ffb384e8f23a724dca3646",
+    "experiments/evolvegcn_h_500u_k4_seed123/predictions/test_predictions.csv": "be5bc4f7afd2ded0e7151ec374cf571422feb7fbe01617cb3854c4a8955ad80c",
+    "experiments/evolvegcn_h_500u_k4_seed2025/config.json": "5635261513b3d2789167894fceafac0d8c74004d1c60ad9f797743a87017b778",
+    "experiments/evolvegcn_h_500u_k4_seed2025/metrics.json": "657e9fcec7f261f73aadae92e5bce6fa81f9091128219c6a4c37ad67518842fc",
+    "experiments/evolvegcn_h_500u_k4_seed2025/predictions/test_predictions.csv": "115ceeab7bc254db186955fc3cc10f54a6f415a629aeb31b8c8266c8a14c89ae",
+    "experiments/evolvegcn_h_500u_k4_seed42/config.json": "51d8400eb07b29831b6a79df224edc32043aab3776a2842428295bb94a08d12a",
+    "experiments/evolvegcn_h_500u_k4_seed42/metrics.json": "4421bb367a5191591c865cc97ccbae780a6429ef7b5a39aacf8fa10bc4c5c4f7",
+    "experiments/evolvegcn_h_500u_k4_seed42/predictions/test_predictions.csv": "57d4b17747d4fdfa6b3078ab518c6969271512c91ec10447665e60ac9af85f9e",
+    "experiments/evolvegcn_h_500u_k6_seed123/config.json": "fc57bb57e79ee32c4ab499db5753e37630015e4d8f1d6961f93a9e589e78b5f9",
+    "experiments/evolvegcn_h_500u_k6_seed123/metrics.json": "3bc11786ca5843c95c9284958457e91a044c98c6db25355cd9fefd51c72940bb",
+    "experiments/evolvegcn_h_500u_k6_seed123/predictions/test_predictions.csv": "474992652a85f7670f83cb367371154732264fc1a9f8133059eabd6bb1baa171",
+    "experiments/evolvegcn_h_500u_k6_seed2025/config.json": "a5c996635d6c60580e2c09af7dd47188ef3e262395598573b60a401e87aef29b",
+    "experiments/evolvegcn_h_500u_k6_seed2025/metrics.json": "aa9e444d14a1a1ee8a780b84fe323e7bb783dfdab65e8d9ceb51b0a3199d4eff",
+    "experiments/evolvegcn_h_500u_k6_seed2025/predictions/test_predictions.csv": "8ce82e728a74785f2cf56c0f689bd7eb4e596177c131b5060d3802d3aafb815e",
+    "experiments/evolvegcn_h_500u_k6_seed42/config.json": "1100038c17a2ccba0ddd435f88a4ae9e3f5d2204e58d196d07912e33d1320972",
+    "experiments/evolvegcn_h_500u_k6_seed42/metrics.json": "0595a6fa797e8a38df9f82fba52ea85a30cdbc6d4d2e32069cbdb5024af38ce3",
+    "experiments/evolvegcn_h_500u_k6_seed42/predictions/test_predictions.csv": "626278654b635138d0fc1a8addc49385f8d66f958f0241598fc96d4f0de3df30",
+    "experiments/evolvegcn_h_500u_k8_h64_seed123/config.json": "19dc43e6cdcb188e73f6e9a153b7eda6960f49ad12d25a37351a1635dedf45d0",
+    "experiments/evolvegcn_h_500u_k8_h64_seed123/metrics.json": "aecd1836794a0d05f5988f736db8c50320df7f20cab39b3a2688a7837ffd061a",
+    "experiments/evolvegcn_h_500u_k8_h64_seed123/predictions/test_predictions.csv": "9846f5a4031578ea96f6e786f9b9921eb7bace4e90476456c7a9be4171881fb9",
+    "experiments/evolvegcn_h_500u_k8_h64_seed2025/config.json": "0997ba663e26e686805e083504e4fa117002cb26828193072a79ef0bb2858877",
+    "experiments/evolvegcn_h_500u_k8_h64_seed2025/metrics.json": "b287f5b6df5208837edc8c0e92a1f1c17dc5e2afa1b7b4b48954079344c567a0",
+    "experiments/evolvegcn_h_500u_k8_h64_seed2025/predictions/test_predictions.csv": "b96961c71cb1411cc7046fd5c81807189cc9329c3b4d8fd76e7a417335737b48",
+    "experiments/evolvegcn_h_500u_k8_h64_seed42/config.json": "5696f8a7e41b77729207b6faa7e331e2efd050f8ba5a58f9963e0b1cc7ece12d",
+    "experiments/evolvegcn_h_500u_k8_h64_seed42/metrics.json": "7fad07c3bd1da0c517f471e73253af3c0aee3fae7f85b0e563a2715554530a35",
+    "experiments/evolvegcn_h_500u_k8_h64_seed42/predictions/test_predictions.csv": "ee7e2d546111211c8e664916f581752c31aabfb7b0c63d2f16f95a515887e93b",
+    "experiments/static_gcn_500u_k12_seed123/config.json": "aaf3d8956bb0d1fb4b407850af16faf5466250ad48f5d70bfd6b32559652c108",
+    "experiments/static_gcn_500u_k12_seed123/metrics.json": "6f2cc1ba2513b0f1ecbb9c283300ea9bb212567c05865d70250e5b1fab342cad",
+    "experiments/static_gcn_500u_k12_seed123/predictions/test_predictions.csv": "ce5426a84e9840af9b5d128924fc294c4e79aa25ffe62053d2af079860e59f44",
+    "experiments/static_gcn_500u_k12_seed2025/config.json": "3c846933e1de1c4cbc8a0828c7d88d19d83d3f368a599d8a164e1bf8f9e92f1e",
+    "experiments/static_gcn_500u_k12_seed2025/metrics.json": "fcdb3091360e5391ee439af60c9d780295b938754604987d397357eeaa20f582",
+    "experiments/static_gcn_500u_k12_seed2025/predictions/test_predictions.csv": "f8b7cebca7e4188b8cd0a8e6e362a419ac3a6083780f688534a4149892b85794",
+    "experiments/static_gcn_500u_k12_seed42/config.json": "023d6137788f909f16ddce3048256b737534bc9453e5f580b1b6da67bb1cf75e",
+    "experiments/static_gcn_500u_k12_seed42/metrics.json": "84b2cad1c8420e2b0a8fafb19efdc96a9ea3c2713e9be382a62c587d5bc93a94",
+    "experiments/static_gcn_500u_k12_seed42/predictions/test_predictions.csv": "24ecf6ad76082200f29af7902f598832159974468f663bb2a9a7525d93491f5d",
+    "experiments/static_gcn_500u_k4_seed123/config.json": "6f5aac8be3db72b186c15f0c481c7091d1b83930ea16ff025d4c3448950eaa81",
+    "experiments/static_gcn_500u_k4_seed123/metrics.json": "650066cefbfd4151b056cb9f5a0b4464cb9ee1714f9ef8f766f4732d9a3d7bb5",
+    "experiments/static_gcn_500u_k4_seed123/predictions/test_predictions.csv": "569dd989b811f491ae0f2ce4d4e07bae7f53f43b6b0bc9ec7fa6272609f41274",
+    "experiments/static_gcn_500u_k4_seed2025/config.json": "d275873a2ec571bf28e96b706558232195421010f9a87a5dc8e02632f2c2b75c",
+    "experiments/static_gcn_500u_k4_seed2025/metrics.json": "8eb170656ab26d2a192274798180ea89ea8420a551a96dea18802f53dcf35d20",
+    "experiments/static_gcn_500u_k4_seed2025/predictions/test_predictions.csv": "b25655eab160b3c2c12d753244dce4cbbab3bf8628b5757d232a65d5ac76afc9",
+    "experiments/static_gcn_500u_k4_seed42/config.json": "93ed49272665771bd13986636fb355d25a2a2bf578169b627bc3475112f92cb6",
+    "experiments/static_gcn_500u_k4_seed42/metrics.json": "4c9486bf19dd866cc726e95e6ad8421e26797869d2eddc783a8662471928bb93",
+    "experiments/static_gcn_500u_k4_seed42/predictions/test_predictions.csv": "250a0a3585c40bac468463e67014c04145220144a9393ff0b81945da06a50920",
+    "experiments/static_gcn_500u_k6_seed123/config.json": "ad4074a34b4bfc7c4807c74612b7ea4515e30735af421c31bd3246a4aaa90fee",
+    "experiments/static_gcn_500u_k6_seed123/metrics.json": "dde71f16a2f6bfb5ea55db6e2d17c71837ffc248b6e8191888bcae71c0326529",
+    "experiments/static_gcn_500u_k6_seed123/predictions/test_predictions.csv": "93dbfac9aed360f95b496229d81959d1fe68a39ef510a592f6d4cc1ac1da3a80",
+    "experiments/static_gcn_500u_k6_seed2025/config.json": "b804a56a22acd9681b8804e092418a18027ae1c1a317124338d584e29bef4000",
+    "experiments/static_gcn_500u_k6_seed2025/metrics.json": "e6efb1cc65025550cdeceb8520eb4d6bd50298cf323cc99eee1450d0e5eb95ba",
+    "experiments/static_gcn_500u_k6_seed2025/predictions/test_predictions.csv": "5e0eab6c746d106660e52ea19a939f241dcbb9a383f13e919a20d15904c0c5ef",
+    "experiments/static_gcn_500u_k6_seed42/config.json": "68989c241b1faf78144e86566520818fb59f1a1cb1ba68279215f65454634dc8",
+    "experiments/static_gcn_500u_k6_seed42/metrics.json": "07a61fdd392f67d6c1088834996300a6173de7fa16f05f6ac486e52b4a185d74",
+    "experiments/static_gcn_500u_k6_seed42/predictions/test_predictions.csv": "fed81dee0a927e59af6933bf57c404ed7704f52e96b698ec4662ef72e1375763",
+    "experiments/static_gcn_500u_k8_h64_seed123/config.json": "0cf082e57e89193fbfa598f87adfe1800a77fd5fed8ceda81b1ee1954c42ab4d",
+    "experiments/static_gcn_500u_k8_h64_seed123/metrics.json": "01b10e55e9b4700ce39ba9129156121c37192ec9f660600fc0862902bc63d7d2",
+    "experiments/static_gcn_500u_k8_h64_seed123/predictions/test_predictions.csv": "383264fa616d248dce1fb4a5d91b4e19a34b57470882a3ae2ba59793e5a29e2f",
+    "experiments/static_gcn_500u_k8_h64_seed2025/config.json": "cda7ba538fe2ac847002c2b330abe7b2b3223bb2090b9cbd73bcf737e9df8be7",
+    "experiments/static_gcn_500u_k8_h64_seed2025/metrics.json": "dbaaaeac899bb74367dcb71059f62eaef94dcab8840c444087f64583be3b536d",
+    "experiments/static_gcn_500u_k8_h64_seed2025/predictions/test_predictions.csv": "3be71f65b5a8fcff372349d89e7feafa39485124572736872ca5ffde68b7c725",
+    "experiments/static_gcn_500u_k8_h64_seed42/config.json": "81f495be1aed78e2a490c189c48e3c9fdf81997b0bb1386f1a5ac8e06cc9e2fa",
+    "experiments/static_gcn_500u_k8_h64_seed42/metrics.json": "02338514ed6fa636caaacc07c63df1358d1e85841f87270c39b2dcb1b92fd73f",
+    "experiments/static_gcn_500u_k8_h64_seed42/predictions/test_predictions.csv": "a5fdf1b5bc2b700abae229a0f426ce64afdac1b0d23e12a5b6c5d5e1b5c41ced",
+    "reports/analysis/controlled_static_vs_evolvegcn_knn_ablation_500u_top100_h64/rebuild_analysis_specific_outputs.py": "f05f0fbff4708ff8f18a31c5e6989defd73bdfb6ba00d31a8a7dce2ac14e09ec",
+    "scripts/analysis_reporting/common.py": "521704b0fce17c03ee388d2660d4d1e6ac4caa14eac3f7decfa292ea447da1f3",
+    "scripts/build_analysis_report.py": "f918fdae428df6fb6faf4ac5c5d50a420fb2f9b8a09e74fdd3bfc439352a456a",
+    "scripts/experiment_pipeline/common.py": "cd1b287e151254c4552d86ddb125db0d96dee48f72f42b8e815efc1784bdafe6"
+  }
+}
