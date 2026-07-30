@@ -492,10 +492,27 @@ def aggregate_seed_rows(
             }
             for metric in ("test_mae", "test_rmse", "test_r2", "test_pearson"):
                 values = [float(row[metric]) for row in rows]
-                record[f"mean_{metric}"] = statistics.mean(values)
-                record[f"std_{metric}"] = sample_standard_deviation(values)
-                record[f"min_{metric}"] = min(values)
-                record[f"max_{metric}"] = max(values)
+                finite_values = [value for value in values if math.isfinite(value)]
+                if metric != "test_pearson" and len(finite_values) != len(values):
+                    raise PipelineError(f"non-finite primary metric in aggregate: {metric}")
+                record[f"mean_{metric}"] = (
+                    statistics.mean(finite_values) if finite_values else float("nan")
+                )
+                record[f"std_{metric}"] = (
+                    sample_standard_deviation(finite_values)
+                    if finite_values
+                    else float("nan")
+                )
+                record[f"min_{metric}"] = (
+                    min(finite_values) if finite_values else float("nan")
+                )
+                record[f"max_{metric}"] = (
+                    max(finite_values) if finite_values else float("nan")
+                )
+                if metric == "test_pearson":
+                    record["undefined_pearson_count"] = len(values) - len(
+                        finite_values
+                    )
             result.append(record)
     return result
 
@@ -521,7 +538,15 @@ def pair_model_rows(
     if set(static_rows) != set(evolve_rows):
         raise PipelineError("Static/Evolve pairing keys do not match")
     result: list[dict[str, Any]] = []
-    for key in sorted(static_rows, key=lambda item: (float(item[0]), item[1])):
+    def grouping_sort_key(value: Any) -> tuple[int, Any]:
+        try:
+            return (0, float(value))
+        except (TypeError, ValueError):
+            return (1, str(value))
+
+    for key in sorted(
+        static_rows, key=lambda item: (grouping_sort_key(item[0]), item[1])
+    ):
         static = static_rows[key]
         evolve = evolve_rows[key]
         result.append(
@@ -555,7 +580,15 @@ def select_representative_rows(
         grouped[(str(row["model"]), row[grouping_field])].append(row)
     policy = policy_spec["policy"]
     selected: list[dict[str, Any]] = []
-    for key in sorted(grouped, key=lambda item: (item[0], float(item[1]))):
+    group_order = {
+        value: index
+        for index, value in enumerate(
+            dict.fromkeys(row[grouping_field] for row in seed_rows)
+        )
+    }
+    for key in sorted(
+        grouped, key=lambda item: (item[0], group_order[item[1]])
+    ):
         rows = sorted(grouped[key], key=lambda row: (float(row["test_mae"]), int(row["seed"])))
         if policy == "all_seeds":
             chosen = rows

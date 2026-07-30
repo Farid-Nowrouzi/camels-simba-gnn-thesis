@@ -35,11 +35,23 @@ RESULT_COLUMNS = (
     "test_rmse",
     "test_r2",
     "test_pearson",
+    "pearson_status",
+    "pearson_std_tolerance",
     "target_mean",
     "target_std",
     "prediction_mean",
     "prediction_std",
     "prediction_std_ratio",
+    "unique_prediction_count",
+    "exact_repeated_prediction_fraction",
+    "approximate_unique_prediction_count",
+    "approximate_repeated_prediction_fraction",
+    "approximate_repeat_tolerance",
+    "prediction_min",
+    "prediction_max",
+    "prediction_range",
+    "residual_mean",
+    "residual_std",
     "split_signature",
     "source_commit_if_available",
     "notes",
@@ -92,9 +104,14 @@ def main() -> int:
                     "test_rmse",
                     "test_r2",
                     "test_pearson",
+                    "pearson_status",
                 ),
             )
         )
+        if result.warnings:
+            print("\nWarnings:")
+            for warning in result.warnings:
+                print(f"- {warning}")
         if result.incomplete_messages:
             print("\nIncomplete rows:")
             for message in result.incomplete_messages:
@@ -145,6 +162,15 @@ def main() -> int:
             if result.errors:
                 parts.extend(
                     ["", "## Errors", "", *[f"- {error}" for error in result.errors]]
+                )
+            if result.warnings:
+                parts.extend(
+                    [
+                        "",
+                        "## Warnings",
+                        "",
+                        *[f"- {warning}" for warning in result.warnings],
+                    ]
                 )
             write_text(output, "\n".join(parts))
             print(f"Wrote: {output}")

@@ -15,6 +15,8 @@ from typing import Any, Iterable, Mapping, Sequence
 SUPPORTED_SCHEMA_VERSIONS = {"1.0"}
 VALID_ORIGINS = {"reusable_existing", "canonical_replacement", "planned_new"}
 VALID_ACTIONS = {"reuse", "run_if_missing", "exclude"}
+PEARSON_STD_TOLERANCE = 1e-12
+APPROXIMATE_REPEAT_TOLERANCE = 1e-12
 
 
 class PipelineError(RuntimeError):
@@ -54,6 +56,7 @@ class VerificationResult:
     rows: tuple[dict[str, Any], ...]
     errors: tuple[str, ...]
     incomplete_messages: tuple[str, ...]
+    warnings: tuple[str, ...]
 
 
 def read_json(path: Path) -> dict[str, Any]:
@@ -404,19 +407,38 @@ def read_prediction_pairs(
 ) -> tuple[list[float], list[float]]:
     """Read finite target/prediction pairs from CSV."""
 
+    _, targets, predictions = read_prediction_rows(
+        path,
+        target_aliases,
+        prediction_aliases,
+    )
+    return targets, predictions
+
+
+def read_prediction_rows(
+    path: Path,
+    target_aliases: Sequence[str],
+    prediction_aliases: Sequence[str],
+    id_aliases: Sequence[str] = ("universe_id",),
+) -> tuple[list[str], list[float], list[float]]:
+    """Read ordered IDs and finite target/prediction values from CSV."""
+
     try:
         with path.open("r", encoding="utf-8", newline="") as handle:
             reader = csv.DictReader(handle)
             if not reader.fieldnames:
                 raise PipelineError(f"prediction CSV has no header: {path}")
+            id_column = find_column(reader.fieldnames, id_aliases, "universe ID")
             target_column = find_column(reader.fieldnames, target_aliases, "target")
             prediction_column = find_column(
                 reader.fieldnames, prediction_aliases, "prediction"
             )
+            universe_ids: list[str] = []
             targets: list[float] = []
             predictions: list[float] = []
             for line_number, row in enumerate(reader, start=2):
                 try:
+                    universe_id = str(row[id_column]).strip()
                     target = float(row[target_column])
                     prediction = float(row[prediction_column])
                 except (KeyError, TypeError, ValueError) as exc:
@@ -427,16 +449,35 @@ def read_prediction_pairs(
                     raise PipelineError(
                         f"non-finite prediction value at {path}:{line_number}"
                     )
+                if not universe_id:
+                    raise PipelineError(
+                        f"empty universe ID at {path}:{line_number}"
+                    )
+                universe_ids.append(universe_id)
                 targets.append(target)
                 predictions.append(prediction)
     except OSError as exc:
         raise PipelineError(f"cannot read prediction CSV {path}: {exc}") from exc
     if not targets:
         raise PipelineError(f"prediction CSV has no rows: {path}")
-    return targets, predictions
+    return universe_ids, targets, predictions
 
 
-def recompute_metrics(targets: Sequence[float], predictions: Sequence[float]) -> dict[str, float]:
+def _approximate_unique_count(values: Sequence[float], tolerance: float) -> int:
+    """Count sorted values as repeated when separated by at most an absolute tolerance."""
+
+    if not values:
+        return 0
+    unique_count = 1
+    previous_unique = sorted(values)[0]
+    for value in sorted(values)[1:]:
+        if abs(value - previous_unique) > tolerance:
+            unique_count += 1
+            previous_unique = value
+    return unique_count
+
+
+def recompute_metrics(targets: Sequence[float], predictions: Sequence[float]) -> dict[str, Any]:
     """Compute regression metrics using standard-library arithmetic."""
 
     if len(targets) != len(predictions) or not targets:
@@ -451,9 +492,11 @@ def recompute_metrics(targets: Sequence[float], predictions: Sequence[float]) ->
     ss_total = sum((target - target_mean) ** 2 for target in targets)
     ss_residual = sum(squared_errors)
     r2 = 1.0 - ss_residual / ss_total if ss_total else float("nan")
+    residual_mean = statistics.mean(errors)
     if count > 1:
         target_std = statistics.stdev(targets)
         prediction_std = statistics.stdev(predictions)
+        residual_std = statistics.stdev(errors)
         covariance_sum = sum(
             (target - target_mean) * (prediction - prediction_mean)
             for target, prediction in zip(targets, predictions)
@@ -462,19 +505,33 @@ def recompute_metrics(targets: Sequence[float], predictions: Sequence[float]) ->
         prediction_ss = sum(
             (prediction - prediction_mean) ** 2 for prediction in predictions
         )
-        pearson = (
-            covariance_sum / math.sqrt(target_ss * prediction_ss)
-            if target_ss and prediction_ss
-            else float("nan")
-        )
+        if target_std <= PEARSON_STD_TOLERANCE and prediction_std <= PEARSON_STD_TOLERANCE:
+            pearson = float("nan")
+            pearson_status = "undefined_zero_target_and_prediction_variance"
+        elif target_std <= PEARSON_STD_TOLERANCE:
+            pearson = float("nan")
+            pearson_status = "undefined_zero_target_variance"
+        elif prediction_std <= PEARSON_STD_TOLERANCE:
+            pearson = float("nan")
+            pearson_status = "undefined_zero_prediction_variance"
+        else:
+            pearson = covariance_sum / math.sqrt(target_ss * prediction_ss)
+            pearson_status = "defined"
     else:
-        target_std = prediction_std = pearson = float("nan")
+        target_std = prediction_std = residual_std = pearson = float("nan")
+        pearson_status = "undefined_insufficient_samples"
+    exact_unique_count = len(set(predictions))
+    approximate_unique_count = _approximate_unique_count(
+        predictions, APPROXIMATE_REPEAT_TOLERANCE
+    )
     return {
         "test_mae": sum(absolute_errors) / count,
         "test_mse": mse,
         "test_rmse": math.sqrt(mse),
         "test_r2": r2,
         "test_pearson": pearson,
+        "pearson_status": pearson_status,
+        "pearson_std_tolerance": PEARSON_STD_TOLERANCE,
         "target_mean": target_mean,
         "target_std": target_std,
         "prediction_mean": prediction_mean,
@@ -482,6 +539,20 @@ def recompute_metrics(targets: Sequence[float], predictions: Sequence[float]) ->
         "prediction_std_ratio": (
             prediction_std / target_std if target_std else float("nan")
         ),
+        "unique_prediction_count": exact_unique_count,
+        "exact_repeated_prediction_fraction": (
+            count - exact_unique_count
+        ) / count,
+        "approximate_unique_prediction_count": approximate_unique_count,
+        "approximate_repeated_prediction_fraction": (
+            count - approximate_unique_count
+        ) / count,
+        "approximate_repeat_tolerance": APPROXIMATE_REPEAT_TOLERANCE,
+        "prediction_min": min(predictions),
+        "prediction_max": max(predictions),
+        "prediction_range": max(predictions) - min(predictions),
+        "residual_mean": residual_mean,
+        "residual_std": residual_std,
         "test_count": float(count),
     }
 
@@ -538,6 +609,7 @@ def verify_family(
 
     errors: list[str] = []
     incomplete: list[str] = []
+    warnings: list[str] = []
     verified_rows: list[dict[str, Any]] = []
     observed_config_values: dict[str, dict[str, list[str]]] = {}
     tolerance = float(spec.get("metric_tolerance", 1e-6))
@@ -611,10 +683,11 @@ def verify_family(
 
         prediction_path = experiment_dir / str(spec["prediction_file"])
         try:
-            targets, predictions = read_prediction_pairs(
+            prediction_ids, targets, predictions = read_prediction_rows(
                 prediction_path,
                 spec["target_column_aliases"],
                 spec["prediction_column_aliases"],
+                spec.get("id_column_aliases", ("universe_id",)),
             )
             recomputed = recompute_metrics(targets, predictions)
             saved_metrics = read_json(experiment_dir / "metrics.json")
@@ -622,6 +695,12 @@ def verify_family(
         except PipelineError as exc:
             errors.append(f"{label}: {exc}")
             continue
+        if len(prediction_ids) != len(set(prediction_ids)):
+            errors.append(f"{label}: duplicate universe IDs in prediction CSV")
+        if prediction_ids != test_ids:
+            errors.append(
+                f"{label}: ordered prediction universe IDs do not exactly match test_ids"
+            )
         for metric in ("test_mae", "test_rmse", "test_mse"):
             actual = saved.get(metric)
             if actual is None or not values_equal(actual, recomputed[metric], tolerance):
@@ -643,11 +722,31 @@ def verify_family(
         best_epoch = saved_metrics.get("best_epoch")
         if not isinstance(best_epoch, (int, float)) or isinstance(best_epoch, bool):
             errors.append(f"{label}: metrics.json has no numeric best_epoch")
-        for metric in ("test_r2", "test_pearson"):
-            if metric in saved and not values_equal(saved[metric], recomputed[metric], tolerance):
+        if "test_r2" in saved and not values_equal(
+            saved["test_r2"], recomputed["test_r2"], tolerance
+        ):
+            errors.append(
+                f"{label}: saved test_r2={saved['test_r2']!r}, "
+                f"recomputed={recomputed['test_r2']!r}"
+            )
+        if "test_pearson" in saved:
+            saved_pearson = saved["test_pearson"]
+            if recomputed["pearson_status"] == "defined":
+                pearson_matches = values_equal(
+                    saved_pearson, recomputed["test_pearson"], tolerance
+                )
+            else:
+                try:
+                    pearson_matches = saved_pearson is None or not math.isfinite(
+                        float(saved_pearson)
+                    )
+                except (TypeError, ValueError):
+                    pearson_matches = False
+            if not pearson_matches:
                 errors.append(
-                    f"{label}: saved {metric}={saved[metric]!r}, "
-                    f"recomputed={recomputed[metric]!r}"
+                    f"{label}: saved test_pearson={saved_pearson!r}, "
+                    f"recomputed={recomputed['test_pearson']!r}, "
+                    f"status={recomputed['pearson_status']}"
                 )
         finite_metric_names = (
             "test_mae",
@@ -659,12 +758,44 @@ def verify_family(
             "prediction_mean",
             "prediction_std",
             "prediction_std_ratio",
-            "test_pearson",
+            "prediction_range",
+            "residual_mean",
+            "residual_std",
         )
         for metric in finite_metric_names:
             if not math.isfinite(float(recomputed[metric])):
                 errors.append(f"{label}: non-finite recomputed {metric}")
+        if recomputed["pearson_status"] == "defined":
+            if not math.isfinite(float(recomputed["test_pearson"])):
+                errors.append(f"{label}: unexplained non-finite recomputed test_pearson")
+        elif recomputed["pearson_status"] in {
+            "undefined_zero_prediction_variance",
+            "undefined_zero_target_variance",
+            "undefined_zero_target_and_prediction_variance",
+        }:
+            warnings.append(
+                f"{label}: test_pearson is undefined; "
+                f"status={recomputed['pearson_status']}; "
+                f"target_std={recomputed['target_std']:.17g}; "
+                f"prediction_std={recomputed['prediction_std']:.17g}; "
+                f"tolerance={PEARSON_STD_TOLERANCE:.1e}"
+            )
+        else:
+            errors.append(
+                f"{label}: non-finite test_pearson is not explained by "
+                f"the variance policy ({recomputed['pearson_status']})"
+            )
 
+        observed_split_signature = split_signature(config)
+        expected_split_signature = run.get("expected_split_signature")
+        if (
+            expected_split_signature is not None
+            and observed_split_signature != expected_split_signature
+        ):
+            errors.append(
+                f"{label}: split signature={observed_split_signature}, "
+                f"expected={expected_split_signature}"
+            )
         verified_rows.append(
             {
                 "family_id": spec["family_id"],
@@ -679,7 +810,7 @@ def verify_family(
                 "test_count": len(test_ids),
                 "best_epoch": best_epoch if best_epoch is not None else "",
                 **{key: value for key, value in recomputed.items() if key != "test_count"},
-                "split_signature": split_signature(config),
+                "split_signature": observed_split_signature,
                 "source_commit_if_available": _source_commit(config),
                 "notes": inspection.notes,
             }
@@ -726,6 +857,7 @@ def verify_family(
         rows=tuple(verified_rows),
         errors=tuple(errors),
         incomplete_messages=tuple(incomplete),
+        warnings=tuple(warnings),
     )
 
 
@@ -777,7 +909,12 @@ def write_csv(path: Path, rows: Sequence[Mapping[str, Any]], columns: Sequence[s
 
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("w", encoding="utf-8", newline="") as handle:
-        writer = csv.DictWriter(handle, fieldnames=list(columns), extrasaction="ignore")
+        writer = csv.DictWriter(
+            handle,
+            fieldnames=list(columns),
+            extrasaction="ignore",
+            lineterminator="\n",
+        )
         writer.writeheader()
         writer.writerows(rows)
 
