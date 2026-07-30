@@ -1,0 +1,11 @@
+graph_pooling,seed,exact_repeated_prediction_fraction,aggregate_mean,aggregate_sd
+mean,42,0.0,0.0,0.0
+mean,123,0.0,0.0,0.0
+mean,777,0.0,0.0,0.0
+mean,999,0.0,0.0,0.0
+mean,2025,0.0,0.0,0.0
+mean_max,42,0.0,0.0,0.0
+mean_max,123,0.0,0.0,0.0
+mean_max,777,0.0,0.0,0.0
+mean_max,999,0.0,0.0,0.0
+mean_max,2025,0.0,0.0,0.0

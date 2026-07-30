@@ -38,6 +38,9 @@ def validate_generated_outputs(
         "aggregated_results": "aggregated_results.csv",
         "paired_normalization_differences": "paired_normalization_differences.csv",
         "paired_model_differences": "paired_model_differences.csv",
+        "paired_pooling_differences": "paired_pooling_differences.csv",
+        "prediction_diagnostics": "prediction_diagnostics.csv",
+        "representative_runs": "representative_runs.csv",
     }
     tables: dict[str, list[dict[str, str]]] = {}
     for key, expected in (expected_counts or {}).items():
@@ -91,7 +94,12 @@ def validate_generated_outputs(
                 errors.append(f"unexplained undefined Pearson: {row['experiment_name']}")
             if status != "defined" and math.isfinite(pearson):
                 errors.append(f"undefined Pearson represented as finite: {row['experiment_name']}")
-        if spec.get("grouping_field") == "normalization":
+        if spec.get("require_unique_prediction_hashes"):
+            if len({row["prediction_sha256"] for row in seed_rows}) != len(seed_rows):
+                errors.append("canonical prediction hashes are not unique")
+        if spec.get("require_exact_paired_splits") or spec.get(
+            "grouping_field"
+        ) == "normalization":
             signatures: dict[int, set[str]] = {}
             for row in seed_rows:
                 signatures.setdefault(int(row["seed"]), set()).add(
@@ -99,13 +107,23 @@ def validate_generated_outputs(
                 )
             if any(len(values) != 1 for values in signatures.values()):
                 errors.append("seed-level split signatures do not match across all pairs")
-            if not any(float(row["test_r2"]) < 0 for row in seed_rows):
+            if spec.get("require_negative_r2_retention", True) and not any(
+                float(row["test_r2"]) < 0 for row in seed_rows
+            ):
                 errors.append("negative-R² rows were not retained")
-            if not any(
+            if spec.get("grouping_field") == "normalization" and not any(
                 float(row["exact_repeated_prediction_fraction"]) > 0
                 for row in seed_rows
             ):
                 errors.append("repeated-prediction rows were not retained")
+        grouping_values = list(spec.get("grouping_values", ()))
+        grouping_field = spec.get("grouping_field")
+        if grouping_values and grouping_field:
+            observed_order = list(dict.fromkeys(row[grouping_field] for row in seed_rows))
+            if observed_order != grouping_values:
+                errors.append(
+                    f"{grouping_field} order={observed_order}, expected={grouping_values}"
+                )
 
     manifest_path = output_dir / "analysis_manifest.json"
     if manifest_path.is_file():
@@ -125,14 +143,15 @@ def validate_generated_outputs(
         if seed_rows and spec.get("representative_seed_policy", {}).get(
             "policy"
         ) == "median_test_mae":
+            specific_validation = manifest.get(
+                "normalization_specific_validation"
+            ) or manifest.get("graph_pooling_specific_validation", {})
             selected = {
                 (
                     row["model"],
                     row[spec["grouping_field"]],
                 ): int(row["seed"])
-                for row in manifest.get("normalization_specific_validation", {}).get(
-                    "representative_runs", ()
-                )
+                for row in specific_validation.get("representative_runs", ())
             }
             expected_selected: dict[tuple[str, str], int] = {}
             grouped: dict[tuple[str, str], list[dict[str, str]]] = {}

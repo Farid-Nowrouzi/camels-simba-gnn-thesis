@@ -1,0 +1,13 @@
+model,graph_pooling,seed,prediction_std_ratio,point_type
+EvolveGCN-H,mean,42,0.7483525255719586,seed
+EvolveGCN-H,mean,123,0.9793908511167602,seed
+EvolveGCN-H,mean,777,0.7520369000450416,seed
+EvolveGCN-H,mean,999,1.034781085134774,seed
+EvolveGCN-H,mean,2025,0.7977224172440098,seed
+EvolveGCN-H,mean_max,42,0.7389563263171712,seed
+EvolveGCN-H,mean_max,123,0.9515355581252557,seed
+EvolveGCN-H,mean_max,777,1.2476526786993878,seed
+EvolveGCN-H,mean_max,999,0.7971274275161749,seed
+EvolveGCN-H,mean_max,2025,0.5821199781679686,seed
+EvolveGCN-H,mean,,0.8624567558225089,mean
+EvolveGCN-H,mean_max,,0.8634783937651916,mean

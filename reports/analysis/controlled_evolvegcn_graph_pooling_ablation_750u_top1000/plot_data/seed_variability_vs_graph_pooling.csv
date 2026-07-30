@@ -1,0 +1,3 @@
+model,graph_pooling,sample_standard_deviation_test_mae
+EvolveGCN-H,mean,0.008748483193105712
+EvolveGCN-H,mean_max,0.010152374924769416

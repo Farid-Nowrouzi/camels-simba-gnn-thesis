@@ -1,0 +1,5 @@
+metric,mean_difference,sd_difference,convention
+MAE,0.025130024622773646,0.011204041516997507,mean_max_minus_mean
+RMSE,0.03503404749128167,0.01744862192804832,mean_max_minus_mean
+R²,-0.4621484847682533,0.24240561819563428,mean_max_minus_mean
+SD ratio,0.0010216379426827738,0.2955747198061088,mean_max_minus_mean
