@@ -1,0 +1,366 @@
+{
+  "analysis_specification": {
+    "analysis_name": "controlled_static_vs_evolvegcn_universe_scaling_top100",
+    "analysis_type": "scaling",
+    "comparison_statement": "Matched universe counts, graph protocol, seeds, and split IDs, with intentional architecture and temporal-input differences.",
+    "controlled_variables_summary": "Universe counts, Top100 graph protocol, minmax normalization, periodic kNN with k=8 and box size 25, seven node features, seeds, and exact split IDs are matched.",
+    "families": [
+      {
+        "family_spec_path": "configs/experiment_families/canonical_evolvegcn_universe_scaling.json",
+        "label": "EvolveGCN-H"
+      },
+      {
+        "family_spec_path": "configs/experiment_families/canonical_static_gcn_universe_scaling.json",
+        "label": "Static GCN"
+      }
+    ],
+    "fields_allowed_to_differ": [
+      {
+        "field": "fixed_scientific_settings.config.model",
+        "reason": "Static GCN and EvolveGCN-H are intentionally different architectures."
+      },
+      {
+        "field": "fixed_scientific_settings.config.batch_size",
+        "reason": "Static GCN uses its established batch size 8; EvolveGCN-H uses canonical batch size 4."
+      },
+      {
+        "field": "fixed_scientific_settings.config.dataset_format",
+        "reason": "Static GCN consumes native final-snapshot graphs; EvolveGCN-H consumes temporal graphs."
+      },
+      {
+        "field": "fixed_scientific_settings.config.conv_type",
+        "reason": "The explicit Static GCN convolution selector is model-specific."
+      },
+      {
+        "field": "fixed_scientific_settings.config.head_type",
+        "reason": "Each architecture uses its established canonical MLP regression head."
+      },
+      {
+        "field": "fixed_scientific_settings.config.num_snapshots",
+        "reason": "EvolveGCN-H uses five snapshots; Static GCN uses only the final snapshot."
+      },
+      {
+        "field": "fixed_scientific_settings.config.temporal_pooling",
+        "reason": "Temporal pooling applies only to EvolveGCN-H."
+      },
+      {
+        "field": "fixed_scientific_settings.dataset_metadata.dataset_type",
+        "reason": "Static metadata identifies native final-snapshot graphs."
+      },
+      {
+        "field": "fixed_scientific_settings.dataset_metadata.node_selection",
+        "reason": "Static metadata records the shared Top-N selection explicitly; the temporal family documents it through preprocessing provenance."
+      },
+      {
+        "field": "fixed_scientific_settings.dataset_metadata.num_snapshots",
+        "reason": "EvolveGCN-H uses five snapshots; Static GCN uses one final snapshot."
+      },
+      {
+        "field": "fixed_scientific_settings.dataset_metadata.preferred_snapshot",
+        "reason": "The final-snapshot value applies to the native Static dataset."
+      },
+      {
+        "field": "fixed_scientific_settings.dataset_metadata.preprocessing_version",
+        "reason": "The Static metadata records its preprocessing version explicitly."
+      }
+    ],
+    "figure_formats": [
+      "png",
+      "pdf"
+    ],
+    "grouping_axis_label": "Number of universes",
+    "grouping_field": "universes",
+    "grouping_value_label": "universes",
+    "grouping_values": [
+      20,
+      50,
+      100,
+      200,
+      500
+    ],
+    "limitations_summary": "The five universe-count datasets change population size, so adjacent points are not independent repeated samples of one fixed dataset.",
+    "metric_tolerance": 1e-06,
+    "metrics": [
+      "test_mae",
+      "test_rmse",
+      "test_r2",
+      "test_pearson"
+    ],
+    "output_directory": "reports/analysis/controlled_static_vs_evolvegcn_universe_scaling_top100",
+    "plot_grouping_suffix": "universes",
+    "prediction_plots_enabled": true,
+    "reference_family": null,
+    "representative_seed_policy": {
+      "policy": "median_test_mae"
+    },
+    "required_fixed_protocol": {
+      "fixed_scientific_settings.config.dropout": 0.2,
+      "fixed_scientific_settings.config.epochs": 300,
+      "fixed_scientific_settings.config.grad_clip_norm": 1.0,
+      "fixed_scientific_settings.config.graph_pooling": "mean",
+      "fixed_scientific_settings.config.hidden_dim": 32,
+      "fixed_scientific_settings.config.learning_rate": 0.001,
+      "fixed_scientific_settings.config.node_features": 7,
+      "fixed_scientific_settings.config.normalize_target": false,
+      "fixed_scientific_settings.config.num_layers": 2,
+      "fixed_scientific_settings.config.num_nodes": 100,
+      "fixed_scientific_settings.config.patience": 40,
+      "fixed_scientific_settings.config.test_ratio": 0.15,
+      "fixed_scientific_settings.config.train_ratio": 0.7,
+      "fixed_scientific_settings.config.use_summary_features": false,
+      "fixed_scientific_settings.config.val_ratio": 0.15,
+      "fixed_scientific_settings.config.weight_decay": 1e-05,
+      "fixed_scientific_settings.dataset_metadata.box_size": 25.0,
+      "fixed_scientific_settings.dataset_metadata.feature_names": [
+        "log10_Mvir",
+        "X",
+        "Y",
+        "Z",
+        "VX",
+        "VY",
+        "VZ"
+      ],
+      "fixed_scientific_settings.dataset_metadata.graph_mode": "knn",
+      "fixed_scientific_settings.dataset_metadata.k": 8,
+      "fixed_scientific_settings.dataset_metadata.normalization": "minmax",
+      "fixed_scientific_settings.dataset_metadata.num_nodes": 100,
+      "fixed_scientific_settings.dataset_metadata.periodic_boundary": true,
+      "fixed_scientific_settings.dataset_metadata.periodic_boundary_knn": true
+    },
+    "required_seeds": [
+      42,
+      123,
+      2025
+    ],
+    "schema_version": "1.0",
+    "scientific_question": "How does increasing the number of universes from 20 to 500 affect Omega_m regression performance, and how do Static GCN and EvolveGCN-H compare under the controlled Top100 protocol?",
+    "title": "Controlled Universe-Count Scaling: Static GCN versus EvolveGCN-H"
+  },
+  "excluded_paths": [],
+  "experiment_paths_used": [
+    "experiments/evolvegcn_h_u20_top100_norm-minmax_h32_l2_gpool-mean_tpool-mean_head-mlp_canonical300_seed42",
+    "experiments/evolvegcn_h_20u_seed123_final32",
+    "experiments/evolvegcn_h_u20_top100_norm-minmax_h32_l2_gpool-mean_tpool-mean_head-mlp_canonical300_seed2025",
+    "experiments/evolvegcn_h_u50_top100_norm-minmax_h32_l2_gpool-mean_tpool-mean_head-mlp_canonical300_seed42",
+    "experiments/evolvegcn_h_50u_seed123_final32",
+    "experiments/evolvegcn_h_u50_top100_norm-minmax_h32_l2_gpool-mean_tpool-mean_head-mlp_canonical300_seed2025",
+    "experiments/evolvegcn_h_u100_top100_norm-minmax_h32_l2_gpool-mean_tpool-mean_head-mlp_canonical300_seed42",
+    "experiments/evolvegcn_h_100u_seed123_final32",
+    "experiments/evolvegcn_h_u100_top100_norm-minmax_h32_l2_gpool-mean_tpool-mean_head-mlp_canonical300_seed2025",
+    "experiments/evolvegcn_h_200u_seed42_final32",
+    "experiments/evolvegcn_h_200u_seed123_final32",
+    "experiments/evolvegcn_h_200u_seed2025_final32",
+    "experiments/evolvegcn_h_500u_seed42_final32",
+    "experiments/evolvegcn_h_500u_seed123_final32",
+    "experiments/evolvegcn_h_500u_seed2025_final32",
+    "experiments/static_gcn_u20_top100_norm-minmax_h32_l2_gpool-mean_conv-gcn_batch8_canonical300_seed42",
+    "experiments/static_gcn_20u_seed123_final32",
+    "experiments/static_gcn_u20_top100_norm-minmax_h32_l2_gpool-mean_conv-gcn_batch8_canonical300_seed2025",
+    "experiments/static_gcn_u50_top100_norm-minmax_h32_l2_gpool-mean_conv-gcn_batch8_canonical300_seed42",
+    "experiments/static_gcn_50u_seed123_final32",
+    "experiments/static_gcn_u50_top100_norm-minmax_h32_l2_gpool-mean_conv-gcn_batch8_canonical300_seed2025",
+    "experiments/static_gcn_u100_top100_norm-minmax_h32_l2_gpool-mean_conv-gcn_batch8_canonical300_seed42",
+    "experiments/static_gcn_100u_seed123_final32",
+    "experiments/static_gcn_u100_top100_norm-minmax_h32_l2_gpool-mean_conv-gcn_batch8_canonical300_seed2025",
+    "experiments/static_gcn_200u_seed42_final32",
+    "experiments/static_gcn_200u_seed123_final32",
+    "experiments/static_gcn_200u_seed2025_final32",
+    "experiments/static_gcn_u500_top100_norm-minmax_h32_l2_gpool-mean_conv-gcn_batch8_canonical300_seed42",
+    "experiments/static_gcn_u500_top100_norm-minmax_h32_l2_gpool-mean_conv-gcn_batch8_canonical300_seed123",
+    "experiments/static_gcn_u500_top100_norm-minmax_h32_l2_gpool-mean_conv-gcn_batch8_canonical300_seed2025"
+  ],
+  "generated_figures": [
+    "test_mae_vs_universes",
+    "test_rmse_vs_universes",
+    "test_r2_vs_universes",
+    "paired_mae_difference_vs_universes",
+    "seed_variability_vs_universes",
+    "prediction_std_ratio_vs_universes",
+    "true_vs_predicted_representative_runs",
+    "residuals_vs_true_representative_runs"
+  ],
+  "generated_row_counts": {
+    "aggregated_results": 10,
+    "paired_model_differences": 15,
+    "seed_level_results": 30
+  },
+  "generation_timestamp_utc": "2026-07-30T01:10:51.431976+00:00",
+  "git": {
+    "commit": "33b52b1356ec602e696301fa11d672f7ff4b849e",
+    "dirty": true
+  },
+  "input_experiment_count": 30,
+  "representative_runs": [
+    {
+      "experiment_name": "evolvegcn_h_u20_top100_norm-minmax_h32_l2_gpool-mean_tpool-mean_head-mlp_canonical300_seed2025",
+      "experiment_path": "experiments/evolvegcn_h_u20_top100_norm-minmax_h32_l2_gpool-mean_tpool-mean_head-mlp_canonical300_seed2025",
+      "model": "EvolveGCN-H",
+      "seed": 2025,
+      "universes": 20
+    },
+    {
+      "experiment_name": "evolvegcn_h_50u_seed123_final32",
+      "experiment_path": "experiments/evolvegcn_h_50u_seed123_final32",
+      "model": "EvolveGCN-H",
+      "seed": 123,
+      "universes": 50
+    },
+    {
+      "experiment_name": "evolvegcn_h_u100_top100_norm-minmax_h32_l2_gpool-mean_tpool-mean_head-mlp_canonical300_seed2025",
+      "experiment_path": "experiments/evolvegcn_h_u100_top100_norm-minmax_h32_l2_gpool-mean_tpool-mean_head-mlp_canonical300_seed2025",
+      "model": "EvolveGCN-H",
+      "seed": 2025,
+      "universes": 100
+    },
+    {
+      "experiment_name": "evolvegcn_h_200u_seed42_final32",
+      "experiment_path": "experiments/evolvegcn_h_200u_seed42_final32",
+      "model": "EvolveGCN-H",
+      "seed": 42,
+      "universes": 200
+    },
+    {
+      "experiment_name": "evolvegcn_h_500u_seed123_final32",
+      "experiment_path": "experiments/evolvegcn_h_500u_seed123_final32",
+      "model": "EvolveGCN-H",
+      "seed": 123,
+      "universes": 500
+    },
+    {
+      "experiment_name": "static_gcn_u20_top100_norm-minmax_h32_l2_gpool-mean_conv-gcn_batch8_canonical300_seed42",
+      "experiment_path": "experiments/static_gcn_u20_top100_norm-minmax_h32_l2_gpool-mean_conv-gcn_batch8_canonical300_seed42",
+      "model": "Static GCN",
+      "seed": 42,
+      "universes": 20
+    },
+    {
+      "experiment_name": "static_gcn_50u_seed123_final32",
+      "experiment_path": "experiments/static_gcn_50u_seed123_final32",
+      "model": "Static GCN",
+      "seed": 123,
+      "universes": 50
+    },
+    {
+      "experiment_name": "static_gcn_u100_top100_norm-minmax_h32_l2_gpool-mean_conv-gcn_batch8_canonical300_seed2025",
+      "experiment_path": "experiments/static_gcn_u100_top100_norm-minmax_h32_l2_gpool-mean_conv-gcn_batch8_canonical300_seed2025",
+      "model": "Static GCN",
+      "seed": 2025,
+      "universes": 100
+    },
+    {
+      "experiment_name": "static_gcn_200u_seed42_final32",
+      "experiment_path": "experiments/static_gcn_200u_seed42_final32",
+      "model": "Static GCN",
+      "seed": 42,
+      "universes": 200
+    },
+    {
+      "experiment_name": "static_gcn_u500_top100_norm-minmax_h32_l2_gpool-mean_conv-gcn_batch8_canonical300_seed123",
+      "experiment_path": "experiments/static_gcn_u500_top100_norm-minmax_h32_l2_gpool-mean_conv-gcn_batch8_canonical300_seed123",
+      "model": "Static GCN",
+      "seed": 123,
+      "universes": 500
+    }
+  ],
+  "representative_seed_policy": {
+    "policy": "median_test_mae"
+  },
+  "source_file_hashes_sha256": {
+    "configs/analysis_reports/controlled_static_vs_evolvegcn_universe_scaling_top100.json": "479c069df4f2f9707f671709c9c0993bda41e4a7fedd0a27e2b0367f80d1bd77",
+    "configs/experiment_families/canonical_evolvegcn_universe_scaling.json": "d3bc320c7d41c48f23c2c7af05174e47ee2cf6fe3fd284a628825cf06c4c5823",
+    "configs/experiment_families/canonical_static_gcn_universe_scaling.json": "78560cd1843e1949199ba402d6aaa9dd738231442678b989e3ae2e60d3401bad",
+    "experiments/evolvegcn_h_100u_seed123_final32/config.json": "1f884651206e34dcd3dc29bd9e1a5c111765fb3b18a1cd506171fa1c4687b8c5",
+    "experiments/evolvegcn_h_100u_seed123_final32/metrics.json": "5b3e31dfbcfee6c5fc28b65f01885fec1c533b0ccc518341631652db147ce507",
+    "experiments/evolvegcn_h_100u_seed123_final32/predictions/test_predictions.csv": "918d1bfcca7ed41f269924c49db3ab596451ab869ed170018feec0964f39cda1",
+    "experiments/evolvegcn_h_200u_seed123_final32/config.json": "9afee9cb02b28f7255db97ed4f0dc388e64a2205a0ba623c30427d33894f35e0",
+    "experiments/evolvegcn_h_200u_seed123_final32/metrics.json": "9aa6b5969e9a01ddbadd470505af4f5a711338814edaad9c5c9519971cc8221a",
+    "experiments/evolvegcn_h_200u_seed123_final32/predictions/test_predictions.csv": "982ac960f7fa47c416760b26fb0cc58f93650158636ab232b8519ccd5ac9e459",
+    "experiments/evolvegcn_h_200u_seed2025_final32/config.json": "25125a39a660d111c19c9f25590a1446ab64255956b71c825d3bb6cd753bf928",
+    "experiments/evolvegcn_h_200u_seed2025_final32/metrics.json": "b336b86f4feddc2278660ac917357a6edad699509f386458f424c1397bde03c0",
+    "experiments/evolvegcn_h_200u_seed2025_final32/predictions/test_predictions.csv": "0d1fa9309a633512a40c8ac464e5d2063f27b995b599282e6bd5ae05800a027d",
+    "experiments/evolvegcn_h_200u_seed42_final32/config.json": "d5974c6c17ee2e882b5ceb3b2e45dc284700290834c0d15dd0b649cca0d75748",
+    "experiments/evolvegcn_h_200u_seed42_final32/metrics.json": "9505c28157104c1cc6226a20b652f3a4c96843c14b5101e33e2b5f9e57e24828",
+    "experiments/evolvegcn_h_200u_seed42_final32/predictions/test_predictions.csv": "173f00157aff8a23ee5435b6aef9565f9d14d443a1becfc95c4401ffabb6bf0e",
+    "experiments/evolvegcn_h_20u_seed123_final32/config.json": "ad31272dbe40895d17333272a4c414fff7a94e44834f0f692d3a5af6dbad5c88",
+    "experiments/evolvegcn_h_20u_seed123_final32/metrics.json": "15e67ec18394e209bd491f19222a8b4c0a0c6158981d2c32203836917f6971d3",
+    "experiments/evolvegcn_h_20u_seed123_final32/predictions/test_predictions.csv": "e0796cf7f0040e1c1251f54170ed4529ceac7427c75982fa57861d6aa74acfe9",
+    "experiments/evolvegcn_h_500u_seed123_final32/config.json": "885919af5108bef60ae78e47884a7059e1286c4c65ecb96e0f9b79528c065cf4",
+    "experiments/evolvegcn_h_500u_seed123_final32/metrics.json": "9dfe55e8d188061d85682657785f4db35d4780b72903c50c9467943777b28011",
+    "experiments/evolvegcn_h_500u_seed123_final32/predictions/test_predictions.csv": "a11caa3b4f669ae8c1b28405cac234713a7d654732ec8a22cf406115a4650ee6",
+    "experiments/evolvegcn_h_500u_seed2025_final32/config.json": "82ac0dafb08af0e85e7cdca24b2ab4151fd6c63e440fcc1157b5363b9d25e290",
+    "experiments/evolvegcn_h_500u_seed2025_final32/metrics.json": "57389145cd90bd7ae2f67adfea9a8989da2eb6bfd61962ae545762e58e92bd84",
+    "experiments/evolvegcn_h_500u_seed2025_final32/predictions/test_predictions.csv": "9879ea1e66209445c20b328162cac00b4915ed4a850082fd16f0ed0de643c9f4",
+    "experiments/evolvegcn_h_500u_seed42_final32/config.json": "2993db5579ff3c397624cab564619868b439316dac9cb25133d95cca27dbb8e1",
+    "experiments/evolvegcn_h_500u_seed42_final32/metrics.json": "aa92d1f4d95137e586d0abe5e0a794c5c13d12fffb6f8bf23200cc73de4996c8",
+    "experiments/evolvegcn_h_500u_seed42_final32/predictions/test_predictions.csv": "aea72c463ede3293266bb453114c3f4a4f144e13ad615011dbd5b3936c93ee0a",
+    "experiments/evolvegcn_h_50u_seed123_final32/config.json": "0570d3445ea74e9397e73d5fdbdfad116b3e7398a3413a806085040d88362e73",
+    "experiments/evolvegcn_h_50u_seed123_final32/metrics.json": "c91b177cedaf2ba9f4b457a1d24c4fc94f89663a2710848c77988a486e92b484",
+    "experiments/evolvegcn_h_50u_seed123_final32/predictions/test_predictions.csv": "f9c8e98fefda800ef8eca4053889eb0f6871dce274e6d12350f3f757091a072a",
+    "experiments/evolvegcn_h_u100_top100_norm-minmax_h32_l2_gpool-mean_tpool-mean_head-mlp_canonical300_seed2025/config.json": "2341881b38d6b987f5b865724220921e337da89ff8ca775267e14aabb5d4f499",
+    "experiments/evolvegcn_h_u100_top100_norm-minmax_h32_l2_gpool-mean_tpool-mean_head-mlp_canonical300_seed2025/metrics.json": "e1ab5edad5cea56c73b355953e73a652b708c5ccb5710d4c0ef102069675c6be",
+    "experiments/evolvegcn_h_u100_top100_norm-minmax_h32_l2_gpool-mean_tpool-mean_head-mlp_canonical300_seed2025/predictions/test_predictions.csv": "cd401ea8819d4b7d18d9aaba72db820036d74d32871a9d37292efb8dd91afb26",
+    "experiments/evolvegcn_h_u100_top100_norm-minmax_h32_l2_gpool-mean_tpool-mean_head-mlp_canonical300_seed42/config.json": "5af8d5449fd36aba2e1a7d77c2dbf0661d51377dc460aeef40b2621f20903edf",
+    "experiments/evolvegcn_h_u100_top100_norm-minmax_h32_l2_gpool-mean_tpool-mean_head-mlp_canonical300_seed42/metrics.json": "513ca31d601ef4ce91f59380b7c671846115c8d5d775b74285163aa901accc0c",
+    "experiments/evolvegcn_h_u100_top100_norm-minmax_h32_l2_gpool-mean_tpool-mean_head-mlp_canonical300_seed42/predictions/test_predictions.csv": "a9ec63fa760f1f66ed64b806f39de98c41f7bb6637ff566ef094532165b7f623",
+    "experiments/evolvegcn_h_u20_top100_norm-minmax_h32_l2_gpool-mean_tpool-mean_head-mlp_canonical300_seed2025/config.json": "93f44e887db0b606b8f10e91c92e5c51f03160c8fce6cb6628e3ca2d595b18a5",
+    "experiments/evolvegcn_h_u20_top100_norm-minmax_h32_l2_gpool-mean_tpool-mean_head-mlp_canonical300_seed2025/metrics.json": "f1223c6accfaff3e20ca9ff1aaff2043fd700e8e5c0a33176db0894e6599b742",
+    "experiments/evolvegcn_h_u20_top100_norm-minmax_h32_l2_gpool-mean_tpool-mean_head-mlp_canonical300_seed2025/predictions/test_predictions.csv": "577efef996bd8a23aa443a519ad536664ef6dedc22d8084b2286c16a4e0025eb",
+    "experiments/evolvegcn_h_u20_top100_norm-minmax_h32_l2_gpool-mean_tpool-mean_head-mlp_canonical300_seed42/config.json": "bce32fa33fcb1bd4c22595202de22568c95a882250cf695ee3161b5babb8d03c",
+    "experiments/evolvegcn_h_u20_top100_norm-minmax_h32_l2_gpool-mean_tpool-mean_head-mlp_canonical300_seed42/metrics.json": "a94006ea69d5eb36a2e891ecaf961435f76058b2c0e895a10d93b58109e84b86",
+    "experiments/evolvegcn_h_u20_top100_norm-minmax_h32_l2_gpool-mean_tpool-mean_head-mlp_canonical300_seed42/predictions/test_predictions.csv": "f16f7878df049c1eb56409534c2e8eb610e7a029cde6e61ea1d85a2bc1ce1675",
+    "experiments/evolvegcn_h_u50_top100_norm-minmax_h32_l2_gpool-mean_tpool-mean_head-mlp_canonical300_seed2025/config.json": "8bc120408f7ac5a9703b20e86db619801a28ee0df9bef5f296e314147f8e9a31",
+    "experiments/evolvegcn_h_u50_top100_norm-minmax_h32_l2_gpool-mean_tpool-mean_head-mlp_canonical300_seed2025/metrics.json": "5668e74cc8343d2d559e54db5748c1a6442c859178c3e661310fd1a9373b9f2b",
+    "experiments/evolvegcn_h_u50_top100_norm-minmax_h32_l2_gpool-mean_tpool-mean_head-mlp_canonical300_seed2025/predictions/test_predictions.csv": "054bba000a6b750e7f3d549604cf7c172985c7b71b3a665686825a20ffcf36ce",
+    "experiments/evolvegcn_h_u50_top100_norm-minmax_h32_l2_gpool-mean_tpool-mean_head-mlp_canonical300_seed42/config.json": "069673cbb475db298f855424e367da8143e2e303ca1b69c16ad75c8009814504",
+    "experiments/evolvegcn_h_u50_top100_norm-minmax_h32_l2_gpool-mean_tpool-mean_head-mlp_canonical300_seed42/metrics.json": "c00520cae63145132291f16c20ed70bfd2a3de2cfd67290f817f102e4dceec05",
+    "experiments/evolvegcn_h_u50_top100_norm-minmax_h32_l2_gpool-mean_tpool-mean_head-mlp_canonical300_seed42/predictions/test_predictions.csv": "8bbaad5b5bee943174976b4706033fb6c6361709c4b864dae0fad43185d64338",
+    "experiments/static_gcn_100u_seed123_final32/config.json": "3c0d23ce285c05a5a4649c10d6f09a23200a4610db6aeef342269a341afe44e5",
+    "experiments/static_gcn_100u_seed123_final32/metrics.json": "d63d893fa054bb5540b86d0aacabff622e9f5ee75fbb732405a595baf7c158e6",
+    "experiments/static_gcn_100u_seed123_final32/predictions/test_predictions.csv": "e27db88f47a943a9bd99101a31c07adbd27a59b3f317c4b1b359b9e39e9b410d",
+    "experiments/static_gcn_200u_seed123_final32/config.json": "766ffcb613a94d97921c887c4521d863c06abad624306617d5175e7aff737153",
+    "experiments/static_gcn_200u_seed123_final32/metrics.json": "752a92f3989101b6d6d976843419523cdc1313f8ea3efd04b1ed9bc85cfeef4d",
+    "experiments/static_gcn_200u_seed123_final32/predictions/test_predictions.csv": "34c8279492a5a5b4e168bbf9ff12ed4733495b252320fb09f0aefdcc0a232f09",
+    "experiments/static_gcn_200u_seed2025_final32/config.json": "4a640724609e28a1fbeec59f1d350bc6b2982a6415bb9cb920457d68687527d0",
+    "experiments/static_gcn_200u_seed2025_final32/metrics.json": "1fe36df85dd9373e0dce0d04d8eff1d41f83bcc976494704d833831e2c9b8319",
+    "experiments/static_gcn_200u_seed2025_final32/predictions/test_predictions.csv": "6a213565ae1064cfb67555b2516730d12f93da6d13042366af97cc861476b17c",
+    "experiments/static_gcn_200u_seed42_final32/config.json": "abe5e64611509bdc6f999a519fd34050b2422c67cd63deb86a2fc4f0b07d560f",
+    "experiments/static_gcn_200u_seed42_final32/metrics.json": "96b1a138571c01c22ebfb169e3abaa3b2b30794af04e9287846cbfdf36230aa1",
+    "experiments/static_gcn_200u_seed42_final32/predictions/test_predictions.csv": "05c4498a90f3f8b9b7a888553286362c42de4d559682d0d714efc7f231266c5b",
+    "experiments/static_gcn_20u_seed123_final32/config.json": "76170459967ac26aa1faf0d594f01533b15a0efaae2de6f1269ffc53dfd42558",
+    "experiments/static_gcn_20u_seed123_final32/metrics.json": "325185a1541f15bdfdc615eb884d210356726cec7aba7312c865ccbed39dd914",
+    "experiments/static_gcn_20u_seed123_final32/predictions/test_predictions.csv": "304cda90a1c5b8877c4361db4287d62a67fc6c6d6ca0ea7a08306c59b23a3834",
+    "experiments/static_gcn_50u_seed123_final32/config.json": "8bcaefe20fce05e7962eda58c3be41a317f8e387714520e5b7c6eddd9a582919",
+    "experiments/static_gcn_50u_seed123_final32/metrics.json": "5ff0191c8350b3c4c739e666b567ce7f0787f2ecc78345c091ee2a5b723321f5",
+    "experiments/static_gcn_50u_seed123_final32/predictions/test_predictions.csv": "15f112024d110ff547384b73736385269dad985799b36b730850c2a647ec83ae",
+    "experiments/static_gcn_u100_top100_norm-minmax_h32_l2_gpool-mean_conv-gcn_batch8_canonical300_seed2025/config.json": "04411b3fc42b8b5aa20d6e4800c09421acbb7d05f0034b6ddb8bc44a5e826601",
+    "experiments/static_gcn_u100_top100_norm-minmax_h32_l2_gpool-mean_conv-gcn_batch8_canonical300_seed2025/metrics.json": "4130e69cdc38c30e37f3fb7b957edaec7dc41a689f61010995fb28c7732e94f7",
+    "experiments/static_gcn_u100_top100_norm-minmax_h32_l2_gpool-mean_conv-gcn_batch8_canonical300_seed2025/predictions/test_predictions.csv": "a59244b116b68773abbd478b3255e9869a6e0b3c0a139c33e87e863df1aa95e4",
+    "experiments/static_gcn_u100_top100_norm-minmax_h32_l2_gpool-mean_conv-gcn_batch8_canonical300_seed42/config.json": "ab1865384da88f6d8bcb575ae671b78ee9dc3b52eca04a5efa5285e5da34c3ac",
+    "experiments/static_gcn_u100_top100_norm-minmax_h32_l2_gpool-mean_conv-gcn_batch8_canonical300_seed42/metrics.json": "715b807d086a075de328e917270117ce0a1a5c8abf586ad52cfbf2440503fbfe",
+    "experiments/static_gcn_u100_top100_norm-minmax_h32_l2_gpool-mean_conv-gcn_batch8_canonical300_seed42/predictions/test_predictions.csv": "7daf3c0a5d5a24d3459592c0fce3755343b4d7ed27a639d5567ed9c465c89697",
+    "experiments/static_gcn_u20_top100_norm-minmax_h32_l2_gpool-mean_conv-gcn_batch8_canonical300_seed2025/config.json": "3d23f5590b438830290febc978efd6dc1a794c354df0a659a434c2dc27a25ef6",
+    "experiments/static_gcn_u20_top100_norm-minmax_h32_l2_gpool-mean_conv-gcn_batch8_canonical300_seed2025/metrics.json": "cd49342beb4e7e22e21aafae5a4d4d71edc874d0c5679129501bce470d1b0f84",
+    "experiments/static_gcn_u20_top100_norm-minmax_h32_l2_gpool-mean_conv-gcn_batch8_canonical300_seed2025/predictions/test_predictions.csv": "e216e72e515e0f55b1a9c006f6cc00f7c4faf299a438d45856ce5956c7594255",
+    "experiments/static_gcn_u20_top100_norm-minmax_h32_l2_gpool-mean_conv-gcn_batch8_canonical300_seed42/config.json": "a0297cde85c2c42d915f419e8f0831daa31e8e24036c2d3f3a9e6fd270680aa6",
+    "experiments/static_gcn_u20_top100_norm-minmax_h32_l2_gpool-mean_conv-gcn_batch8_canonical300_seed42/metrics.json": "f9295149e31a5d98ec8b366d923ec09ba1d38b26609f72788be30c3d84486661",
+    "experiments/static_gcn_u20_top100_norm-minmax_h32_l2_gpool-mean_conv-gcn_batch8_canonical300_seed42/predictions/test_predictions.csv": "8cae6a2daa7ccf0db082fa7f552d50e69f57609073d436b7bcca62761ea44ec1",
+    "experiments/static_gcn_u500_top100_norm-minmax_h32_l2_gpool-mean_conv-gcn_batch8_canonical300_seed123/config.json": "6c6c1ed71404bda469cb4d431c4c6603aa5be4695a12c0294ca620df6faf4fd1",
+    "experiments/static_gcn_u500_top100_norm-minmax_h32_l2_gpool-mean_conv-gcn_batch8_canonical300_seed123/metrics.json": "d88919a8eb90e038b6797dc55325515a38f6f8b89662ab1794b1246df677dc5c",
+    "experiments/static_gcn_u500_top100_norm-minmax_h32_l2_gpool-mean_conv-gcn_batch8_canonical300_seed123/predictions/test_predictions.csv": "6ca9a91e760f9f175b70c7b1cf25ded82e55702be847acf7df6e5028cb8f1196",
+    "experiments/static_gcn_u500_top100_norm-minmax_h32_l2_gpool-mean_conv-gcn_batch8_canonical300_seed2025/config.json": "8a9a8a74baf2ba780a6463ed3157a87021c6f4c9c3721186a0424d41834c2146",
+    "experiments/static_gcn_u500_top100_norm-minmax_h32_l2_gpool-mean_conv-gcn_batch8_canonical300_seed2025/metrics.json": "9bfbbb8aec0b245e5545c803e8e54adbadf9bde9fe2a7005da9b0a9b02ca8772",
+    "experiments/static_gcn_u500_top100_norm-minmax_h32_l2_gpool-mean_conv-gcn_batch8_canonical300_seed2025/predictions/test_predictions.csv": "73bead633468e71a5f7b98212e6fe9676eb7e2c82dc34ea1fe8de8462dc629f1",
+    "experiments/static_gcn_u500_top100_norm-minmax_h32_l2_gpool-mean_conv-gcn_batch8_canonical300_seed42/config.json": "2c463b8eecf0509b294e98ec31e019c67749566c7d20cd651482db6ab3e05c4e",
+    "experiments/static_gcn_u500_top100_norm-minmax_h32_l2_gpool-mean_conv-gcn_batch8_canonical300_seed42/metrics.json": "591a968976486fae2bdb95e9b63fd80c738d626b99d7578dfd4a74c4c3685420",
+    "experiments/static_gcn_u500_top100_norm-minmax_h32_l2_gpool-mean_conv-gcn_batch8_canonical300_seed42/predictions/test_predictions.csv": "04ac72c7771bcf8a3798238471ccb4ad600821b0a1b0c26fa6e90f571edf5d0c",
+    "experiments/static_gcn_u50_top100_norm-minmax_h32_l2_gpool-mean_conv-gcn_batch8_canonical300_seed2025/config.json": "789c3b1ff848ac40b68f59c4e3d03857d0ac1184eef80ef2afdcd75591a40f28",
+    "experiments/static_gcn_u50_top100_norm-minmax_h32_l2_gpool-mean_conv-gcn_batch8_canonical300_seed2025/metrics.json": "469a32684cb754d3a2157e02de6a1ee039809c42269a0d08139a69cba479f322",
+    "experiments/static_gcn_u50_top100_norm-minmax_h32_l2_gpool-mean_conv-gcn_batch8_canonical300_seed2025/predictions/test_predictions.csv": "8483c8defa774808c027da3243120307efd9a4bfaff9ae9276f8e868f245676b",
+    "experiments/static_gcn_u50_top100_norm-minmax_h32_l2_gpool-mean_conv-gcn_batch8_canonical300_seed42/config.json": "d6d2385658944a5cd7e2970b00bc19a8a98f0b01f09fb9bde65a23a4bde530fe",
+    "experiments/static_gcn_u50_top100_norm-minmax_h32_l2_gpool-mean_conv-gcn_batch8_canonical300_seed42/metrics.json": "efb5230fdf2f2fe017fbf3ea2ab695be059fca9f76ec3461cac7dce1bb902f0f",
+    "experiments/static_gcn_u50_top100_norm-minmax_h32_l2_gpool-mean_conv-gcn_batch8_canonical300_seed42/predictions/test_predictions.csv": "4be5c435d6cdb2d681190a946b9c532b7bb951c08cfb3bad271d796c32da85fc",
+    "scripts/analysis_reporting/common.py": "521704b0fce17c03ee388d2660d4d1e6ac4caa14eac3f7decfa292ea447da1f3",
+    "scripts/build_analysis_report.py": "f918fdae428df6fb6faf4ac5c5d50a420fb2f9b8a09e74fdd3bfc439352a456a",
+    "scripts/experiment_pipeline/common.py": "cd1b287e151254c4552d86ddb125db0d96dee48f72f42b8e815efc1784bdafe6"
+  }
+}
