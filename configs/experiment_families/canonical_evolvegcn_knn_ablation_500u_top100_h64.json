@@ -1,0 +1,233 @@
+{
+  "schema_version": "1.0",
+  "family_id": "canonical_evolvegcn_knn_ablation_500u_top100_h64",
+  "family_title": "Canonical EvolveGCN-H h64 periodic-kNN ablation at 500 universes and Top100",
+  "scientific_question": "How does changing periodic-kNN connectivity affect EvolveGCN-H Omega_m regression under a fixed 500-universe, Top100, minmax, hidden-dimension-64 protocol?",
+  "model_name": "EvolveGCN-H",
+  "training_module": "src.training.train_evolvegcn_h",
+  "output_root": "experiments",
+  "expected_artifacts": [
+    "config.json",
+    "metrics.json",
+    "train_log.csv",
+    "predictions/test_predictions.csv",
+    "checkpoints/best_model.pt"
+  ],
+  "fixed_scientific_settings": {
+    "config": {
+      "model": "EvolveGCNHRegressor",
+      "dataset_format": "temporal",
+      "batch_size": 4,
+      "epochs": 300,
+      "patience": 40,
+      "learning_rate": 0.001,
+      "weight_decay": 0.00001,
+      "hidden_dim": 64,
+      "num_layers": 2,
+      "dropout": 0.2,
+      "activation": "relu",
+      "temporal_pooling": "mean",
+      "graph_pooling": "mean",
+      "conv_type": "evolvegcn_h",
+      "head_type": "mlp",
+      "add_self_loops": true,
+      "train_ratio": 0.7,
+      "val_ratio": 0.15,
+      "test_ratio": 0.15,
+      "grad_clip_norm": 1.0,
+      "use_summary_features": false,
+      "normalize_target": false,
+      "num_total_universes": 500,
+      "num_snapshots": 5,
+      "num_nodes": 100,
+      "node_features": 7
+    },
+    "legacy_config_defaults": {
+      "dataset_format": "temporal",
+      "activation": "relu",
+      "conv_type": "evolvegcn_h",
+      "head_type": "mlp",
+      "use_summary_features": false,
+      "normalize_target": false
+    },
+    "dataset_metadata": {
+      "dataset_type": "temporal_graph_sequences",
+      "preprocessing_version": "v2_logmass_minmax_top100_periodic_knn",
+      "raw_dir": "data/raw/CAMELS_SIMBA_500U",
+      "num_universes_requested": 500,
+      "num_universes_successful": 500,
+      "num_universes_failed": 0,
+      "num_snapshots": 5,
+      "num_nodes": 100,
+      "normalization": "minmax",
+      "graph_mode": "knn",
+      "periodic_boundary": true,
+      "periodic_boundary_knn": true,
+      "box_size": 25.0,
+      "feature_names": [
+        "log10_Mvir",
+        "X",
+        "Y",
+        "Z",
+        "VX",
+        "VY",
+        "VZ"
+      ],
+      "node_selection": "top_num_nodes_by_raw_Mvir_descending",
+      "graph_positions": "raw_physical_XYZ_before_feature_normalization"
+    }
+  },
+  "allowed_varying_fields": [
+    "seed",
+    "dataset_path",
+    "experiment_name",
+    "experiment_path",
+    "train_ids",
+    "val_ids",
+    "test_ids",
+    "device",
+    "trainable_parameters"
+  ],
+  "required_seeds": [
+    42,
+    123,
+    2025
+  ],
+  "grouping_field": "k",
+  "grouping_values": [
+    4,
+    6,
+    8,
+    12
+  ],
+  "grouping_metadata_field": "k",
+  "aggregation_metrics": [
+    "test_mae",
+    "test_rmse",
+    "test_r2",
+    "test_pearson"
+  ],
+  "prediction_file": "predictions/test_predictions.csv",
+  "target_column_aliases": [
+    "true_omega_m",
+    "target",
+    "y_true"
+  ],
+  "prediction_column_aliases": [
+    "pred_omega_m",
+    "prediction",
+    "y_pred"
+  ],
+  "metric_tolerance": 0.000001,
+  "runner": {},
+  "runs": [
+    {
+      "group_value": 4,
+      "seed": 42,
+      "dataset_path": "data/processed/temporal_500u_logmass_minmax_top100_periodic_knn_k4/camels_500u_temporal_logmass_minmax_top100_periodic_knn_k4.pt",
+      "experiment_name": "evolvegcn_h_500u_k4_seed42",
+      "experiment_path": "experiments/evolvegcn_h_500u_k4_seed42",
+      "origin": "reusable_existing",
+      "action": "reuse"
+    },
+    {
+      "group_value": 4,
+      "seed": 123,
+      "dataset_path": "data/processed/temporal_500u_logmass_minmax_top100_periodic_knn_k4/camels_500u_temporal_logmass_minmax_top100_periodic_knn_k4.pt",
+      "experiment_name": "evolvegcn_h_500u_k4_seed123",
+      "experiment_path": "experiments/evolvegcn_h_500u_k4_seed123",
+      "origin": "reusable_existing",
+      "action": "reuse"
+    },
+    {
+      "group_value": 4,
+      "seed": 2025,
+      "dataset_path": "data/processed/temporal_500u_logmass_minmax_top100_periodic_knn_k4/camels_500u_temporal_logmass_minmax_top100_periodic_knn_k4.pt",
+      "experiment_name": "evolvegcn_h_500u_k4_seed2025",
+      "experiment_path": "experiments/evolvegcn_h_500u_k4_seed2025",
+      "origin": "reusable_existing",
+      "action": "reuse"
+    },
+    {
+      "group_value": 6,
+      "seed": 42,
+      "dataset_path": "data/processed/temporal_500u_logmass_minmax_top100_periodic_knn_k6/camels_500u_temporal_logmass_minmax_top100_periodic_knn_k6.pt",
+      "experiment_name": "evolvegcn_h_500u_k6_seed42",
+      "experiment_path": "experiments/evolvegcn_h_500u_k6_seed42",
+      "origin": "reusable_existing",
+      "action": "reuse"
+    },
+    {
+      "group_value": 6,
+      "seed": 123,
+      "dataset_path": "data/processed/temporal_500u_logmass_minmax_top100_periodic_knn_k6/camels_500u_temporal_logmass_minmax_top100_periodic_knn_k6.pt",
+      "experiment_name": "evolvegcn_h_500u_k6_seed123",
+      "experiment_path": "experiments/evolvegcn_h_500u_k6_seed123",
+      "origin": "reusable_existing",
+      "action": "reuse"
+    },
+    {
+      "group_value": 6,
+      "seed": 2025,
+      "dataset_path": "data/processed/temporal_500u_logmass_minmax_top100_periodic_knn_k6/camels_500u_temporal_logmass_minmax_top100_periodic_knn_k6.pt",
+      "experiment_name": "evolvegcn_h_500u_k6_seed2025",
+      "experiment_path": "experiments/evolvegcn_h_500u_k6_seed2025",
+      "origin": "reusable_existing",
+      "action": "reuse"
+    },
+    {
+      "group_value": 8,
+      "seed": 42,
+      "dataset_path": "data/processed/temporal_500u_minmax/camels_500u_temporal_logmass_minmax_top100_periodic_knn.pt",
+      "experiment_name": "evolvegcn_h_500u_k8_h64_seed42",
+      "experiment_path": "experiments/evolvegcn_h_500u_k8_h64_seed42",
+      "origin": "reusable_existing",
+      "action": "reuse"
+    },
+    {
+      "group_value": 8,
+      "seed": 123,
+      "dataset_path": "data/processed/temporal_500u_minmax/camels_500u_temporal_logmass_minmax_top100_periodic_knn.pt",
+      "experiment_name": "evolvegcn_h_500u_k8_h64_seed123",
+      "experiment_path": "experiments/evolvegcn_h_500u_k8_h64_seed123",
+      "origin": "reusable_existing",
+      "action": "reuse"
+    },
+    {
+      "group_value": 8,
+      "seed": 2025,
+      "dataset_path": "data/processed/temporal_500u_minmax/camels_500u_temporal_logmass_minmax_top100_periodic_knn.pt",
+      "experiment_name": "evolvegcn_h_500u_k8_h64_seed2025",
+      "experiment_path": "experiments/evolvegcn_h_500u_k8_h64_seed2025",
+      "origin": "reusable_existing",
+      "action": "reuse"
+    },
+    {
+      "group_value": 12,
+      "seed": 42,
+      "dataset_path": "data/processed/temporal_500u_logmass_minmax_top100_periodic_knn_k12/camels_500u_temporal_logmass_minmax_top100_periodic_knn_k12.pt",
+      "experiment_name": "evolvegcn_h_500u_k12_seed42",
+      "experiment_path": "experiments/evolvegcn_h_500u_k12_seed42",
+      "origin": "reusable_existing",
+      "action": "reuse"
+    },
+    {
+      "group_value": 12,
+      "seed": 123,
+      "dataset_path": "data/processed/temporal_500u_logmass_minmax_top100_periodic_knn_k12/camels_500u_temporal_logmass_minmax_top100_periodic_knn_k12.pt",
+      "experiment_name": "evolvegcn_h_500u_k12_seed123",
+      "experiment_path": "experiments/evolvegcn_h_500u_k12_seed123",
+      "origin": "reusable_existing",
+      "action": "reuse"
+    },
+    {
+      "group_value": 12,
+      "seed": 2025,
+      "dataset_path": "data/processed/temporal_500u_logmass_minmax_top100_periodic_knn_k12/camels_500u_temporal_logmass_minmax_top100_periodic_knn_k12.pt",
+      "experiment_name": "evolvegcn_h_500u_k12_seed2025",
+      "experiment_path": "experiments/evolvegcn_h_500u_k12_seed2025",
+      "origin": "reusable_existing",
+      "action": "reuse"
+    }
+  ]
+}

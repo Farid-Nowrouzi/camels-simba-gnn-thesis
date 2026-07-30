@@ -1,0 +1,28 @@
+protocol,model,k,seed,status,decision,existing_candidate,reason,additional_run_required,priority
+h64,EvolveGCN-H,2,42,not_found,exclude_optional_extension,,k2 is absent and is not required for the complete established k4-k12 family,no,low
+h64,EvolveGCN-H,2,123,not_found,exclude_optional_extension,,k2 is absent and is not required for the complete established k4-k12 family,no,low
+h64,EvolveGCN-H,2,2025,not_found,exclude_optional_extension,,k2 is absent and is not required for the complete established k4-k12 family,no,low
+h64,Static GCN,2,42,not_found,exclude_optional_extension,,k2 is absent and is not required for the complete established k4-k12 family,no,low
+h64,Static GCN,2,123,not_found,exclude_optional_extension,,k2 is absent and is not required for the complete established k4-k12 family,no,low
+h64,Static GCN,2,2025,not_found,exclude_optional_extension,,k2 is absent and is not required for the complete established k4-k12 family,no,low
+h32,EvolveGCN-H,4,42,missing,do_not_run_now,,complete h64 family already answers the thesis kNN question; h32 factorial adds compute without repairing a validity gap,yes_if_h32_selected,low
+h32,EvolveGCN-H,4,123,missing,do_not_run_now,,complete h64 family already answers the thesis kNN question; h32 factorial adds compute without repairing a validity gap,yes_if_h32_selected,low
+h32,EvolveGCN-H,4,2025,missing,do_not_run_now,,complete h64 family already answers the thesis kNN question; h32 factorial adds compute without repairing a validity gap,yes_if_h32_selected,low
+h32,EvolveGCN-H,6,42,missing,do_not_run_now,,complete h64 family already answers the thesis kNN question; h32 factorial adds compute without repairing a validity gap,yes_if_h32_selected,low
+h32,EvolveGCN-H,6,123,missing,do_not_run_now,,complete h64 family already answers the thesis kNN question; h32 factorial adds compute without repairing a validity gap,yes_if_h32_selected,low
+h32,EvolveGCN-H,6,2025,missing,do_not_run_now,,complete h64 family already answers the thesis kNN question; h32 factorial adds compute without repairing a validity gap,yes_if_h32_selected,low
+h32,EvolveGCN-H,12,42,missing,do_not_run_now,,complete h64 family already answers the thesis kNN question; h32 factorial adds compute without repairing a validity gap,yes_if_h32_selected,low
+h32,EvolveGCN-H,12,123,missing,do_not_run_now,,complete h64 family already answers the thesis kNN question; h32 factorial adds compute without repairing a validity gap,yes_if_h32_selected,low
+h32,EvolveGCN-H,12,2025,missing,do_not_run_now,,complete h64 family already answers the thesis kNN question; h32 factorial adds compute without repairing a validity gap,yes_if_h32_selected,low
+h32,Static GCN,4,42,missing,do_not_run_now,,complete h64 family already answers the thesis kNN question; h32 factorial adds compute without repairing a validity gap,yes_if_h32_selected,low
+h32,Static GCN,4,123,missing,do_not_run_now,,complete h64 family already answers the thesis kNN question; h32 factorial adds compute without repairing a validity gap,yes_if_h32_selected,low
+h32,Static GCN,4,2025,missing,do_not_run_now,,complete h64 family already answers the thesis kNN question; h32 factorial adds compute without repairing a validity gap,yes_if_h32_selected,low
+h32,Static GCN,6,42,missing,do_not_run_now,,complete h64 family already answers the thesis kNN question; h32 factorial adds compute without repairing a validity gap,yes_if_h32_selected,low
+h32,Static GCN,6,123,missing,do_not_run_now,,complete h64 family already answers the thesis kNN question; h32 factorial adds compute without repairing a validity gap,yes_if_h32_selected,low
+h32,Static GCN,6,2025,missing,do_not_run_now,,complete h64 family already answers the thesis kNN question; h32 factorial adds compute without repairing a validity gap,yes_if_h32_selected,low
+h32,Static GCN,12,42,missing,do_not_run_now,,complete h64 family already answers the thesis kNN question; h32 factorial adds compute without repairing a validity gap,yes_if_h32_selected,low
+h32,Static GCN,12,123,missing,do_not_run_now,,complete h64 family already answers the thesis kNN question; h32 factorial adds compute without repairing a validity gap,yes_if_h32_selected,low
+h32,Static GCN,12,2025,missing,do_not_run_now,,complete h64 family already answers the thesis kNN question; h32 factorial adds compute without repairing a validity gap,yes_if_h32_selected,low
+h32,Static GCN,8,42,incompatible_alternative,exclude,static_gcn_500u_seed42_final32,batch size 4 conflicts with the preferred Static h32 batch-size-8 anchor; it is a protocol alternative not an independent seed,no,none
+h32,Static GCN,8,123,incompatible_alternative,exclude,static_gcn_500u_seed123_final32,batch size 4 conflicts with the preferred Static h32 batch-size-8 anchor; it is a protocol alternative not an independent seed,no,none
+h32,Static GCN,8,2025,incompatible_alternative,exclude,static_gcn_500u_seed2025_final32,batch size 4 conflicts with the preferred Static h32 batch-size-8 anchor; it is a protocol alternative not an independent seed,no,none
