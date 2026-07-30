@@ -1,0 +1,13 @@
+model,head_type,seed,test_rmse,point_type
+EvolveGCN-H,linear,42,0.06192755114281536,seed
+EvolveGCN-H,linear,123,0.06692279737356953,seed
+EvolveGCN-H,linear,777,0.08468250058731779,seed
+EvolveGCN-H,linear,999,0.0640489534886356,seed
+EvolveGCN-H,linear,2025,0.07809587449277426,seed
+EvolveGCN-H,mlp,42,0.07365219992010104,seed
+EvolveGCN-H,mlp,123,0.07017513742848315,seed
+EvolveGCN-H,mlp,777,0.07973593269290179,seed
+EvolveGCN-H,mlp,999,0.07498271375767826,seed
+EvolveGCN-H,mlp,2025,0.08555234071980113,seed
+EvolveGCN-H,linear,,0.0711355354170225,mean
+EvolveGCN-H,mlp,,0.07681966490379308,mean

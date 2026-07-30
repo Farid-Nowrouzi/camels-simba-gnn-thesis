@@ -39,6 +39,7 @@ def validate_generated_outputs(
         "paired_normalization_differences": "paired_normalization_differences.csv",
         "paired_model_differences": "paired_model_differences.csv",
         "paired_pooling_differences": "paired_pooling_differences.csv",
+        "paired_head_differences": "paired_head_differences.csv",
         "prediction_diagnostics": "prediction_diagnostics.csv",
         "representative_runs": "representative_runs.csv",
     }
@@ -145,7 +146,9 @@ def validate_generated_outputs(
         ) == "median_test_mae":
             specific_validation = manifest.get(
                 "normalization_specific_validation"
-            ) or manifest.get("graph_pooling_specific_validation", {})
+            ) or manifest.get("graph_pooling_specific_validation") or manifest.get(
+                "regression_head_specific_validation", {}
+            )
             selected = {
                 (
                     row["model"],

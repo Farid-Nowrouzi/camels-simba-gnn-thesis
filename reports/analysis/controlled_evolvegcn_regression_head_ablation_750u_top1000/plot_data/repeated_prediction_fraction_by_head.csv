@@ -1,0 +1,11 @@
+head_type,seed,exact_repeated_prediction_fraction
+linear,42,0.0
+linear,123,0.0
+linear,777,0.0
+linear,999,0.0
+linear,2025,0.0
+mlp,42,0.22885572139303484
+mlp,123,0.0
+mlp,777,0.07960199004975124
+mlp,999,0.0
+mlp,2025,0.0

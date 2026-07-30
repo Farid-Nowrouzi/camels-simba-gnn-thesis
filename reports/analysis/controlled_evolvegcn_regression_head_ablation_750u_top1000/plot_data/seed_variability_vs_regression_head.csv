@@ -1,0 +1,3 @@
+model,head_type,sample_standard_deviation_test_mae
+EvolveGCN-H,linear,0.008748483193105712
+EvolveGCN-H,mlp,0.005142419517318261

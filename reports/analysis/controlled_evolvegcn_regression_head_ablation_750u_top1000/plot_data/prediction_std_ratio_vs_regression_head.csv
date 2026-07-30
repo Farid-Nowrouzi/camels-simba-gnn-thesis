@@ -1,0 +1,13 @@
+model,head_type,seed,prediction_std_ratio,point_type
+EvolveGCN-H,linear,42,0.7483525255719586,seed
+EvolveGCN-H,linear,123,0.9793908511167602,seed
+EvolveGCN-H,linear,777,0.7520369000450416,seed
+EvolveGCN-H,linear,999,1.034781085134774,seed
+EvolveGCN-H,linear,2025,0.7977224172440098,seed
+EvolveGCN-H,mlp,42,0.6139325345379723,seed
+EvolveGCN-H,mlp,123,0.9455897316094359,seed
+EvolveGCN-H,mlp,777,0.6349043718119262,seed
+EvolveGCN-H,mlp,999,0.853121603039763,seed
+EvolveGCN-H,mlp,2025,0.8489030274821922,seed
+EvolveGCN-H,linear,,0.8624567558225089,mean
+EvolveGCN-H,mlp,,0.7792902536962579,mean

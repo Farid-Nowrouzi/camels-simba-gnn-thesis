@@ -1,0 +1,6 @@
+# Regression-head parameter comparison
+
+| head_type | architecture | input_dimension | hidden_dimensions | activation | dropout | output_activation | parameter_count |
+|---|---|---|---|---|---|---|---|
+| linear | Linear(32,1) | 32 |  | none | 0.0 | identity | 33 |
+| mlp | Linear(32,32)-ReLU-Dropout(0.2)-Linear(32,1) | 32 | 32 | ReLU | 0.2 | identity | 1089 |

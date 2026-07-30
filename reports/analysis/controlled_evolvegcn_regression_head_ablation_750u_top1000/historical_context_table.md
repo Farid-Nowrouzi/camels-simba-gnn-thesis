@@ -1,0 +1,8 @@
+# Descriptive project progression — protocols differ
+
+| stage | mean_mae | protocol_changes |
+|---|---|---|
+| MLP temporal-mean baseline | 0.061404 | reference U750 Top1000 protocol |
+| Controlled linear head | 0.055843 | head only: MLP → linear |
+| Linear temporal-last context | 0.055351 | temporal pooling mean → last; descriptive only |
+| Linear mean_max context | 0.080973 | graph pooling mean → mean_max and required input width; descriptive only |
