@@ -1,0 +1,10 @@
+# Dataset Top-N table
+
+| model_protocol | top_n | dataset_path | dataset_type | universes | snapshots_stored | normalization | k | periodic | box_size | selection | metadata_sha256 |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| EvolveGCN-H | 100 | data/processed/temporal_500u_minmax/camels_500u_temporal_logmass_minmax_top100_periodic_knn.pt | temporal_graph_sequences | 500 | 5 | minmax | 8 | True | 25.0 | top_num_nodes_by_raw_Mvir_descending | 3b5c2b677a8340a62187d1115ce759ebbe80fe3e0d5cc5716d361bc179b24ecc |
+| EvolveGCN-H | 200 | data/processed/temporal_500u_minmax_top200_periodic_knn/camels_500u_temporal_logmass_minmax_top200_periodic_knn.pt | temporal_graph_sequences | 500 | 5 | minmax | 8 | True | 25.0 | top_num_nodes_by_raw_Mvir_descending | 4e5e89f5a37c88383aa4e11a1ef4f08402289a734d3f2f6179015faea7c0fc12 |
+| EvolveGCN-H | 500 | data/processed/temporal_500u_minmax_top500_periodic_knn/camels_500u_temporal_logmass_minmax_top500_periodic_knn.pt | temporal_graph_sequences | 500 | 5 | minmax | 8 | True | 25.0 | top_num_nodes_by_raw_Mvir_descending | 8179cc7770b79c1d8d9fd8ba132082b8f3c89c652f9b45ae85c343f9a9fa6da6 |
+| Static GCN | 100 | data/processed/static_500u_logmass_minmax_top100_periodic_knn/camels_500u_static_logmass_minmax_top100_periodic_knn.pt | static_final_snapshot_graphs | 500 | 1 | minmax | 8 | True | 25.0 | top_num_nodes_by_raw_Mvir_descending | 71b82af09ecb764693030dc57041a3f5977a10ab3d69fa0f9a98fd1ec7341ea3 |
+| Static GCN | 200 | data/processed/static_500u_logmass_minmax_top200_periodic_knn/camels_500u_static_logmass_minmax_top200_periodic_knn.pt | static_final_snapshot_graphs | 500 | 1 | minmax | 8 | True | 25.0 | top_num_nodes_by_raw_Mvir_descending | 7424626086369ca1e5320dae5574121a1b33eea0b1a60eb71a4703c963462cd4 |
+| Static GCN | 500 | data/processed/temporal_500u_minmax_top500_periodic_knn/camels_500u_temporal_logmass_minmax_top500_periodic_knn.pt | temporal_graph_sequences | 500 | 5 | minmax | 8 | True | 25.0 | top_num_nodes_by_raw_Mvir_descending | 8179cc7770b79c1d8d9fd8ba132082b8f3c89c652f9b45ae85c343f9a9fa6da6 |

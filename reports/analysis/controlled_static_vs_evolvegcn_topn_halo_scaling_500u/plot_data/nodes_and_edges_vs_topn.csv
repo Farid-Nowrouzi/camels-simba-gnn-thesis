@@ -1,0 +1,4 @@
+top_n,nodes,directed_neighbor_selections,dense_adjacency_capacity
+100,100,800,10000
+200,200,1600,40000
+500,500,4000,250000

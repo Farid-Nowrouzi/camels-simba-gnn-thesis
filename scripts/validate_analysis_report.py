@@ -37,6 +37,7 @@ def validate_generated_outputs(
         "seed_level_results": "seed_level_results.csv",
         "aggregated_results": "aggregated_results.csv",
         "paired_normalization_differences": "paired_normalization_differences.csv",
+        "paired_topn_differences": "paired_topn_differences.csv",
         "paired_model_differences": "paired_model_differences.csv",
         "paired_pooling_differences": "paired_pooling_differences.csv",
         "paired_head_differences": "paired_head_differences.csv",
@@ -120,10 +121,13 @@ def validate_generated_outputs(
         grouping_values = list(spec.get("grouping_values", ()))
         grouping_field = spec.get("grouping_field")
         if grouping_values and grouping_field:
-            observed_order = list(dict.fromkeys(row[grouping_field] for row in seed_rows))
-            if observed_order != grouping_values:
+            observed_order = list(
+                dict.fromkeys(str(row[grouping_field]) for row in seed_rows)
+            )
+            expected_order = [str(value) for value in grouping_values]
+            if observed_order != expected_order:
                 errors.append(
-                    f"{grouping_field} order={observed_order}, expected={grouping_values}"
+                    f"{grouping_field} order={observed_order}, expected={expected_order}"
                 )
 
     manifest_path = output_dir / "analysis_manifest.json"
@@ -146,13 +150,15 @@ def validate_generated_outputs(
         ) == "median_test_mae":
             specific_validation = manifest.get(
                 "normalization_specific_validation"
-            ) or manifest.get("graph_pooling_specific_validation") or manifest.get(
+            ) or manifest.get("topn_specific_validation") or manifest.get(
+                "graph_pooling_specific_validation"
+            ) or manifest.get(
                 "regression_head_specific_validation", {}
             )
             selected = {
                 (
                     row["model"],
-                    row[spec["grouping_field"]],
+                    str(row[spec["grouping_field"]]),
                 ): int(row["seed"])
                 for row in specific_validation.get("representative_runs", ())
             }
@@ -160,7 +166,7 @@ def validate_generated_outputs(
             grouped: dict[tuple[str, str], list[dict[str, str]]] = {}
             for row in seed_rows:
                 grouped.setdefault(
-                    (row["model"], row[spec["grouping_field"]]), []
+                    (row["model"], str(row[spec["grouping_field"]])), []
                 ).append(row)
             for key, rows in grouped.items():
                 ordered = sorted(
