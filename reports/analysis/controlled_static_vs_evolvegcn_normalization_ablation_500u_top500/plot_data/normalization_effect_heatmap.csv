@@ -1,0 +1,7 @@
+model,normalization_pair,mean_paired_mae_difference
+EvolveGCN-H,minmax_minus_none,0.019202000498771667
+EvolveGCN-H,zscore_minus_none,0.028750600814819335
+EvolveGCN-H,zscore_minus_minmax,0.009548600316047668
+Static GCN,minmax_minus_none,0.050681596438090004
+Static GCN,zscore_minus_none,0.054031289498011274
+Static GCN,zscore_minus_minmax,0.003349693059921266

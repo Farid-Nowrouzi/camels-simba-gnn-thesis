@@ -1,0 +1,7 @@
+model,normalization,sample_standard_deviation_test_mae
+EvolveGCN-H,none,0.0049215342524324196
+EvolveGCN-H,minmax,0.004432919890414583
+EvolveGCN-H,zscore,0.006506980193235106
+Static GCN,none,0.0037254363568097236
+Static GCN,minmax,0.006421101657936905
+Static GCN,zscore,0.005608166763731675

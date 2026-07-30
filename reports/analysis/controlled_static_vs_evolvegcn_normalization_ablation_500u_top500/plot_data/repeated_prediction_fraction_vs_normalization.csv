@@ -1,0 +1,37 @@
+model,normalization,seed,exact_repeated_prediction_fraction,point_type,sample_standard_deviation
+EvolveGCN-H,none,42,0.0,seed,
+EvolveGCN-H,none,123,0.13333333333333333,seed,
+EvolveGCN-H,none,777,0.013333333333333334,seed,
+EvolveGCN-H,none,999,0.0,seed,
+EvolveGCN-H,none,2025,0.013333333333333334,seed,
+EvolveGCN-H,none,,0.032,mean,0.0570379990298865
+EvolveGCN-H,minmax,42,0.0,seed,
+EvolveGCN-H,minmax,123,0.0,seed,
+EvolveGCN-H,minmax,777,0.0,seed,
+EvolveGCN-H,minmax,999,0.0,seed,
+EvolveGCN-H,minmax,2025,0.0,seed,
+EvolveGCN-H,minmax,,0.0,mean,0.0
+EvolveGCN-H,zscore,42,0.0,seed,
+EvolveGCN-H,zscore,123,0.0,seed,
+EvolveGCN-H,zscore,777,0.0,seed,
+EvolveGCN-H,zscore,999,0.0,seed,
+EvolveGCN-H,zscore,2025,0.0,seed,
+EvolveGCN-H,zscore,,0.0,mean,0.0
+Static GCN,none,42,0.0,seed,
+Static GCN,none,123,0.0,seed,
+Static GCN,none,777,0.0,seed,
+Static GCN,none,999,0.0,seed,
+Static GCN,none,2025,0.0,seed,
+Static GCN,none,,0.0,mean,0.0
+Static GCN,minmax,42,0.9866666666666667,seed,
+Static GCN,minmax,123,0.4,seed,
+Static GCN,minmax,777,0.0,seed,
+Static GCN,minmax,999,0.7466666666666667,seed,
+Static GCN,minmax,2025,0.0,seed,
+Static GCN,minmax,,0.4266666666666667,mean,0.44181444068749043
+Static GCN,zscore,42,0.0,seed,
+Static GCN,zscore,123,0.0,seed,
+Static GCN,zscore,777,0.05333333333333334,seed,
+Static GCN,zscore,999,0.22666666666666666,seed,
+Static GCN,zscore,2025,0.0,seed,
+Static GCN,zscore,,0.056,mean,0.09816086570296513

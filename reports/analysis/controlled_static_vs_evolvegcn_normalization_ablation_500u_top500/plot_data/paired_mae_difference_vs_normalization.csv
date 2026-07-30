@@ -1,0 +1,37 @@
+model,normalization_pair,seed,mae_difference,point_type,sample_standard_deviation
+EvolveGCN-H,minmax_minus_none,42,0.019065507253011066,seed,
+EvolveGCN-H,minmax_minus_none,123,0.016906501054763795,seed,
+EvolveGCN-H,minmax_minus_none,777,0.017290192842483516,seed,
+EvolveGCN-H,minmax_minus_none,999,0.016069721380869553,seed,
+EvolveGCN-H,minmax_minus_none,2025,0.02667807996273041,seed,
+EvolveGCN-H,minmax_minus_none,,0.019202000498771667,mean,0.0043198927429420044
+EvolveGCN-H,zscore_minus_none,42,0.02570908645788829,seed,
+EvolveGCN-H,zscore_minus_none,123,0.02170055508613586,seed,
+EvolveGCN-H,zscore_minus_none,777,0.03266777753829956,seed,
+EvolveGCN-H,zscore_minus_none,999,0.02079158842563629,seed,
+EvolveGCN-H,zscore_minus_none,2025,0.04288399656613668,seed,
+EvolveGCN-H,zscore_minus_none,,0.028750600814819335,mean,0.009184184524461677
+EvolveGCN-H,zscore_minus_minmax,42,0.006643579204877223,seed,
+EvolveGCN-H,zscore_minus_minmax,123,0.004794054031372064,seed,
+EvolveGCN-H,zscore_minus_minmax,777,0.015377584695816043,seed,
+EvolveGCN-H,zscore_minus_minmax,999,0.004721867044766737,seed,
+EvolveGCN-H,zscore_minus_minmax,2025,0.01620591660340627,seed,
+EvolveGCN-H,zscore_minus_minmax,,0.009548600316047668,mean,0.0057584531592927085
+Static GCN,minmax_minus_none,42,0.043497802019119264,seed,
+Static GCN,minmax_minus_none,123,0.055712097684542335,seed,
+Static GCN,minmax_minus_none,777,0.05307813127835592,seed,
+Static GCN,minmax_minus_none,999,0.042641731500625606,seed,
+Static GCN,minmax_minus_none,2025,0.05847821970780691,seed,
+Static GCN,minmax_minus_none,,0.050681596438090004,mean,0.007212540934160487
+Static GCN,zscore_minus_none,42,0.0499544374148051,seed,
+Static GCN,zscore_minus_none,123,0.060606348117192586,seed,
+Static GCN,zscore_minus_none,777,0.05804890970389048,seed,
+Static GCN,zscore_minus_none,999,0.042196553945541386,seed,
+Static GCN,zscore_minus_none,2025,0.05935019830862681,seed,
+Static GCN,zscore_minus_none,,0.054031289498011274,mean,0.007815771673437631
+Static GCN,zscore_minus_minmax,42,0.0064566353956858336,seed,
+Static GCN,zscore_minus_minmax,123,0.004894250432650252,seed,
+Static GCN,zscore_minus_minmax,777,0.004970778425534561,seed,
+Static GCN,zscore_minus_minmax,999,-0.00044517755508421963,seed,
+Static GCN,zscore_minus_minmax,2025,0.0008719786008199032,seed,
+Static GCN,zscore_minus_minmax,,0.003349693059921266,mean,0.0029667649824133067

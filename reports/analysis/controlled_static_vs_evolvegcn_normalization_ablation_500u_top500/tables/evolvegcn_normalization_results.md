@@ -1,0 +1,7 @@
+# EvolveGCN-H normalization results
+
+| model | normalization | n | MAE mean ± SD | median MAE | RMSE mean ± SD | R² mean ± SD | prediction-SD ratio | mean repeated fraction | undefined Pearson |
+|---|---|---|---|---|---|---|---|---|---|
+| EvolveGCN-H | none | 5 | 0.065798 ± 0.004922 | 0.062445 | 0.080031 ± 0.006633 | 0.472338 ± 0.104477 | 0.690695 ± 0.122863 | 0.032000 | 0 |
+| EvolveGCN-H | minmax | 5 | 0.085000 ± 0.004433 | 0.087262 | 0.100902 ± 0.005251 | 0.165206 ± 0.111823 | 0.483250 ± 0.092160 | 0.000000 | 0 |
+| EvolveGCN-H | zscore | 5 | 0.094548 ± 0.006507 | 0.092880 | 0.110390 ± 0.006194 | 0.007733 ± 0.043864 | 0.253646 ± 0.114491 | 0.000000 | 0 |

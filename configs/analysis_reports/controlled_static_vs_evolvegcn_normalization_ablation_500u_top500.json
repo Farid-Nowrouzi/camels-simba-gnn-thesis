@@ -1,0 +1,164 @@
+{
+  "schema_version": "1.0",
+  "analysis_name": "controlled_static_vs_evolvegcn_normalization_ablation_500u_top500",
+  "title": "Controlled Node-Feature Normalization Ablation: Static GCN and EvolveGCN-H at U500 Top500",
+  "scientific_question": "Does per-universe per-snapshot node-feature normalization improve or degrade Omega_m regression when all within-model settings are fixed?",
+  "analysis_type": "paired_family",
+  "families": [
+    {
+      "label": "EvolveGCN-H",
+      "family_spec_path": "configs/experiment_families/canonical_evolvegcn_normalization_ablation_500u_top500.json"
+    },
+    {
+      "label": "Static GCN",
+      "family_spec_path": "configs/experiment_families/canonical_static_gcn_normalization_ablation_500u_top500.json"
+    }
+  ],
+  "grouping_field": "normalization",
+  "grouping_axis_label": "Node-feature normalization",
+  "grouping_value_label": "normalization",
+  "plot_grouping_suffix": "normalization",
+  "grouping_values": [
+    "none",
+    "minmax",
+    "zscore"
+  ],
+  "required_seeds": [
+    42,
+    123,
+    777,
+    999,
+    2025
+  ],
+  "metrics": [
+    "test_mae",
+    "test_rmse",
+    "test_r2",
+    "test_pearson"
+  ],
+  "required_fixed_protocol": {
+    "fixed_scientific_settings.config.num_total_universes": 500,
+    "fixed_scientific_settings.config.num_nodes": 500,
+    "fixed_scientific_settings.config.hidden_dim": 32,
+    "fixed_scientific_settings.dataset_metadata.num_universes_successful": 500,
+    "fixed_scientific_settings.dataset_metadata.num_nodes": 500,
+    "fixed_scientific_settings.dataset_metadata.graph_mode": "knn",
+    "fixed_scientific_settings.dataset_metadata.k": 8,
+    "fixed_scientific_settings.dataset_metadata.periodic_boundary": true,
+    "fixed_scientific_settings.dataset_metadata.periodic_boundary_knn": true,
+    "fixed_scientific_settings.dataset_metadata.box_size": 25.0,
+    "fixed_scientific_settings.dataset_metadata.feature_names": [
+      "log10_Mvir",
+      "X",
+      "Y",
+      "Z",
+      "VX",
+      "VY",
+      "VZ"
+    ],
+    "fixed_scientific_settings.dataset_metadata.node_selection": "top_num_nodes_by_raw_Mvir_descending",
+    "fixed_scientific_settings.dataset_metadata.graph_positions": "raw_physical_XYZ_before_feature_normalization"
+  },
+  "fields_allowed_to_differ": [
+    {
+      "field": "fixed_scientific_settings.config.model",
+      "reason": "Model-stratified analysis intentionally includes two architectures."
+    },
+    {
+      "field": "fixed_scientific_settings.config.dataset_format",
+      "reason": "Evolve uses temporal sequences; Static consumes the final snapshot."
+    },
+    {
+      "field": "fixed_scientific_settings.config.batch_size",
+      "reason": "Established model-specific protocols use batch sizes 4 and 8."
+    },
+    {
+      "field": "fixed_scientific_settings.config.num_layers",
+      "reason": "Established protocols use Evolve L2 and Static L3."
+    },
+    {
+      "field": "fixed_scientific_settings.config.temporal_pooling",
+      "reason": "Mean temporal pooling applies only to Evolve."
+    },
+    {
+      "field": "fixed_scientific_settings.config.conv_type",
+      "reason": "Convolution mechanics are model-specific."
+    },
+    {
+      "field": "fixed_scientific_settings.config.head_type",
+      "reason": "Regression heads are model-specific."
+    },
+    {
+      "field": "fixed_scientific_settings.config.num_snapshots",
+      "reason": "Evolve uses five snapshots; Static uses the final snapshot."
+    }
+  ],
+  "output_directory": "reports/analysis/controlled_static_vs_evolvegcn_normalization_ablation_500u_top500",
+  "prediction_plots_enabled": true,
+  "representative_seed_policy": {
+    "policy": "median_test_mae"
+  },
+  "figure_formats": [
+    "png",
+    "pdf"
+  ],
+  "metric_tolerance": 1e-06,
+  "reference_family": null,
+  "focused_rebuild_script": "reports/analysis/controlled_static_vs_evolvegcn_normalization_ablation_500u_top500/rebuild_normalization_outputs.py",
+  "expected_row_counts": {
+    "seed_level_results": 30,
+    "aggregated_results": 6,
+    "paired_normalization_differences": 30,
+    "paired_model_differences": 15
+  },
+  "required_output_files": [
+    "analysis_manifest.json",
+    "compatibility_report.md",
+    "protocol_table.csv",
+    "protocol_table.md",
+    "seed_level_results.csv",
+    "aggregated_results.csv",
+    "paired_normalization_differences.csv",
+    "paired_model_differences.csv",
+    "prediction_diagnostics.csv",
+    "normalization_implementation.md",
+    "scientific_summary.md",
+    "presentation_ready_summary.md",
+    "README.md",
+    "tables/main_results_table.csv",
+    "tables/main_results_table.md",
+    "tables/main_results_table.tex",
+    "tables/evolvegcn_normalization_results.csv",
+    "tables/evolvegcn_normalization_results.md",
+    "tables/evolvegcn_normalization_results.tex",
+    "tables/static_gcn_normalization_results.csv",
+    "tables/static_gcn_normalization_results.md",
+    "tables/static_gcn_normalization_results.tex",
+    "tables/paired_normalization_differences.csv",
+    "tables/paired_normalization_differences.md",
+    "tables/paired_normalization_differences.tex",
+    "tables/descriptive_model_comparison.csv",
+    "tables/descriptive_model_comparison.md",
+    "tables/descriptive_model_comparison.tex",
+    "tables/best_normalization_descriptive_summary.csv",
+    "tables/best_normalization_descriptive_summary.md"
+  ],
+  "required_figures": [
+    "test_mae_vs_normalization",
+    "test_rmse_vs_normalization",
+    "test_r2_vs_normalization",
+    "paired_mae_difference_vs_normalization",
+    "seed_variability_vs_normalization",
+    "prediction_std_ratio_vs_normalization",
+    "repeated_prediction_fraction_vs_normalization",
+    "representative_true_vs_predicted",
+    "representative_residuals_vs_true",
+    "representative_prediction_distributions",
+    "per_seed_mae_trajectories",
+    "normalization_effect_heatmap",
+    "descriptive_model_difference_by_normalization"
+  ],
+  "controlled_variables_summary": "Within each model, node-feature normalization is the only varying scientific field. Population, Top500 raw-Mvir selection, seven features, periodic kNN k=8, architecture, training protocol, seed, and exact ordered splits are fixed.",
+  "limitations_summary": "Minmax and zscore are sample-local per-universe per-snapshot transformations. Cross-model differences are descriptive protocol comparisons and do not isolate temporal processing.",
+  "comparison_statement": "Controlled within each model for normalization. Static-versus-Evolve comparisons are descriptive because temporal input, architecture, depth, batch size, pooling availability, and heads differ."
+}

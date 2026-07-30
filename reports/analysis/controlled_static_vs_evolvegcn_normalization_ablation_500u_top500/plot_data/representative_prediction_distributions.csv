@@ -1,0 +1,901 @@
+model,normalization,representative_seed,value_type,value
+EvolveGCN-H,none,2025,target,0.2809999883174896
+EvolveGCN-H,none,2025,target,0.4262000024318695
+EvolveGCN-H,none,2025,target,0.11299999803304672
+EvolveGCN-H,none,2025,target,0.4214000105857849
+EvolveGCN-H,none,2025,target,0.1534000039100647
+EvolveGCN-H,none,2025,target,0.17219999432563782
+EvolveGCN-H,none,2025,target,0.13300000131130219
+EvolveGCN-H,none,2025,target,0.14900000393390656
+EvolveGCN-H,none,2025,target,0.43380001187324524
+EvolveGCN-H,none,2025,target,0.16300000250339508
+EvolveGCN-H,none,2025,target,0.11779999732971191
+EvolveGCN-H,none,2025,target,0.21060000360012054
+EvolveGCN-H,none,2025,target,0.3790000081062317
+EvolveGCN-H,none,2025,target,0.2614000141620636
+EvolveGCN-H,none,2025,target,0.2962000072002411
+EvolveGCN-H,none,2025,target,0.28619998693466187
+EvolveGCN-H,none,2025,target,0.4174000024795532
+EvolveGCN-H,none,2025,target,0.241799995303154
+EvolveGCN-H,none,2025,target,0.45980000495910645
+EvolveGCN-H,none,2025,target,0.4781999886035919
+EvolveGCN-H,none,2025,target,0.16580000519752502
+EvolveGCN-H,none,2025,target,0.19220000505447388
+EvolveGCN-H,none,2025,target,0.39419999718666077
+EvolveGCN-H,none,2025,target,0.23899999260902405
+EvolveGCN-H,none,2025,target,0.3077999949455261
+EvolveGCN-H,none,2025,target,0.2574000060558319
+EvolveGCN-H,none,2025,target,0.40939998626708984
+EvolveGCN-H,none,2025,target,0.41659998893737793
+EvolveGCN-H,none,2025,target,0.19259999692440033
+EvolveGCN-H,none,2025,target,0.1762000024318695
+EvolveGCN-H,none,2025,target,0.24779999256134033
+EvolveGCN-H,none,2025,target,0.387800008058548
+EvolveGCN-H,none,2025,target,0.26499998569488525
+EvolveGCN-H,none,2025,target,0.4918000102043152
+EvolveGCN-H,none,2025,target,0.15060000121593475
+EvolveGCN-H,none,2025,target,0.3781999945640564
+EvolveGCN-H,none,2025,target,0.30300000309944153
+EvolveGCN-H,none,2025,target,0.1265999972820282
+EvolveGCN-H,none,2025,target,0.45579999685287476
+EvolveGCN-H,none,2025,target,0.26899999380111694
+EvolveGCN-H,none,2025,target,0.35899999737739563
+EvolveGCN-H,none,2025,target,0.2078000009059906
+EvolveGCN-H,none,2025,target,0.2013999968767166
+EvolveGCN-H,none,2025,target,0.4410000145435333
+EvolveGCN-H,none,2025,target,0.13459999859333038
+EvolveGCN-H,none,2025,target,0.25380000472068787
+EvolveGCN-H,none,2025,target,0.3057999908924103
+EvolveGCN-H,none,2025,target,0.45820000767707825
+EvolveGCN-H,none,2025,target,0.3946000039577484
+EvolveGCN-H,none,2025,target,0.1242000013589859
+EvolveGCN-H,none,2025,target,0.32260000705718994
+EvolveGCN-H,none,2025,target,0.4318000078201294
+EvolveGCN-H,none,2025,target,0.30379998683929443
+EvolveGCN-H,none,2025,target,0.2125999927520752
+EvolveGCN-H,none,2025,target,0.49939998984336853
+EvolveGCN-H,none,2025,target,0.30219998955726624
+EvolveGCN-H,none,2025,target,0.42579999566078186
+EvolveGCN-H,none,2025,target,0.1738000065088272
+EvolveGCN-H,none,2025,target,0.2590000033378601
+EvolveGCN-H,none,2025,target,0.305400013923645
+EvolveGCN-H,none,2025,target,0.4697999954223633
+EvolveGCN-H,none,2025,target,0.47780001163482666
+EvolveGCN-H,none,2025,target,0.1873999983072281
+EvolveGCN-H,none,2025,target,0.3118000030517578
+EvolveGCN-H,none,2025,target,0.24740000069141388
+EvolveGCN-H,none,2025,target,0.31060001254081726
+EvolveGCN-H,none,2025,target,0.1462000012397766
+EvolveGCN-H,none,2025,target,0.11659999936819077
+EvolveGCN-H,none,2025,target,0.48100000619888306
+EvolveGCN-H,none,2025,target,0.22380000352859497
+EvolveGCN-H,none,2025,target,0.18979999423027039
+EvolveGCN-H,none,2025,target,0.4941999912261963
+EvolveGCN-H,none,2025,target,0.4758000075817108
+EvolveGCN-H,none,2025,target,0.11219999939203262
+EvolveGCN-H,none,2025,target,0.32100000977516174
+EvolveGCN-H,none,2025,prediction,0.2321113795042038
+EvolveGCN-H,none,2025,prediction,0.4881002902984619
+EvolveGCN-H,none,2025,prediction,0.13311704993247986
+EvolveGCN-H,none,2025,prediction,0.3481510877609253
+EvolveGCN-H,none,2025,prediction,0.3208337426185608
+EvolveGCN-H,none,2025,prediction,0.3024812638759613
+EvolveGCN-H,none,2025,prediction,0.16276848316192627
+EvolveGCN-H,none,2025,prediction,0.1689193844795227
+EvolveGCN-H,none,2025,prediction,0.3865708112716675
+EvolveGCN-H,none,2025,prediction,0.2567860186100006
+EvolveGCN-H,none,2025,prediction,0.21309514343738556
+EvolveGCN-H,none,2025,prediction,0.24410685896873474
+EvolveGCN-H,none,2025,prediction,0.29157060384750366
+EvolveGCN-H,none,2025,prediction,0.39061081409454346
+EvolveGCN-H,none,2025,prediction,0.3268049359321594
+EvolveGCN-H,none,2025,prediction,0.2480078935623169
+EvolveGCN-H,none,2025,prediction,0.5120717287063599
+EvolveGCN-H,none,2025,prediction,0.2863679528236389
+EvolveGCN-H,none,2025,prediction,0.38301217555999756
+EvolveGCN-H,none,2025,prediction,0.32827314734458923
+EvolveGCN-H,none,2025,prediction,0.17283405363559723
+EvolveGCN-H,none,2025,prediction,0.3542746305465698
+EvolveGCN-H,none,2025,prediction,0.2754337787628174
+EvolveGCN-H,none,2025,prediction,0.2417668253183365
+EvolveGCN-H,none,2025,prediction,0.3564469516277313
+EvolveGCN-H,none,2025,prediction,0.3148084878921509
+EvolveGCN-H,none,2025,prediction,0.33132997155189514
+EvolveGCN-H,none,2025,prediction,0.26958370208740234
+EvolveGCN-H,none,2025,prediction,0.2314658910036087
+EvolveGCN-H,none,2025,prediction,0.19629287719726562
+EvolveGCN-H,none,2025,prediction,0.2658292055130005
+EvolveGCN-H,none,2025,prediction,0.5459194779396057
+EvolveGCN-H,none,2025,prediction,0.33455416560173035
+EvolveGCN-H,none,2025,prediction,0.4539792537689209
+EvolveGCN-H,none,2025,prediction,0.16282394528388977
+EvolveGCN-H,none,2025,prediction,0.555809736251831
+EvolveGCN-H,none,2025,prediction,0.23707450926303864
+EvolveGCN-H,none,2025,prediction,0.22104215621948242
+EvolveGCN-H,none,2025,prediction,0.5385545492172241
+EvolveGCN-H,none,2025,prediction,0.26649361848831177
+EvolveGCN-H,none,2025,prediction,0.3831143379211426
+EvolveGCN-H,none,2025,prediction,0.2314658910036087
+EvolveGCN-H,none,2025,prediction,0.25165849924087524
+EvolveGCN-H,none,2025,prediction,0.38956230878829956
+EvolveGCN-H,none,2025,prediction,0.20860110223293304
+EvolveGCN-H,none,2025,prediction,0.29146328568458557
+EvolveGCN-H,none,2025,prediction,0.3696467876434326
+EvolveGCN-H,none,2025,prediction,0.360721230506897
+EvolveGCN-H,none,2025,prediction,0.3740110397338867
+EvolveGCN-H,none,2025,prediction,0.1633903831243515
+EvolveGCN-H,none,2025,prediction,0.3605034053325653
+EvolveGCN-H,none,2025,prediction,0.42223089933395386
+EvolveGCN-H,none,2025,prediction,0.31222760677337646
+EvolveGCN-H,none,2025,prediction,0.3152990937232971
+EvolveGCN-H,none,2025,prediction,0.3918815851211548
+EvolveGCN-H,none,2025,prediction,0.22748631238937378
+EvolveGCN-H,none,2025,prediction,0.2844286859035492
+EvolveGCN-H,none,2025,prediction,0.20875975489616394
+EvolveGCN-H,none,2025,prediction,0.336919903755188
+EvolveGCN-H,none,2025,prediction,0.273943156003952
+EvolveGCN-H,none,2025,prediction,0.3968700170516968
+EvolveGCN-H,none,2025,prediction,0.5049120187759399
+EvolveGCN-H,none,2025,prediction,0.19607117772102356
+EvolveGCN-H,none,2025,prediction,0.35814332962036133
+EvolveGCN-H,none,2025,prediction,0.3676643967628479
+EvolveGCN-H,none,2025,prediction,0.418028324842453
+EvolveGCN-H,none,2025,prediction,0.15052005648612976
+EvolveGCN-H,none,2025,prediction,0.16782552003860474
+EvolveGCN-H,none,2025,prediction,0.4908028244972229
+EvolveGCN-H,none,2025,prediction,0.2803049683570862
+EvolveGCN-H,none,2025,prediction,0.19763557612895966
+EvolveGCN-H,none,2025,prediction,0.41104644536972046
+EvolveGCN-H,none,2025,prediction,0.5398112535476685
+EvolveGCN-H,none,2025,prediction,0.13814392685890198
+EvolveGCN-H,none,2025,prediction,0.33758074045181274
+EvolveGCN-H,minmax,999,target,0.16820000112056732
+EvolveGCN-H,minmax,999,target,0.3725999891757965
+EvolveGCN-H,minmax,999,target,0.25780001282691956
+EvolveGCN-H,minmax,999,target,0.31540000438690186
+EvolveGCN-H,minmax,999,target,0.1873999983072281
+EvolveGCN-H,minmax,999,target,0.4957999885082245
+EvolveGCN-H,minmax,999,target,0.3109999895095825
+EvolveGCN-H,minmax,999,target,0.3874000012874603
+EvolveGCN-H,minmax,999,target,0.39419999718666077
+EvolveGCN-H,minmax,999,target,0.2669999897480011
+EvolveGCN-H,minmax,999,target,0.3889999985694885
+EvolveGCN-H,minmax,999,target,0.34380000829696655
+EvolveGCN-H,minmax,999,target,0.22339999675750732
+EvolveGCN-H,minmax,999,target,0.3158000111579895
+EvolveGCN-H,minmax,999,target,0.1597999930381775
+EvolveGCN-H,minmax,999,target,0.2401999980211258
+EvolveGCN-H,minmax,999,target,0.3041999936103821
+EvolveGCN-H,minmax,999,target,0.28619998693466187
+EvolveGCN-H,minmax,999,target,0.4390000104904175
+EvolveGCN-H,minmax,999,target,0.15299999713897705
+EvolveGCN-H,minmax,999,target,0.33180001378059387
+EvolveGCN-H,minmax,999,target,0.19259999692440033
+EvolveGCN-H,minmax,999,target,0.4174000024795532
+EvolveGCN-H,minmax,999,target,0.2962000072002411
+EvolveGCN-H,minmax,999,target,0.15139999985694885
+EvolveGCN-H,minmax,999,target,0.44020000100135803
+EvolveGCN-H,minmax,999,target,0.3393999934196472
+EvolveGCN-H,minmax,999,target,0.3149999976158142
+EvolveGCN-H,minmax,999,target,0.17059999704360962
+EvolveGCN-H,minmax,999,target,0.3077999949455261
+EvolveGCN-H,minmax,999,target,0.4381999969482422
+EvolveGCN-H,minmax,999,target,0.22059999406337738
+EvolveGCN-H,minmax,999,target,0.2529999911785126
+EvolveGCN-H,minmax,999,target,0.14980000257492065
+EvolveGCN-H,minmax,999,target,0.2913999855518341
+EvolveGCN-H,minmax,999,target,0.39739999175071716
+EvolveGCN-H,minmax,999,target,0.4618000090122223
+EvolveGCN-H,minmax,999,target,0.305400013923645
+EvolveGCN-H,minmax,999,target,0.45660001039505005
+EvolveGCN-H,minmax,999,target,0.3346000015735626
+EvolveGCN-H,minmax,999,target,0.1265999972820282
+EvolveGCN-H,minmax,999,target,0.45980000495910645
+EvolveGCN-H,minmax,999,target,0.3837999999523163
+EvolveGCN-H,minmax,999,target,0.4918000102043152
+EvolveGCN-H,minmax,999,target,0.43299999833106995
+EvolveGCN-H,minmax,999,target,0.227400004863739
+EvolveGCN-H,minmax,999,target,0.24500000476837158
+EvolveGCN-H,minmax,999,target,0.38179999589920044
+EvolveGCN-H,minmax,999,target,0.4925999939441681
+EvolveGCN-H,minmax,999,target,0.10700000077486038
+EvolveGCN-H,minmax,999,target,0.3977999985218048
+EvolveGCN-H,minmax,999,target,0.35899999737739563
+EvolveGCN-H,minmax,999,target,0.4941999912261963
+EvolveGCN-H,minmax,999,target,0.4758000075817108
+EvolveGCN-H,minmax,999,target,0.22779999673366547
+EvolveGCN-H,minmax,999,target,0.2994000017642975
+EvolveGCN-H,minmax,999,target,0.46700000762939453
+EvolveGCN-H,minmax,999,target,0.22380000352859497
+EvolveGCN-H,minmax,999,target,0.2526000142097473
+EvolveGCN-H,minmax,999,target,0.20499999821186066
+EvolveGCN-H,minmax,999,target,0.47380000352859497
+EvolveGCN-H,minmax,999,target,0.45899999141693115
+EvolveGCN-H,minmax,999,target,0.358599990606308
+EvolveGCN-H,minmax,999,target,0.41620001196861267
+EvolveGCN-H,minmax,999,target,0.14740000665187836
+EvolveGCN-H,minmax,999,target,0.19419999420642853
+EvolveGCN-H,minmax,999,target,0.41179999709129333
+EvolveGCN-H,minmax,999,target,0.18299999833106995
+EvolveGCN-H,minmax,999,target,0.2978000044822693
+EvolveGCN-H,minmax,999,target,0.37139999866485596
+EvolveGCN-H,minmax,999,target,0.17180000245571136
+EvolveGCN-H,minmax,999,target,0.23340000212192535
+EvolveGCN-H,minmax,999,target,0.27379998564720154
+EvolveGCN-H,minmax,999,target,0.1889999955892563
+EvolveGCN-H,minmax,999,target,0.3781999945640564
+EvolveGCN-H,minmax,999,prediction,0.31519392132759094
+EvolveGCN-H,minmax,999,prediction,0.29594093561172485
+EvolveGCN-H,minmax,999,prediction,0.31256720423698425
+EvolveGCN-H,minmax,999,prediction,0.2688138484954834
+EvolveGCN-H,minmax,999,prediction,0.29489487409591675
+EvolveGCN-H,minmax,999,prediction,0.3154231905937195
+EvolveGCN-H,minmax,999,prediction,0.29894351959228516
+EvolveGCN-H,minmax,999,prediction,0.3150729835033417
+EvolveGCN-H,minmax,999,prediction,0.24567988514900208
+EvolveGCN-H,minmax,999,prediction,0.31279101967811584
+EvolveGCN-H,minmax,999,prediction,0.31031596660614014
+EvolveGCN-H,minmax,999,prediction,0.2945716381072998
+EvolveGCN-H,minmax,999,prediction,0.346089631319046
+EvolveGCN-H,minmax,999,prediction,0.33889782428741455
+EvolveGCN-H,minmax,999,prediction,0.3174396753311157
+EvolveGCN-H,minmax,999,prediction,0.19247493147850037
+EvolveGCN-H,minmax,999,prediction,0.22151999175548553
+EvolveGCN-H,minmax,999,prediction,0.22219054400920868
+EvolveGCN-H,minmax,999,prediction,0.334889680147171
+EvolveGCN-H,minmax,999,prediction,0.15911929309368134
+EvolveGCN-H,minmax,999,prediction,0.31211939454078674
+EvolveGCN-H,minmax,999,prediction,0.2360564023256302
+EvolveGCN-H,minmax,999,prediction,0.3160443603992462
+EvolveGCN-H,minmax,999,prediction,0.33096039295196533
+EvolveGCN-H,minmax,999,prediction,0.30626368522644043
+EvolveGCN-H,minmax,999,prediction,0.2991461753845215
+EvolveGCN-H,minmax,999,prediction,0.2920728623867035
+EvolveGCN-H,minmax,999,prediction,0.31201496720314026
+EvolveGCN-H,minmax,999,prediction,0.17227184772491455
+EvolveGCN-H,minmax,999,prediction,0.3106728196144104
+EvolveGCN-H,minmax,999,prediction,0.2736820578575134
+EvolveGCN-H,minmax,999,prediction,0.24137479066848755
+EvolveGCN-H,minmax,999,prediction,0.300445556640625
+EvolveGCN-H,minmax,999,prediction,0.14154484868049622
+EvolveGCN-H,minmax,999,prediction,0.2060641497373581
+EvolveGCN-H,minmax,999,prediction,0.2746981680393219
+EvolveGCN-H,minmax,999,prediction,0.31970131397247314
+EvolveGCN-H,minmax,999,prediction,0.34093526005744934
+EvolveGCN-H,minmax,999,prediction,0.3173581659793854
+EvolveGCN-H,minmax,999,prediction,0.2934863865375519
+EvolveGCN-H,minmax,999,prediction,0.2330661416053772
+EvolveGCN-H,minmax,999,prediction,0.3302426338195801
+EvolveGCN-H,minmax,999,prediction,0.3037368059158325
+EvolveGCN-H,minmax,999,prediction,0.31982892751693726
+EvolveGCN-H,minmax,999,prediction,0.31070420145988464
+EvolveGCN-H,minmax,999,prediction,0.3563241958618164
+EvolveGCN-H,minmax,999,prediction,0.33584755659103394
+EvolveGCN-H,minmax,999,prediction,0.2960611581802368
+EvolveGCN-H,minmax,999,prediction,0.31863248348236084
+EvolveGCN-H,minmax,999,prediction,0.2939440608024597
+EvolveGCN-H,minmax,999,prediction,0.3453054428100586
+EvolveGCN-H,minmax,999,prediction,0.3418216109275818
+EvolveGCN-H,minmax,999,prediction,0.3336172103881836
+EvolveGCN-H,minmax,999,prediction,0.33508557081222534
+EvolveGCN-H,minmax,999,prediction,0.3437733054161072
+EvolveGCN-H,minmax,999,prediction,0.2926297187805176
+EvolveGCN-H,minmax,999,prediction,0.3255923092365265
+EvolveGCN-H,minmax,999,prediction,0.2802045941352844
+EvolveGCN-H,minmax,999,prediction,0.3261500597000122
+EvolveGCN-H,minmax,999,prediction,0.2728577256202698
+EvolveGCN-H,minmax,999,prediction,0.24134881794452667
+EvolveGCN-H,minmax,999,prediction,0.311422199010849
+EvolveGCN-H,minmax,999,prediction,0.30557331442832947
+EvolveGCN-H,minmax,999,prediction,0.3163806200027466
+EvolveGCN-H,minmax,999,prediction,0.322759211063385
+EvolveGCN-H,minmax,999,prediction,0.2791164517402649
+EvolveGCN-H,minmax,999,prediction,0.28464317321777344
+EvolveGCN-H,minmax,999,prediction,0.3147614896297455
+EvolveGCN-H,minmax,999,prediction,0.3039661943912506
+EvolveGCN-H,minmax,999,prediction,0.3234354853630066
+EvolveGCN-H,minmax,999,prediction,0.2689554989337921
+EvolveGCN-H,minmax,999,prediction,0.30828431248664856
+EvolveGCN-H,minmax,999,prediction,0.2756003141403198
+EvolveGCN-H,minmax,999,prediction,0.31099700927734375
+EvolveGCN-H,minmax,999,prediction,0.32991111278533936
+EvolveGCN-H,zscore,123,target,0.11020000278949738
+EvolveGCN-H,zscore,123,target,0.2766000032424927
+EvolveGCN-H,zscore,123,target,0.4758000075817108
+EvolveGCN-H,zscore,123,target,0.17579999566078186
+EvolveGCN-H,zscore,123,target,0.4918000102043152
+EvolveGCN-H,zscore,123,target,0.12020000070333481
+EvolveGCN-H,zscore,123,target,0.3601999878883362
+EvolveGCN-H,zscore,123,target,0.29820001125335693
+EvolveGCN-H,zscore,123,target,0.20739999413490295
+EvolveGCN-H,zscore,123,target,0.3529999852180481
+EvolveGCN-H,zscore,123,target,0.15060000121593475
+EvolveGCN-H,zscore,123,target,0.10859999805688858
+EvolveGCN-H,zscore,123,target,0.4625999927520752
+EvolveGCN-H,zscore,123,target,0.2754000127315521
+EvolveGCN-H,zscore,123,target,0.19419999420642853
+EvolveGCN-H,zscore,123,target,0.40779998898506165
+EvolveGCN-H,zscore,123,target,0.11940000206232071
+EvolveGCN-H,zscore,123,target,0.38499999046325684
+EvolveGCN-H,zscore,123,target,0.16699999570846558
+EvolveGCN-H,zscore,123,target,0.27619999647140503
+EvolveGCN-H,zscore,123,target,0.4578000009059906
+EvolveGCN-H,zscore,123,target,0.4941999912261963
+EvolveGCN-H,zscore,123,target,0.24379999935626984
+EvolveGCN-H,zscore,123,target,0.10700000077486038
+EvolveGCN-H,zscore,123,target,0.18979999423027039
+EvolveGCN-H,zscore,123,target,0.2978000044822693
+EvolveGCN-H,zscore,123,target,0.35339999198913574
+EvolveGCN-H,zscore,123,target,0.10899999737739563
+EvolveGCN-H,zscore,123,target,0.16019999980926514
+EvolveGCN-H,zscore,123,target,0.29019999504089355
+EvolveGCN-H,zscore,123,target,0.17739999294281006
+EvolveGCN-H,zscore,123,target,0.2101999968290329
+EvolveGCN-H,zscore,123,target,0.26339998841285706
+EvolveGCN-H,zscore,123,target,0.4189999997615814
+EvolveGCN-H,zscore,123,target,0.1738000065088272
+EvolveGCN-H,zscore,123,target,0.4138000011444092
+EvolveGCN-H,zscore,123,target,0.11500000208616257
+EvolveGCN-H,zscore,123,target,0.3693999946117401
+EvolveGCN-H,zscore,123,target,0.10419999808073044
+EvolveGCN-H,zscore,123,target,0.23980000615119934
+EvolveGCN-H,zscore,123,target,0.272599995136261
+EvolveGCN-H,zscore,123,target,0.38420000672340393
+EvolveGCN-H,zscore,123,target,0.4569999873638153
+EvolveGCN-H,zscore,123,target,0.41620001196861267
+EvolveGCN-H,zscore,123,target,0.2770000100135803
+EvolveGCN-H,zscore,123,target,0.3578000068664551
+EvolveGCN-H,zscore,123,target,0.4406000077724457
+EvolveGCN-H,zscore,123,target,0.3418000042438507
+EvolveGCN-H,zscore,123,target,0.1462000012397766
+EvolveGCN-H,zscore,123,target,0.3357999920845032
+EvolveGCN-H,zscore,123,target,0.41019999980926514
+EvolveGCN-H,zscore,123,target,0.24500000476837158
+EvolveGCN-H,zscore,123,target,0.19820000231266022
+EvolveGCN-H,zscore,123,target,0.46459999680519104
+EvolveGCN-H,zscore,123,target,0.3901999890804291
+EvolveGCN-H,zscore,123,target,0.241799995303154
+EvolveGCN-H,zscore,123,target,0.32339999079704285
+EvolveGCN-H,zscore,123,target,0.23819999396800995
+EvolveGCN-H,zscore,123,target,0.4729999899864197
+EvolveGCN-H,zscore,123,target,0.4302000105381012
+EvolveGCN-H,zscore,123,target,0.35580000281333923
+EvolveGCN-H,zscore,123,target,0.43059998750686646
+EvolveGCN-H,zscore,123,target,0.2750000059604645
+EvolveGCN-H,zscore,123,target,0.41499999165534973
+EvolveGCN-H,zscore,123,target,0.3061999976634979
+EvolveGCN-H,zscore,123,target,0.22059999406337738
+EvolveGCN-H,zscore,123,target,0.4410000145435333
+EvolveGCN-H,zscore,123,target,0.34540000557899475
+EvolveGCN-H,zscore,123,target,0.19020000100135803
+EvolveGCN-H,zscore,123,target,0.20340000092983246
+EvolveGCN-H,zscore,123,target,0.2937999963760376
+EvolveGCN-H,zscore,123,target,0.2502000033855438
+EvolveGCN-H,zscore,123,target,0.2962000072002411
+EvolveGCN-H,zscore,123,target,0.3709999918937683
+EvolveGCN-H,zscore,123,target,0.17980000376701355
+EvolveGCN-H,zscore,123,prediction,0.2543664276599884
+EvolveGCN-H,zscore,123,prediction,0.23721875250339508
+EvolveGCN-H,zscore,123,prediction,0.3373924791812897
+EvolveGCN-H,zscore,123,prediction,0.28903448581695557
+EvolveGCN-H,zscore,123,prediction,0.3155689835548401
+EvolveGCN-H,zscore,123,prediction,0.30953988432884216
+EvolveGCN-H,zscore,123,prediction,0.33603325486183167
+EvolveGCN-H,zscore,123,prediction,0.27253925800323486
+EvolveGCN-H,zscore,123,prediction,0.30383390188217163
+EvolveGCN-H,zscore,123,prediction,0.2806153893470764
+EvolveGCN-H,zscore,123,prediction,0.2831207513809204
+EvolveGCN-H,zscore,123,prediction,0.2857644557952881
+EvolveGCN-H,zscore,123,prediction,0.31216874718666077
+EvolveGCN-H,zscore,123,prediction,0.28817492723464966
+EvolveGCN-H,zscore,123,prediction,0.3028111159801483
+EvolveGCN-H,zscore,123,prediction,0.3171745240688324
+EvolveGCN-H,zscore,123,prediction,0.30106258392333984
+EvolveGCN-H,zscore,123,prediction,0.3038389980792999
+EvolveGCN-H,zscore,123,prediction,0.2671266794204712
+EvolveGCN-H,zscore,123,prediction,0.23099052906036377
+EvolveGCN-H,zscore,123,prediction,0.3102225661277771
+EvolveGCN-H,zscore,123,prediction,0.3209916055202484
+EvolveGCN-H,zscore,123,prediction,0.2334187924861908
+EvolveGCN-H,zscore,123,prediction,0.27319830656051636
+EvolveGCN-H,zscore,123,prediction,0.2736344337463379
+EvolveGCN-H,zscore,123,prediction,0.31634920835494995
+EvolveGCN-H,zscore,123,prediction,0.27021363377571106
+EvolveGCN-H,zscore,123,prediction,0.3438955545425415
+EvolveGCN-H,zscore,123,prediction,0.31071922183036804
+EvolveGCN-H,zscore,123,prediction,0.293082058429718
+EvolveGCN-H,zscore,123,prediction,0.28638434410095215
+EvolveGCN-H,zscore,123,prediction,0.3045710325241089
+EvolveGCN-H,zscore,123,prediction,0.2565443217754364
+EvolveGCN-H,zscore,123,prediction,0.3025030493736267
+EvolveGCN-H,zscore,123,prediction,0.3417889475822449
+EvolveGCN-H,zscore,123,prediction,0.3342168629169464
+EvolveGCN-H,zscore,123,prediction,0.25766074657440186
+EvolveGCN-H,zscore,123,prediction,0.3192785084247589
+EvolveGCN-H,zscore,123,prediction,0.265077143907547
+EvolveGCN-H,zscore,123,prediction,0.3043496608734131
+EvolveGCN-H,zscore,123,prediction,0.27623260021209717
+EvolveGCN-H,zscore,123,prediction,0.31926411390304565
+EvolveGCN-H,zscore,123,prediction,0.33800387382507324
+EvolveGCN-H,zscore,123,prediction,0.30450859665870667
+EvolveGCN-H,zscore,123,prediction,0.29879939556121826
+EvolveGCN-H,zscore,123,prediction,0.3204154968261719
+EvolveGCN-H,zscore,123,prediction,0.2282375991344452
+EvolveGCN-H,zscore,123,prediction,0.2660030722618103
+EvolveGCN-H,zscore,123,prediction,0.2499089539051056
+EvolveGCN-H,zscore,123,prediction,0.2574883699417114
+EvolveGCN-H,zscore,123,prediction,0.2758861482143402
+EvolveGCN-H,zscore,123,prediction,0.28936874866485596
+EvolveGCN-H,zscore,123,prediction,0.26100659370422363
+EvolveGCN-H,zscore,123,prediction,0.342398077249527
+EvolveGCN-H,zscore,123,prediction,0.3106461465358734
+EvolveGCN-H,zscore,123,prediction,0.2533644139766693
+EvolveGCN-H,zscore,123,prediction,0.3373892903327942
+EvolveGCN-H,zscore,123,prediction,0.2585480213165283
+EvolveGCN-H,zscore,123,prediction,0.24069012701511383
+EvolveGCN-H,zscore,123,prediction,0.3245319724082947
+EvolveGCN-H,zscore,123,prediction,0.31378689408302307
+EvolveGCN-H,zscore,123,prediction,0.2677716016769409
+EvolveGCN-H,zscore,123,prediction,0.27972647547721863
+EvolveGCN-H,zscore,123,prediction,0.27664172649383545
+EvolveGCN-H,zscore,123,prediction,0.2734808027744293
+EvolveGCN-H,zscore,123,prediction,0.2875351905822754
+EvolveGCN-H,zscore,123,prediction,0.30073124170303345
+EvolveGCN-H,zscore,123,prediction,0.2674543559551239
+EvolveGCN-H,zscore,123,prediction,0.2798203229904175
+EvolveGCN-H,zscore,123,prediction,0.30883151292800903
+EvolveGCN-H,zscore,123,prediction,0.2768985629081726
+EvolveGCN-H,zscore,123,prediction,0.3238995671272278
+EvolveGCN-H,zscore,123,prediction,0.33583855628967285
+EvolveGCN-H,zscore,123,prediction,0.29533785581588745
+EvolveGCN-H,zscore,123,prediction,0.259854793548584
+Static GCN,none,777,target,0.40860000252723694
+Static GCN,none,777,target,0.4374000132083893
+Static GCN,none,777,target,0.11739999800920486
+Static GCN,none,777,target,0.2345999926328659
+Static GCN,none,777,target,0.10300000011920929
+Static GCN,none,777,target,0.30379998683929443
+Static GCN,none,777,target,0.4765999913215637
+Static GCN,none,777,target,0.4002000093460083
+Static GCN,none,777,target,0.3458000123500824
+Static GCN,none,777,target,0.3578000068664551
+Static GCN,none,777,target,0.3725999891757965
+Static GCN,none,777,target,0.2401999980211258
+Static GCN,none,777,target,0.3102000057697296
+Static GCN,none,777,target,0.40939998626708984
+Static GCN,none,777,target,0.4713999927043915
+Static GCN,none,777,target,0.3529999852180481
+Static GCN,none,777,target,0.21140000224113464
+Static GCN,none,777,target,0.13779999315738678
+Static GCN,none,777,target,0.1754000037908554
+Static GCN,none,777,target,0.22139999270439148
+Static GCN,none,777,target,0.2802000045776367
+Static GCN,none,777,target,0.28540000319480896
+Static GCN,none,777,target,0.2614000141620636
+Static GCN,none,777,target,0.26660001277923584
+Static GCN,none,777,target,0.4625999927520752
+Static GCN,none,777,target,0.44620001316070557
+Static GCN,none,777,target,0.43380001187324524
+Static GCN,none,777,target,0.17739999294281006
+Static GCN,none,777,target,0.4381999969482422
+Static GCN,none,777,target,0.28780001401901245
+Static GCN,none,777,target,0.4185999929904938
+Static GCN,none,777,target,0.3149999976158142
+Static GCN,none,777,target,0.26339998841285706
+Static GCN,none,777,target,0.10499999672174454
+Static GCN,none,777,target,0.3846000134944916
+Static GCN,none,777,target,0.20340000092983246
+Static GCN,none,777,target,0.2797999978065491
+Static GCN,none,777,target,0.21459999680519104
+Static GCN,none,777,target,0.43779999017715454
+Static GCN,none,777,target,0.14900000393390656
+Static GCN,none,777,target,0.20499999821186066
+Static GCN,none,777,target,0.4941999912261963
+Static GCN,none,777,target,0.1462000012397766
+Static GCN,none,777,target,0.46459999680519104
+Static GCN,none,777,target,0.11819999665021896
+Static GCN,none,777,target,0.41339999437332153
+Static GCN,none,777,target,0.16859999299049377
+Static GCN,none,777,target,0.35580000281333923
+Static GCN,none,777,target,0.11580000072717667
+Static GCN,none,777,target,0.31779998540878296
+Static GCN,none,777,target,0.40059998631477356
+Static GCN,none,777,target,0.19140000641345978
+Static GCN,none,777,target,0.28700000047683716
+Static GCN,none,777,target,0.17499999701976776
+Static GCN,none,777,target,0.2773999869823456
+Static GCN,none,777,target,0.35019999742507935
+Static GCN,none,777,target,0.375
+Static GCN,none,777,target,0.4334000051021576
+Static GCN,none,777,target,0.34139999747276306
+Static GCN,none,777,target,0.4997999966144562
+Static GCN,none,777,target,0.10939999669790268
+Static GCN,none,777,target,0.23019999265670776
+Static GCN,none,777,target,0.2770000100135803
+Static GCN,none,777,target,0.3601999878883362
+Static GCN,none,777,target,0.13979999721050262
+Static GCN,none,777,target,0.17020000517368317
+Static GCN,none,777,target,0.34700000286102295
+Static GCN,none,777,target,0.3901999890804291
+Static GCN,none,777,target,0.4745999872684479
+Static GCN,none,777,target,0.39739999175071716
+Static GCN,none,777,target,0.2558000087738037
+Static GCN,none,777,target,0.28619998693466187
+Static GCN,none,777,target,0.2637999951839447
+Static GCN,none,777,target,0.4262000024318695
+Static GCN,none,777,target,0.2930000126361847
+Static GCN,none,777,prediction,0.5040653347969055
+Static GCN,none,777,prediction,0.4377126693725586
+Static GCN,none,777,prediction,0.19761425256729126
+Static GCN,none,777,prediction,0.1938847005367279
+Static GCN,none,777,prediction,0.18948478996753693
+Static GCN,none,777,prediction,0.2424682229757309
+Static GCN,none,777,prediction,0.43792885541915894
+Static GCN,none,777,prediction,0.3993792235851288
+Static GCN,none,777,prediction,0.3144266605377197
+Static GCN,none,777,prediction,0.35665857791900635
+Static GCN,none,777,prediction,0.40020668506622314
+Static GCN,none,777,prediction,0.2221299558877945
+Static GCN,none,777,prediction,0.4029838442802429
+Static GCN,none,777,prediction,0.32530778646469116
+Static GCN,none,777,prediction,0.3992237448692322
+Static GCN,none,777,prediction,0.3231765627861023
+Static GCN,none,777,prediction,0.23496653139591217
+Static GCN,none,777,prediction,0.17181526124477386
+Static GCN,none,777,prediction,0.19985473155975342
+Static GCN,none,777,prediction,0.22099089622497559
+Static GCN,none,777,prediction,0.19418127834796906
+Static GCN,none,777,prediction,0.34696006774902344
+Static GCN,none,777,prediction,0.3019881844520569
+Static GCN,none,777,prediction,0.37294256687164307
+Static GCN,none,777,prediction,0.41978561878204346
+Static GCN,none,777,prediction,0.3656776547431946
+Static GCN,none,777,prediction,0.3701182007789612
+Static GCN,none,777,prediction,0.17565809190273285
+Static GCN,none,777,prediction,0.45578569173812866
+Static GCN,none,777,prediction,0.2402222752571106
+Static GCN,none,777,prediction,0.41770803928375244
+Static GCN,none,777,prediction,0.3264501094818115
+Static GCN,none,777,prediction,0.3564838767051697
+Static GCN,none,777,prediction,0.13890007138252258
+Static GCN,none,777,prediction,0.4412696361541748
+Static GCN,none,777,prediction,0.2754887044429779
+Static GCN,none,777,prediction,0.31198960542678833
+Static GCN,none,777,prediction,0.26813000440597534
+Static GCN,none,777,prediction,0.40269601345062256
+Static GCN,none,777,prediction,0.10980769991874695
+Static GCN,none,777,prediction,0.18160878121852875
+Static GCN,none,777,prediction,0.4147607088088989
+Static GCN,none,777,prediction,0.12880611419677734
+Static GCN,none,777,prediction,0.3584546446800232
+Static GCN,none,777,prediction,0.18135273456573486
+Static GCN,none,777,prediction,0.3813399076461792
+Static GCN,none,777,prediction,0.26455244421958923
+Static GCN,none,777,prediction,0.28884297609329224
+Static GCN,none,777,prediction,0.15153950452804565
+Static GCN,none,777,prediction,0.31384217739105225
+Static GCN,none,777,prediction,0.397976279258728
+Static GCN,none,777,prediction,0.2191384881734848
+Static GCN,none,777,prediction,0.20534004271030426
+Static GCN,none,777,prediction,0.21741747856140137
+Static GCN,none,777,prediction,0.19788141548633575
+Static GCN,none,777,prediction,0.3470331132411957
+Static GCN,none,777,prediction,0.30462080240249634
+Static GCN,none,777,prediction,0.376004695892334
+Static GCN,none,777,prediction,0.3393213152885437
+Static GCN,none,777,prediction,0.3602459132671356
+Static GCN,none,777,prediction,0.13075028359889984
+Static GCN,none,777,prediction,0.21058803796768188
+Static GCN,none,777,prediction,0.3053038716316223
+Static GCN,none,777,prediction,0.3069189786911011
+Static GCN,none,777,prediction,0.1298385113477707
+Static GCN,none,777,prediction,0.18380679190158844
+Static GCN,none,777,prediction,0.3945208489894867
+Static GCN,none,777,prediction,0.3684208393096924
+Static GCN,none,777,prediction,0.4330422282218933
+Static GCN,none,777,prediction,0.34909242391586304
+Static GCN,none,777,prediction,0.1920643448829651
+Static GCN,none,777,prediction,0.24585562944412231
+Static GCN,none,777,prediction,0.30928835272789
+Static GCN,none,777,prediction,0.4039630591869354
+Static GCN,none,777,prediction,0.28272557258605957
+Static GCN,minmax,777,target,0.40860000252723694
+Static GCN,minmax,777,target,0.4374000132083893
+Static GCN,minmax,777,target,0.11739999800920486
+Static GCN,minmax,777,target,0.2345999926328659
+Static GCN,minmax,777,target,0.10300000011920929
+Static GCN,minmax,777,target,0.30379998683929443
+Static GCN,minmax,777,target,0.4765999913215637
+Static GCN,minmax,777,target,0.4002000093460083
+Static GCN,minmax,777,target,0.3458000123500824
+Static GCN,minmax,777,target,0.3578000068664551
+Static GCN,minmax,777,target,0.3725999891757965
+Static GCN,minmax,777,target,0.2401999980211258
+Static GCN,minmax,777,target,0.3102000057697296
+Static GCN,minmax,777,target,0.40939998626708984
+Static GCN,minmax,777,target,0.4713999927043915
+Static GCN,minmax,777,target,0.3529999852180481
+Static GCN,minmax,777,target,0.21140000224113464
+Static GCN,minmax,777,target,0.13779999315738678
+Static GCN,minmax,777,target,0.1754000037908554
+Static GCN,minmax,777,target,0.22139999270439148
+Static GCN,minmax,777,target,0.2802000045776367
+Static GCN,minmax,777,target,0.28540000319480896
+Static GCN,minmax,777,target,0.2614000141620636
+Static GCN,minmax,777,target,0.26660001277923584
+Static GCN,minmax,777,target,0.4625999927520752
+Static GCN,minmax,777,target,0.44620001316070557
+Static GCN,minmax,777,target,0.43380001187324524
+Static GCN,minmax,777,target,0.17739999294281006
+Static GCN,minmax,777,target,0.4381999969482422
+Static GCN,minmax,777,target,0.28780001401901245
+Static GCN,minmax,777,target,0.4185999929904938
+Static GCN,minmax,777,target,0.3149999976158142
+Static GCN,minmax,777,target,0.26339998841285706
+Static GCN,minmax,777,target,0.10499999672174454
+Static GCN,minmax,777,target,0.3846000134944916
+Static GCN,minmax,777,target,0.20340000092983246
+Static GCN,minmax,777,target,0.2797999978065491
+Static GCN,minmax,777,target,0.21459999680519104
+Static GCN,minmax,777,target,0.43779999017715454
+Static GCN,minmax,777,target,0.14900000393390656
+Static GCN,minmax,777,target,0.20499999821186066
+Static GCN,minmax,777,target,0.4941999912261963
+Static GCN,minmax,777,target,0.1462000012397766
+Static GCN,minmax,777,target,0.46459999680519104
+Static GCN,minmax,777,target,0.11819999665021896
+Static GCN,minmax,777,target,0.41339999437332153
+Static GCN,minmax,777,target,0.16859999299049377
+Static GCN,minmax,777,target,0.35580000281333923
+Static GCN,minmax,777,target,0.11580000072717667
+Static GCN,minmax,777,target,0.31779998540878296
+Static GCN,minmax,777,target,0.40059998631477356
+Static GCN,minmax,777,target,0.19140000641345978
+Static GCN,minmax,777,target,0.28700000047683716
+Static GCN,minmax,777,target,0.17499999701976776
+Static GCN,minmax,777,target,0.2773999869823456
+Static GCN,minmax,777,target,0.35019999742507935
+Static GCN,minmax,777,target,0.375
+Static GCN,minmax,777,target,0.4334000051021576
+Static GCN,minmax,777,target,0.34139999747276306
+Static GCN,minmax,777,target,0.4997999966144562
+Static GCN,minmax,777,target,0.10939999669790268
+Static GCN,minmax,777,target,0.23019999265670776
+Static GCN,minmax,777,target,0.2770000100135803
+Static GCN,minmax,777,target,0.3601999878883362
+Static GCN,minmax,777,target,0.13979999721050262
+Static GCN,minmax,777,target,0.17020000517368317
+Static GCN,minmax,777,target,0.34700000286102295
+Static GCN,minmax,777,target,0.3901999890804291
+Static GCN,minmax,777,target,0.4745999872684479
+Static GCN,minmax,777,target,0.39739999175071716
+Static GCN,minmax,777,target,0.2558000087738037
+Static GCN,minmax,777,target,0.28619998693466187
+Static GCN,minmax,777,target,0.2637999951839447
+Static GCN,minmax,777,target,0.4262000024318695
+Static GCN,minmax,777,target,0.2930000126361847
+Static GCN,minmax,777,prediction,0.33802616596221924
+Static GCN,minmax,777,prediction,0.3044472336769104
+Static GCN,minmax,777,prediction,0.33405792713165283
+Static GCN,minmax,777,prediction,0.3034682869911194
+Static GCN,minmax,777,prediction,0.2898724675178528
+Static GCN,minmax,777,prediction,0.3079026937484741
+Static GCN,minmax,777,prediction,0.31135523319244385
+Static GCN,minmax,777,prediction,0.3008401095867157
+Static GCN,minmax,777,prediction,0.3111930191516876
+Static GCN,minmax,777,prediction,0.32454943656921387
+Static GCN,minmax,777,prediction,0.3131335973739624
+Static GCN,minmax,777,prediction,0.2873266637325287
+Static GCN,minmax,777,prediction,0.28754040598869324
+Static GCN,minmax,777,prediction,0.3107515573501587
+Static GCN,minmax,777,prediction,0.29704993963241577
+Static GCN,minmax,777,prediction,0.2905479371547699
+Static GCN,minmax,777,prediction,0.30657273530960083
+Static GCN,minmax,777,prediction,0.30338913202285767
+Static GCN,minmax,777,prediction,0.28734809160232544
+Static GCN,minmax,777,prediction,0.29894566535949707
+Static GCN,minmax,777,prediction,0.28766655921936035
+Static GCN,minmax,777,prediction,0.29271548986434937
+Static GCN,minmax,777,prediction,0.29358282685279846
+Static GCN,minmax,777,prediction,0.29433608055114746
+Static GCN,minmax,777,prediction,0.3151475489139557
+Static GCN,minmax,777,prediction,0.28730523586273193
+Static GCN,minmax,777,prediction,0.3384680151939392
+Static GCN,minmax,777,prediction,0.3339524269104004
+Static GCN,minmax,777,prediction,0.2999904155731201
+Static GCN,minmax,777,prediction,0.3195570707321167
+Static GCN,minmax,777,prediction,0.28739964962005615
+Static GCN,minmax,777,prediction,0.33202433586120605
+Static GCN,minmax,777,prediction,0.31810182332992554
+Static GCN,minmax,777,prediction,0.30296069383621216
+Static GCN,minmax,777,prediction,0.3067980408668518
+Static GCN,minmax,777,prediction,0.3178160786628723
+Static GCN,minmax,777,prediction,0.3173363208770752
+Static GCN,minmax,777,prediction,0.31777268648147583
+Static GCN,minmax,777,prediction,0.2996751666069031
+Static GCN,minmax,777,prediction,0.28744056820869446
+Static GCN,minmax,777,prediction,0.31259530782699585
+Static GCN,minmax,777,prediction,0.32943254709243774
+Static GCN,minmax,777,prediction,0.33180204033851624
+Static GCN,minmax,777,prediction,0.30309438705444336
+Static GCN,minmax,777,prediction,0.3004222512245178
+Static GCN,minmax,777,prediction,0.30989521741867065
+Static GCN,minmax,777,prediction,0.3219950199127197
+Static GCN,minmax,777,prediction,0.2931032180786133
+Static GCN,minmax,777,prediction,0.33585602045059204
+Static GCN,minmax,777,prediction,0.3348568081855774
+Static GCN,minmax,777,prediction,0.2874784767627716
+Static GCN,minmax,777,prediction,0.29563045501708984
+Static GCN,minmax,777,prediction,0.2955738306045532
+Static GCN,minmax,777,prediction,0.28767168521881104
+Static GCN,minmax,777,prediction,0.31668663024902344
+Static GCN,minmax,777,prediction,0.31541740894317627
+Static GCN,minmax,777,prediction,0.2951089143753052
+Static GCN,minmax,777,prediction,0.29337549209594727
+Static GCN,minmax,777,prediction,0.30263322591781616
+Static GCN,minmax,777,prediction,0.30869942903518677
+Static GCN,minmax,777,prediction,0.29455703496932983
+Static GCN,minmax,777,prediction,0.3454960584640503
+Static GCN,minmax,777,prediction,0.3227139711380005
+Static GCN,minmax,777,prediction,0.29242849349975586
+Static GCN,minmax,777,prediction,0.29741111397743225
+Static GCN,minmax,777,prediction,0.3229558765888214
+Static GCN,minmax,777,prediction,0.28738898038864136
+Static GCN,minmax,777,prediction,0.2901320457458496
+Static GCN,minmax,777,prediction,0.2903520464897156
+Static GCN,minmax,777,prediction,0.3326653838157654
+Static GCN,minmax,777,prediction,0.2929767966270447
+Static GCN,minmax,777,prediction,0.2874571681022644
+Static GCN,minmax,777,prediction,0.3102371394634247
+Static GCN,minmax,777,prediction,0.2926289439201355
+Static GCN,minmax,777,prediction,0.286984384059906
+Static GCN,zscore,777,target,0.40860000252723694
+Static GCN,zscore,777,target,0.4374000132083893
+Static GCN,zscore,777,target,0.11739999800920486
+Static GCN,zscore,777,target,0.2345999926328659
+Static GCN,zscore,777,target,0.10300000011920929
+Static GCN,zscore,777,target,0.30379998683929443
+Static GCN,zscore,777,target,0.4765999913215637
+Static GCN,zscore,777,target,0.4002000093460083
+Static GCN,zscore,777,target,0.3458000123500824
+Static GCN,zscore,777,target,0.3578000068664551
+Static GCN,zscore,777,target,0.3725999891757965
+Static GCN,zscore,777,target,0.2401999980211258
+Static GCN,zscore,777,target,0.3102000057697296
+Static GCN,zscore,777,target,0.40939998626708984
+Static GCN,zscore,777,target,0.4713999927043915
+Static GCN,zscore,777,target,0.3529999852180481
+Static GCN,zscore,777,target,0.21140000224113464
+Static GCN,zscore,777,target,0.13779999315738678
+Static GCN,zscore,777,target,0.1754000037908554
+Static GCN,zscore,777,target,0.22139999270439148
+Static GCN,zscore,777,target,0.2802000045776367
+Static GCN,zscore,777,target,0.28540000319480896
+Static GCN,zscore,777,target,0.2614000141620636
+Static GCN,zscore,777,target,0.26660001277923584
+Static GCN,zscore,777,target,0.4625999927520752
+Static GCN,zscore,777,target,0.44620001316070557
+Static GCN,zscore,777,target,0.43380001187324524
+Static GCN,zscore,777,target,0.17739999294281006
+Static GCN,zscore,777,target,0.4381999969482422
+Static GCN,zscore,777,target,0.28780001401901245
+Static GCN,zscore,777,target,0.4185999929904938
+Static GCN,zscore,777,target,0.3149999976158142
+Static GCN,zscore,777,target,0.26339998841285706
+Static GCN,zscore,777,target,0.10499999672174454
+Static GCN,zscore,777,target,0.3846000134944916
+Static GCN,zscore,777,target,0.20340000092983246
+Static GCN,zscore,777,target,0.2797999978065491
+Static GCN,zscore,777,target,0.21459999680519104
+Static GCN,zscore,777,target,0.43779999017715454
+Static GCN,zscore,777,target,0.14900000393390656
+Static GCN,zscore,777,target,0.20499999821186066
+Static GCN,zscore,777,target,0.4941999912261963
+Static GCN,zscore,777,target,0.1462000012397766
+Static GCN,zscore,777,target,0.46459999680519104
+Static GCN,zscore,777,target,0.11819999665021896
+Static GCN,zscore,777,target,0.41339999437332153
+Static GCN,zscore,777,target,0.16859999299049377
+Static GCN,zscore,777,target,0.35580000281333923
+Static GCN,zscore,777,target,0.11580000072717667
+Static GCN,zscore,777,target,0.31779998540878296
+Static GCN,zscore,777,target,0.40059998631477356
+Static GCN,zscore,777,target,0.19140000641345978
+Static GCN,zscore,777,target,0.28700000047683716
+Static GCN,zscore,777,target,0.17499999701976776
+Static GCN,zscore,777,target,0.2773999869823456
+Static GCN,zscore,777,target,0.35019999742507935
+Static GCN,zscore,777,target,0.375
+Static GCN,zscore,777,target,0.4334000051021576
+Static GCN,zscore,777,target,0.34139999747276306
+Static GCN,zscore,777,target,0.4997999966144562
+Static GCN,zscore,777,target,0.10939999669790268
+Static GCN,zscore,777,target,0.23019999265670776
+Static GCN,zscore,777,target,0.2770000100135803
+Static GCN,zscore,777,target,0.3601999878883362
+Static GCN,zscore,777,target,0.13979999721050262
+Static GCN,zscore,777,target,0.17020000517368317
+Static GCN,zscore,777,target,0.34700000286102295
+Static GCN,zscore,777,target,0.3901999890804291
+Static GCN,zscore,777,target,0.4745999872684479
+Static GCN,zscore,777,target,0.39739999175071716
+Static GCN,zscore,777,target,0.2558000087738037
+Static GCN,zscore,777,target,0.28619998693466187
+Static GCN,zscore,777,target,0.2637999951839447
+Static GCN,zscore,777,target,0.4262000024318695
+Static GCN,zscore,777,target,0.2930000126361847
+Static GCN,zscore,777,prediction,0.3020103871822357
+Static GCN,zscore,777,prediction,0.2742224931716919
+Static GCN,zscore,777,prediction,0.23749130964279175
+Static GCN,zscore,777,prediction,0.32505279779434204
+Static GCN,zscore,777,prediction,0.2627052068710327
+Static GCN,zscore,777,prediction,0.2867303490638733
+Static GCN,zscore,777,prediction,0.3583430051803589
+Static GCN,zscore,777,prediction,0.2854725122451782
+Static GCN,zscore,777,prediction,0.2491300404071808
+Static GCN,zscore,777,prediction,0.29101258516311646
+Static GCN,zscore,777,prediction,0.37734779715538025
+Static GCN,zscore,777,prediction,0.24852800369262695
+Static GCN,zscore,777,prediction,0.3427125811576843
+Static GCN,zscore,777,prediction,0.27851349115371704
+Static GCN,zscore,777,prediction,0.2601194977760315
+Static GCN,zscore,777,prediction,0.2776802182197571
+Static GCN,zscore,777,prediction,0.36024773120880127
+Static GCN,zscore,777,prediction,0.30817219614982605
+Static GCN,zscore,777,prediction,0.27472999691963196
+Static GCN,zscore,777,prediction,0.365822970867157
+Static GCN,zscore,777,prediction,0.27483701705932617
+Static GCN,zscore,777,prediction,0.2742224931716919
+Static GCN,zscore,777,prediction,0.3170407712459564
+Static GCN,zscore,777,prediction,0.2837401032447815
+Static GCN,zscore,777,prediction,0.28218454122543335
+Static GCN,zscore,777,prediction,0.23642590641975403
+Static GCN,zscore,777,prediction,0.26522377133369446
+Static GCN,zscore,777,prediction,0.27848631143569946
+Static GCN,zscore,777,prediction,0.2714564800262451
+Static GCN,zscore,777,prediction,0.2742224931716919
+Static GCN,zscore,777,prediction,0.23584559559822083
+Static GCN,zscore,777,prediction,0.26738497614860535
+Static GCN,zscore,777,prediction,0.219366654753685
+Static GCN,zscore,777,prediction,0.27240630984306335
+Static GCN,zscore,777,prediction,0.29250627756118774
+Static GCN,zscore,777,prediction,0.30747807025909424
+Static GCN,zscore,777,prediction,0.384191632270813
+Static GCN,zscore,777,prediction,0.24819427728652954
+Static GCN,zscore,777,prediction,0.3114602863788605
+Static GCN,zscore,777,prediction,0.2705085277557373
+Static GCN,zscore,777,prediction,0.27275270223617554
+Static GCN,zscore,777,prediction,0.3126370310783386
+Static GCN,zscore,777,prediction,0.2772955000400543
+Static GCN,zscore,777,prediction,0.4524185061454773
+Static GCN,zscore,777,prediction,0.2927139103412628
+Static GCN,zscore,777,prediction,0.35050731897354126
+Static GCN,zscore,777,prediction,0.3071821928024292
+Static GCN,zscore,777,prediction,0.30368566513061523
+Static GCN,zscore,777,prediction,0.2934231758117676
+Static GCN,zscore,777,prediction,0.31456026434898376
+Static GCN,zscore,777,prediction,0.24328500032424927
+Static GCN,zscore,777,prediction,0.33951348066329956
+Static GCN,zscore,777,prediction,0.2742224931716919
+Static GCN,zscore,777,prediction,0.3935065269470215
+Static GCN,zscore,777,prediction,0.3026755452156067
+Static GCN,zscore,777,prediction,0.26206228137016296
+Static GCN,zscore,777,prediction,0.3094020485877991
+Static GCN,zscore,777,prediction,0.2661311626434326
+Static GCN,zscore,777,prediction,0.26358962059020996
+Static GCN,zscore,777,prediction,0.2742224931716919
+Static GCN,zscore,777,prediction,0.34924668073654175
+Static GCN,zscore,777,prediction,0.28910285234451294
+Static GCN,zscore,777,prediction,0.173246368765831
+Static GCN,zscore,777,prediction,0.2737702429294586
+Static GCN,zscore,777,prediction,0.2966034412384033
+Static GCN,zscore,777,prediction,0.2575768530368805
+Static GCN,zscore,777,prediction,0.3112552762031555
+Static GCN,zscore,777,prediction,0.24857883155345917
+Static GCN,zscore,777,prediction,0.35696732997894287
+Static GCN,zscore,777,prediction,0.27218708395957947
+Static GCN,zscore,777,prediction,0.2745266854763031
+Static GCN,zscore,777,prediction,0.29514020681381226
+Static GCN,zscore,777,prediction,0.3922395706176758
+Static GCN,zscore,777,prediction,0.30311447381973267
+Static GCN,zscore,777,prediction,0.33147159218788147

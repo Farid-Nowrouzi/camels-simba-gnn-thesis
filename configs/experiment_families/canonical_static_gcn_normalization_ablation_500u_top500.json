@@ -1,0 +1,280 @@
+{
+  "schema_version": "1.0",
+  "output_root": "experiments",
+  "expected_artifacts": [
+    "config.json",
+    "metrics.json",
+    "train_log.csv",
+    "predictions/test_predictions.csv",
+    "checkpoints/best_model.pt"
+  ],
+  "required_seeds": [
+    42,
+    123,
+    777,
+    999,
+    2025
+  ],
+  "grouping_field": "normalization",
+  "grouping_values": [
+    "none",
+    "minmax",
+    "zscore"
+  ],
+  "grouping_metadata_field": "normalization",
+  "aggregation_metrics": [
+    "test_mae",
+    "test_rmse",
+    "test_r2",
+    "test_pearson"
+  ],
+  "prediction_file": "predictions/test_predictions.csv",
+  "target_column_aliases": [
+    "true_omega_m",
+    "target",
+    "y_true"
+  ],
+  "prediction_column_aliases": [
+    "pred_omega_m",
+    "prediction",
+    "y_pred"
+  ],
+  "id_column_aliases": [
+    "universe_id"
+  ],
+  "metric_tolerance": 1e-06,
+  "runner": {},
+  "family_id": "canonical_static_gcn_normalization_ablation_500u_top500",
+  "family_title": "Canonical Static GCN node-feature normalization ablation at 500 universes and Top500",
+  "scientific_question": "How does per-universe per-snapshot node-feature normalization affect final-snapshot Static GCN Omega_m regression under a fixed U500 Top500 k=8 protocol?",
+  "model_name": "Static GCN",
+  "training_module": "src.training.train_static_gcn",
+  "fixed_scientific_settings": {
+    "config": {
+      "model": "StaticGCNRegressor",
+      "dataset_format": "temporal_final_snapshot",
+      "batch_size": 8,
+      "epochs": 300,
+      "patience": 40,
+      "learning_rate": 0.001,
+      "weight_decay": 1e-05,
+      "hidden_dim": 32,
+      "num_layers": 3,
+      "dropout": 0.2,
+      "activation": "relu",
+      "graph_pooling": "mean",
+      "conv_type": "gcn",
+      "head_type": "static_mlp_readout",
+      "add_self_loops": true,
+      "train_ratio": 0.7,
+      "val_ratio": 0.15,
+      "test_ratio": 0.15,
+      "grad_clip_norm": 1.0,
+      "use_summary_features": false,
+      "normalize_target": false,
+      "num_total_universes": 500,
+      "num_snapshots": 1,
+      "num_nodes": 500,
+      "node_features": 7
+    },
+    "legacy_config_defaults": {
+      "activation": "relu",
+      "conv_type": "gcn",
+      "head_type": "static_mlp_readout",
+      "add_self_loops": true,
+      "use_summary_features": false,
+      "normalize_target": false,
+      "num_snapshots": 1
+    },
+    "dataset_metadata": {
+      "dataset_type": "temporal_graph_sequences",
+      "preprocessing_version": "v2_logmass_minmax_top100_periodic_knn",
+      "raw_dir": "data/raw/CAMELS_SIMBA_500U",
+      "num_universes_requested": 500,
+      "num_universes_successful": 500,
+      "num_universes_failed": 0,
+      "num_snapshots": 5,
+      "num_nodes": 500,
+      "graph_mode": "knn",
+      "k": 8,
+      "periodic_boundary": true,
+      "periodic_boundary_knn": true,
+      "box_size": 25.0,
+      "feature_names": [
+        "log10_Mvir",
+        "X",
+        "Y",
+        "Z",
+        "VX",
+        "VY",
+        "VZ"
+      ],
+      "node_selection": "top_num_nodes_by_raw_Mvir_descending",
+      "graph_positions": "raw_physical_XYZ_before_feature_normalization"
+    }
+  },
+  "allowed_varying_fields": [
+    "seed",
+    "dataset_path",
+    "experiment_name",
+    "experiment_path",
+    "train_ids",
+    "val_ids",
+    "test_ids",
+    "device",
+    "trainable_parameters",
+    "split_source"
+  ],
+  "runs": [
+    {
+      "group_value": "none",
+      "seed": 42,
+      "dataset_path": "data/processed/temporal_500u_none_top500_periodic_knn/camels_500u_temporal_logmass_none_top500_periodic_knn.pt",
+      "experiment_name": "static_gcn_500u_top500_final_snapshot_h32_seed42_none",
+      "experiment_path": "experiments/static_gcn_500u_top500_final_snapshot_h32_seed42_none",
+      "expected_split_signature": "0f963679cd284fca861fc2c59d88bdae8e8f1f21e2cbe1bb73bd593b49056748",
+      "origin": "reusable_existing",
+      "action": "reuse"
+    },
+    {
+      "group_value": "none",
+      "seed": 123,
+      "dataset_path": "data/processed/temporal_500u_none_top500_periodic_knn/camels_500u_temporal_logmass_none_top500_periodic_knn.pt",
+      "experiment_name": "static_gcn_500u_top500_final_snapshot_h32_seed123_none",
+      "experiment_path": "experiments/static_gcn_500u_top500_final_snapshot_h32_seed123_none",
+      "expected_split_signature": "853549f16ef8eb3d7f18ae850c94b13c0c8bf0e770bb99cfbffff48b03530266",
+      "origin": "reusable_existing",
+      "action": "reuse"
+    },
+    {
+      "group_value": "none",
+      "seed": 777,
+      "dataset_path": "data/processed/temporal_500u_none_top500_periodic_knn/camels_500u_temporal_logmass_none_top500_periodic_knn.pt",
+      "experiment_name": "static_gcn_500u_top500_final_snapshot_h32_seed777_none",
+      "experiment_path": "experiments/static_gcn_500u_top500_final_snapshot_h32_seed777_none",
+      "expected_split_signature": "bbfd7e59dfb0844e098e7db7ebe00b0b72161f6eb06472771745fd737839990a",
+      "origin": "reusable_existing",
+      "action": "reuse"
+    },
+    {
+      "group_value": "none",
+      "seed": 999,
+      "dataset_path": "data/processed/temporal_500u_none_top500_periodic_knn/camels_500u_temporal_logmass_none_top500_periodic_knn.pt",
+      "experiment_name": "static_gcn_500u_top500_final_snapshot_h32_seed999_none",
+      "experiment_path": "experiments/static_gcn_500u_top500_final_snapshot_h32_seed999_none",
+      "expected_split_signature": "d033c42cc03a8890de838709a8647c8682054f8213181a1567cf059fe84861c4",
+      "origin": "reusable_existing",
+      "action": "reuse"
+    },
+    {
+      "group_value": "none",
+      "seed": 2025,
+      "dataset_path": "data/processed/temporal_500u_none_top500_periodic_knn/camels_500u_temporal_logmass_none_top500_periodic_knn.pt",
+      "experiment_name": "static_gcn_500u_top500_final_snapshot_h32_seed2025_none",
+      "experiment_path": "experiments/static_gcn_500u_top500_final_snapshot_h32_seed2025_none",
+      "expected_split_signature": "3ce48b66c11e30bec459c52ba7f4a900809dd2b45be0995b8b56aeaefc747951",
+      "origin": "reusable_existing",
+      "action": "reuse"
+    },
+    {
+      "group_value": "minmax",
+      "seed": 42,
+      "dataset_path": "data/processed/temporal_500u_minmax_top500_periodic_knn/camels_500u_temporal_logmass_minmax_top500_periodic_knn.pt",
+      "experiment_name": "static_gcn_top500_final_snapshot_same_split_h32_seed42",
+      "experiment_path": "experiments/static_gcn_top500_final_snapshot_same_split_h32_seed42",
+      "expected_split_signature": "0f963679cd284fca861fc2c59d88bdae8e8f1f21e2cbe1bb73bd593b49056748",
+      "origin": "reusable_existing",
+      "action": "reuse"
+    },
+    {
+      "group_value": "minmax",
+      "seed": 123,
+      "dataset_path": "data/processed/temporal_500u_minmax_top500_periodic_knn/camels_500u_temporal_logmass_minmax_top500_periodic_knn.pt",
+      "experiment_name": "static_gcn_500u_top500_final_snapshot_h32_seed123_minmax",
+      "experiment_path": "experiments/static_gcn_500u_top500_final_snapshot_h32_seed123_minmax",
+      "expected_split_signature": "853549f16ef8eb3d7f18ae850c94b13c0c8bf0e770bb99cfbffff48b03530266",
+      "origin": "reusable_existing",
+      "action": "reuse"
+    },
+    {
+      "group_value": "minmax",
+      "seed": 777,
+      "dataset_path": "data/processed/temporal_500u_minmax_top500_periodic_knn/camels_500u_temporal_logmass_minmax_top500_periodic_knn.pt",
+      "experiment_name": "static_gcn_500u_top500_final_snapshot_h32_seed777_minmax",
+      "experiment_path": "experiments/static_gcn_500u_top500_final_snapshot_h32_seed777_minmax",
+      "expected_split_signature": "bbfd7e59dfb0844e098e7db7ebe00b0b72161f6eb06472771745fd737839990a",
+      "origin": "reusable_existing",
+      "action": "reuse"
+    },
+    {
+      "group_value": "minmax",
+      "seed": 999,
+      "dataset_path": "data/processed/temporal_500u_minmax_top500_periodic_knn/camels_500u_temporal_logmass_minmax_top500_periodic_knn.pt",
+      "experiment_name": "static_gcn_500u_top500_final_snapshot_h32_seed999_minmax",
+      "experiment_path": "experiments/static_gcn_500u_top500_final_snapshot_h32_seed999_minmax",
+      "expected_split_signature": "d033c42cc03a8890de838709a8647c8682054f8213181a1567cf059fe84861c4",
+      "origin": "reusable_existing",
+      "action": "reuse"
+    },
+    {
+      "group_value": "minmax",
+      "seed": 2025,
+      "dataset_path": "data/processed/temporal_500u_minmax_top500_periodic_knn/camels_500u_temporal_logmass_minmax_top500_periodic_knn.pt",
+      "experiment_name": "static_gcn_500u_top500_final_snapshot_h32_seed2025_minmax",
+      "experiment_path": "experiments/static_gcn_500u_top500_final_snapshot_h32_seed2025_minmax",
+      "expected_split_signature": "3ce48b66c11e30bec459c52ba7f4a900809dd2b45be0995b8b56aeaefc747951",
+      "origin": "reusable_existing",
+      "action": "reuse"
+    },
+    {
+      "group_value": "zscore",
+      "seed": 42,
+      "dataset_path": "data/processed/temporal_500u_zscore_top500_periodic_knn/camels_500u_temporal_logmass_zscore_top500_periodic_knn.pt",
+      "experiment_name": "static_gcn_500u_top500_final_snapshot_h32_seed42_zscore",
+      "experiment_path": "experiments/static_gcn_500u_top500_final_snapshot_h32_seed42_zscore",
+      "expected_split_signature": "0f963679cd284fca861fc2c59d88bdae8e8f1f21e2cbe1bb73bd593b49056748",
+      "origin": "reusable_existing",
+      "action": "reuse"
+    },
+    {
+      "group_value": "zscore",
+      "seed": 123,
+      "dataset_path": "data/processed/temporal_500u_zscore_top500_periodic_knn/camels_500u_temporal_logmass_zscore_top500_periodic_knn.pt",
+      "experiment_name": "static_gcn_500u_top500_final_snapshot_h32_seed123_zscore",
+      "experiment_path": "experiments/static_gcn_500u_top500_final_snapshot_h32_seed123_zscore",
+      "expected_split_signature": "853549f16ef8eb3d7f18ae850c94b13c0c8bf0e770bb99cfbffff48b03530266",
+      "origin": "reusable_existing",
+      "action": "reuse"
+    },
+    {
+      "group_value": "zscore",
+      "seed": 777,
+      "dataset_path": "data/processed/temporal_500u_zscore_top500_periodic_knn/camels_500u_temporal_logmass_zscore_top500_periodic_knn.pt",
+      "experiment_name": "static_gcn_500u_top500_final_snapshot_h32_seed777_zscore",
+      "experiment_path": "experiments/static_gcn_500u_top500_final_snapshot_h32_seed777_zscore",
+      "expected_split_signature": "bbfd7e59dfb0844e098e7db7ebe00b0b72161f6eb06472771745fd737839990a",
+      "origin": "reusable_existing",
+      "action": "reuse"
+    },
+    {
+      "group_value": "zscore",
+      "seed": 999,
+      "dataset_path": "data/processed/temporal_500u_zscore_top500_periodic_knn/camels_500u_temporal_logmass_zscore_top500_periodic_knn.pt",
+      "experiment_name": "static_gcn_500u_top500_final_snapshot_h32_seed999_zscore",
+      "experiment_path": "experiments/static_gcn_500u_top500_final_snapshot_h32_seed999_zscore",
+      "expected_split_signature": "d033c42cc03a8890de838709a8647c8682054f8213181a1567cf059fe84861c4",
+      "origin": "reusable_existing",
+      "action": "reuse"
+    },
+    {
+      "group_value": "zscore",
+      "seed": 2025,
+      "dataset_path": "data/processed/temporal_500u_zscore_top500_periodic_knn/camels_500u_temporal_logmass_zscore_top500_periodic_knn.pt",
+      "experiment_name": "static_gcn_500u_top500_final_snapshot_h32_seed2025_zscore",
+      "experiment_path": "experiments/static_gcn_500u_top500_final_snapshot_h32_seed2025_zscore",
+      "expected_split_signature": "3ce48b66c11e30bec459c52ba7f4a900809dd2b45be0995b8b56aeaefc747951",
+      "origin": "reusable_existing",
+      "action": "reuse"
+    }
+  ]
+}
