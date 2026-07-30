@@ -1,0 +1,2 @@
+model,dataset_path,normalization,seed,hidden_dim,num_layers,batch_size,split_source,proposed_experiment_name,decision,reason
+# audit_note: zero data rows; the recommended 30-cell model-stratified family is complete and requires no missing or replacement training runs
