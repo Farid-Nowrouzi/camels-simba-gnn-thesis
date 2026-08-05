@@ -293,7 +293,7 @@ class ManifestAtomicAndSmokeTests(unittest.TestCase):
                     "snapshots": [{"snapshot_value": t} for t in range(5)],
                 }
             evolve_result = create_evolve_loaders(
-                temporal, seed=999, batch_size=2, train_ratio=.5, val_ratio=.25,
+                temporal, seed=42, batch_size=2, train_ratio=.5, val_ratio=.25,
                 test_ratio=.25, split_manifest_path=path, dataset_identity="tiny-v1",
             )
             self.assertEqual(evolve_result[3:6], (["LH_2", "LH_0"], ["LH_1"], ["LH_3"]))
@@ -301,7 +301,7 @@ class ManifestAtomicAndSmokeTests(unittest.TestCase):
 
             static_data = convert_temporal_final_snapshot_to_static(temporal)
             static_result = create_static_loaders(
-                static_data, seed=999, batch_size=2, train_ratio=.5, val_ratio=.25,
+                static_data, seed=42, batch_size=2, train_ratio=.5, val_ratio=.25,
                 test_ratio=.25, split_manifest_path=path, dataset_identity="tiny-v1",
             )
             self.assertEqual(static_result[3:6], (["LH_2", "LH_0"], ["LH_1"], ["LH_3"]))

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import subprocess
 from pathlib import Path
 from typing import Any, Dict, Iterable, List
 
@@ -12,14 +13,83 @@ def ordered_id_hash(ids: Iterable[str]) -> str:
     return hashlib.sha256("".join(f"{item}\n" for item in ids).encode("utf-8")).hexdigest()
 
 
+def _read_manifest(path: Path) -> Dict[str, Any]:
+    with path.open("r", encoding="utf-8") as handle:
+        return json.load(handle)
+
+
+def _validate_seed(manifest: Dict[str, Any], expected_seed: int | None, path: Path) -> None:
+    if "seed" not in manifest:
+        raise KeyError(f"Split manifest is missing required integer seed: {path}")
+    manifest_seed = manifest["seed"]
+    if type(manifest_seed) is not int:
+        raise TypeError(
+            f"Split manifest seed must be an integer, got {manifest_seed!r} "
+            f"({type(manifest_seed).__name__}) in {path}"
+        )
+    if expected_seed is not None:
+        if type(expected_seed) is not int:
+            raise TypeError(f"Trainer invocation seed must be an integer, got {expected_seed!r}")
+        if manifest_seed != expected_seed:
+            raise ValueError(
+                "Split-manifest seed mismatch: "
+                f"trainer seed={expected_seed}, manifest seed={manifest_seed}, manifest={path}. "
+                "Use the matching trainer seed or the correct split manifest."
+            )
+
+
+def validate_split_manifest_seed(path: str | Path, expected_seed: int) -> Dict[str, Any]:
+    """Fail before output creation when trainer and manifest seeds disagree."""
+    manifest_path = Path(path)
+    manifest = _read_manifest(manifest_path)
+    _validate_seed(manifest, expected_seed, manifest_path)
+    return {
+        "split_manifest_sha256": hashlib.sha256(manifest_path.read_bytes()).hexdigest(),
+        "split_manifest_seed": manifest["seed"],
+        "split_hashes": dict(manifest.get("split_hashes", {})),
+        "split_dataset_identity": manifest.get("dataset_identity"),
+    }
+
+
+def load_dataset_provenance(dataset_path: str | Path) -> Dict[str, Any]:
+    """Expose already-published dataset/source identities for experiment config output."""
+    path = Path(dataset_path)
+    metadata_path = path.with_suffix(".metadata.json")
+    if not metadata_path.is_file():
+        return {"metadata_status": "legacy_or_missing", "metadata_path": str(metadata_path)}
+    metadata = _read_manifest(metadata_path)
+    return {
+        "metadata_status": "available",
+        "metadata_path": str(metadata_path),
+        "dataset_sha256": metadata.get("checksum"),
+        "source_manifest_sha256": metadata.get("source_manifest_sha256", metadata.get("source_manifest_hash")),
+        "target_source_sha256": metadata.get("target_source_sha256"),
+        "source_manifest_policy": metadata.get("source_manifest_policy", "legacy_unverified"),
+        "graph_storage": metadata.get("graph_storage"),
+        "dataset_schema_version": metadata.get("dataset_schema_version"),
+        "builder_config_hash": metadata.get("builder_config_hash"),
+        "builder_git_commit": metadata.get("git_commit"),
+    }
+
+
+def current_repository_commit() -> str:
+    """Return the training-code commit recorded with new experiment identities."""
+    try:
+        return subprocess.check_output(
+            ["git", "rev-parse", "HEAD"], text=True, stderr=subprocess.DEVNULL,
+        ).strip()
+    except (OSError, subprocess.CalledProcessError):
+        return "unknown"
+
+
 def load_split_manifest(
     path: str | Path,
     dataset_ids: List[str],
     dataset_identity: str,
+    expected_seed: int | None = None,
 ) -> Dict[str, Any]:
     path = Path(path)
-    with path.open("r", encoding="utf-8") as handle:
-        manifest = json.load(handle)
+    manifest = _read_manifest(path)
 
     required = [
         "dataset_identity", "seed", "train_ids", "val_ids", "test_ids",
@@ -29,6 +99,7 @@ def load_split_manifest(
     missing = [key for key in required if key not in manifest]
     if missing:
         raise KeyError(f"Split manifest missing required keys: {missing}")
+    _validate_seed(manifest, expected_seed, path)
     if manifest["dataset_identity"] != dataset_identity:
         raise ValueError(
             "Split manifest dataset identity mismatch: "

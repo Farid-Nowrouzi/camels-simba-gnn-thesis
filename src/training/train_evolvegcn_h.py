@@ -85,7 +85,12 @@ from torch.utils.data import DataLoader, Dataset
 
 from src.models.evolvegcn_h import EvolveGCNHRegressor, count_parameters
 from src.training.sparse_batch import collate_sparse_temporal, sparse_batch_to
-from src.training.split_manifest import load_split_manifest
+from src.training.split_manifest import (
+    current_repository_commit,
+    load_dataset_provenance,
+    load_split_manifest,
+    validate_split_manifest_seed,
+)
 
 
 # ============================================================
@@ -485,7 +490,9 @@ def create_loaders(
     universe_ids = sorted(data.keys(), key=universe_sort_key)
 
     if split_manifest_path is not None:
-        manifest = load_split_manifest(split_manifest_path, universe_ids, dataset_identity or "")
+        manifest = load_split_manifest(
+            split_manifest_path, universe_ids, dataset_identity or "", expected_seed=seed,
+        )
         train_ids = list(manifest["train_ids"])
         val_ids = list(manifest["val_ids"])
         test_ids = list(manifest["test_ids"])
@@ -992,10 +999,15 @@ def train_evolvegcn_h(
     """
     Train EvolveGCN-H regressor on a CAMELS-SIMBA temporal graph dataset.
     """
+    split_provenance = (
+        validate_split_manifest_seed(split_manifest_path, seed)
+        if split_manifest_path is not None else None
+    )
     set_seed(seed)
 
     dataset_path = Path(dataset_path)
     output_root = Path(output_root)
+    dataset_provenance = load_dataset_provenance(dataset_path)
 
     experiment_dir = output_root / experiment_name
     checkpoints_dir = experiment_dir / "checkpoints"
@@ -1219,6 +1231,18 @@ def train_evolvegcn_h(
         "test_ids": test_ids,
         "split_source": str(split_manifest_path) if split_manifest_path else "generated_from_seed_and_ratios",
         "dataset_identity": dataset_identity,
+        "dataset_provenance": dataset_provenance,
+        "training_git_commit": current_repository_commit(),
+        "trainer_invocation_seed": seed,
+        "split_manifest_sha256": (
+            split_provenance["split_manifest_sha256"] if split_provenance else None
+        ),
+        "split_manifest_seed": (
+            split_provenance["split_manifest_seed"] if split_provenance else None
+        ),
+        "ordered_split_hashes": (
+            split_provenance["split_hashes"] if split_provenance else None
+        ),
         "trainable_parameters": trainable_params,
     }
 
