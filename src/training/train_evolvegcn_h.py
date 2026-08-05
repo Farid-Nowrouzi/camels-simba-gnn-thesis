@@ -1103,7 +1103,7 @@ def train_evolvegcn_h(
 
     if isinstance(A_seq, dict):
         num_snapshots = int(A_seq["num_timesteps"])
-        num_nodes = max(int(graph["x"].shape[0]) for graph in A_seq["snapshots"])
+        num_nodes = int(data[train_ids[0]]["Nodes_list"][0].shape[0])
         node_features = int(A_seq["snapshots"][0]["x"].shape[1])
     else:
         _, num_snapshots, num_nodes, node_features = X_seq.shape

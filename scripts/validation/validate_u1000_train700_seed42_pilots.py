@@ -97,6 +97,8 @@ def experiment_result(name: str) -> dict:
             f"{name}: seed mismatch")
     require((config["num_train_universes"], config["num_val_universes"], config["num_test_universes"]) ==
             (700, 99, 201), f"{name}: split counts mismatch")
+    require(config["num_nodes"] == 1000 and config["node_features"] == 7,
+            f"{name}: saved Top1000/feature dimensions mismatch")
     require(config["train_ids"] == manifest["train_ids"] and config["val_ids"] == manifest["val_ids"] and
             config["test_ids"] == manifest["test_ids"], f"{name}: config split ordering mismatch")
     expected_saved = {

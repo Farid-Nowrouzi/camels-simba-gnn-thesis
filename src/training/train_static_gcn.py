@@ -844,7 +844,7 @@ def train_static_gcn(
 
     if isinstance(A_example, dict):
         batch_size_real = int(A_example["num_graphs"])
-        num_nodes = int(A_example["x"].shape[0])
+        num_nodes = int(data[train_ids[0]]["X"].shape[0])
         node_features = int(A_example["x"].shape[1])
     else:
         batch_size_real, num_nodes, _ = A_example.shape
