@@ -1,0 +1,186 @@
+{
+  "experiment_dir": "experiments/evolvegcn_h_500u_top500_h32_seed42",
+  "config_path": "experiments/evolvegcn_h_500u_top500_h32_seed42/config.json",
+  "checkpoint_path": "experiments/evolvegcn_h_500u_top500_h32_seed42/checkpoints/best_model.pt",
+  "dataset_path": "data/processed/temporal_500u_minmax_top500_periodic_knn/camels_500u_temporal_logmass_minmax_top500_periodic_knn.pt",
+  "split": "test",
+  "num_samples": 75,
+  "universe_ids": [
+    "LH_98",
+    "LH_295",
+    "LH_185",
+    "LH_316",
+    "LH_321",
+    "LH_424",
+    "LH_150",
+    "LH_282",
+    "LH_40",
+    "LH_193",
+    "LH_63",
+    "LH_274",
+    "LH_235",
+    "LH_373",
+    "LH_22",
+    "LH_413",
+    "LH_135",
+    "LH_309",
+    "LH_176",
+    "LH_433",
+    "LH_183",
+    "LH_49",
+    "LH_194",
+    "LH_480",
+    "LH_490",
+    "LH_172",
+    "LH_390",
+    "LH_110",
+    "LH_79",
+    "LH_464",
+    "LH_174",
+    "LH_483",
+    "LH_357",
+    "LH_81",
+    "LH_412",
+    "LH_388",
+    "LH_3",
+    "LH_445",
+    "LH_414",
+    "LH_142",
+    "LH_301",
+    "LH_229",
+    "LH_112",
+    "LH_214",
+    "LH_486",
+    "LH_359",
+    "LH_332",
+    "LH_366",
+    "LH_101",
+    "LH_287",
+    "LH_13",
+    "LH_308",
+    "LH_258",
+    "LH_119",
+    "LH_111",
+    "LH_47",
+    "LH_15",
+    "LH_16",
+    "LH_216",
+    "LH_302",
+    "LH_44",
+    "LH_279",
+    "LH_456",
+    "LH_496",
+    "LH_346",
+    "LH_52",
+    "LH_377",
+    "LH_71",
+    "LH_114",
+    "LH_125",
+    "LH_140",
+    "LH_379",
+    "LH_12",
+    "LH_57",
+    "LH_327"
+  ],
+  "model": {
+    "hidden_dim": 32,
+    "num_layers": 2,
+    "dropout": 0.2,
+    "temporal_pooling": "mean",
+    "graph_pooling": "mean",
+    "summary_feature_dim": 0,
+    "use_summary_features": false
+  },
+  "reports": {
+    "regressor_inputs": {
+      "shape": [
+        75,
+        32
+      ],
+      "num_values": 2400,
+      "mean": 0.05745886638760567,
+      "std": 0.06592907011508942,
+      "min": 0.0,
+      "max": 0.3377424478530884,
+      "variance": 0.004346642643213272,
+      "avg_feature_variance_across_samples": 0.000581156462430954,
+      "avg_pairwise_squared_distance_per_feature": 0.0011780199129134417
+    },
+    "after_first_linear": {
+      "shape": [
+        75,
+        32
+      ],
+      "num_values": 2400,
+      "mean": -0.04167075827717781,
+      "std": 0.09100943058729172,
+      "min": -0.2795419991016388,
+      "max": 0.12634973227977753,
+      "variance": 0.008282715454697609,
+      "avg_feature_variance_across_samples": 0.0007324453326873481,
+      "avg_pairwise_squared_distance_per_feature": 0.0014846863923594356
+    },
+    "after_relu": {
+      "shape": [
+        75,
+        32
+      ],
+      "num_values": 2400,
+      "mean": 0.020202334970235825,
+      "std": 0.02920716069638729,
+      "min": 0.0,
+      "max": 0.12634973227977753,
+      "variance": 0.0008530582417733967,
+      "avg_feature_variance_across_samples": 0.00020961000700481236,
+      "avg_pairwise_squared_distance_per_feature": 0.0004248851619195193
+    },
+    "before_final_linear": {
+      "shape": [
+        75,
+        32
+      ],
+      "num_values": 2400,
+      "mean": 0.020202334970235825,
+      "std": 0.02920716069638729,
+      "min": 0.0,
+      "max": 0.12634973227977753,
+      "variance": 0.0008530582417733967,
+      "avg_feature_variance_across_samples": 0.00020961000700481236,
+      "avg_pairwise_squared_distance_per_feature": 0.0004248851619195193
+    },
+    "after_final_linear": {
+      "shape": [
+        75,
+        1
+      ],
+      "num_values": 75,
+      "mean": 0.31985965371131897,
+      "std": 0.036728907376527786,
+      "min": 0.1329299658536911,
+      "max": 0.38990792632102966,
+      "variance": 0.0013490127166733146,
+      "avg_feature_variance_across_samples": 0.0013490127166733146,
+      "avg_pairwise_squared_distance_per_feature": 0.002734485315158963
+    },
+    "predictions": {
+      "shape": [
+        75
+      ],
+      "num_values": 75,
+      "mean": 0.31985965371131897,
+      "std": 0.036728907376527786,
+      "min": 0.1329299658536911,
+      "max": 0.38990792632102966
+    },
+    "targets": {
+      "shape": [
+        75
+      ],
+      "num_values": 75,
+      "mean": 0.2916933298110962,
+      "std": 0.10134269297122955,
+      "min": 0.10700000077486038,
+      "max": 0.4814000129699707
+    }
+  }
+}

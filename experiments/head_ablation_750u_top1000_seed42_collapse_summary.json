@@ -1,0 +1,449 @@
+{
+  "num_experiments": 3,
+  "results": [
+    {
+      "experiment_dir": "experiments/evolvegcn_h_750u_top1000_h32_seed42_none",
+      "prediction_csv": "experiments/evolvegcn_h_750u_top1000_h32_seed42_none/predictions/test_predictions.csv",
+      "target_column": "true_omega_m",
+      "prediction_column": "pred_omega_m",
+      "universe_id_column": "universe_id",
+      "num_samples": 201,
+      "target_mean": 0.30861990042586823,
+      "target_std": 0.1210735444440492,
+      "prediction_mean": 0.31361408590973905,
+      "prediction_std": 0.07433098800603095,
+      "prediction_std_over_target_std": 0.6139325345379723,
+      "target_range": [
+        0.10100000351667404,
+        0.49939998984336853
+      ],
+      "prediction_range": [
+        0.22715623676776886,
+        0.5585076212882996
+      ],
+      "mae": 0.061760590221751385,
+      "rmse": 0.07365219992010104,
+      "pearson_correlation": 0.8213882825592572,
+      "r2": 0.6299393277684502,
+      "diagnosis": "Not heavily collapsed",
+      "first_20_rows": [
+        {
+          "universe_id": "LH_21",
+          "target": 0.13420000672340393,
+          "prediction": 0.22715623676776886,
+          "error": 0.09295623004436493
+        },
+        {
+          "universe_id": "LH_346",
+          "target": 0.33379998803138733,
+          "prediction": 0.28731492161750793,
+          "error": -0.046485066413879395
+        },
+        {
+          "universe_id": "LH_703",
+          "target": 0.1777999997138977,
+          "prediction": 0.23668567836284637,
+          "error": 0.05888567864894867
+        },
+        {
+          "universe_id": "LH_230",
+          "target": 0.10300000011920929,
+          "prediction": 0.22715623676776886,
+          "error": 0.12415623664855957
+        },
+        {
+          "universe_id": "LH_253",
+          "target": 0.27900001406669617,
+          "prediction": 0.3632190227508545,
+          "error": 0.08421900868415833
+        },
+        {
+          "universe_id": "LH_123",
+          "target": 0.2946000099182129,
+          "prediction": 0.30975282192230225,
+          "error": 0.015152812004089355
+        },
+        {
+          "universe_id": "LH_462",
+          "target": 0.29499998688697815,
+          "prediction": 0.2870098650455475,
+          "error": -0.007990121841430664
+        },
+        {
+          "universe_id": "LH_529",
+          "target": 0.48539999127388,
+          "prediction": 0.43478095531463623,
+          "error": -0.050619035959243774
+        },
+        {
+          "universe_id": "LH_448",
+          "target": 0.2773999869823456,
+          "prediction": 0.22715623676776886,
+          "error": -0.05024375021457672
+        },
+        {
+          "universe_id": "LH_590",
+          "target": 0.3310000002384186,
+          "prediction": 0.3397834897041321,
+          "error": 0.008783489465713501
+        },
+        {
+          "universe_id": "LH_631",
+          "target": 0.2021999955177307,
+          "prediction": 0.22715623676776886,
+          "error": 0.024956241250038147
+        },
+        {
+          "universe_id": "LH_319",
+          "target": 0.4986000061035156,
+          "prediction": 0.4667689800262451,
+          "error": -0.03183102607727051
+        },
+        {
+          "universe_id": "LH_205",
+          "target": 0.305400013923645,
+          "prediction": 0.27690011262893677,
+          "error": -0.028499901294708252
+        },
+        {
+          "universe_id": "LH_588",
+          "target": 0.3553999960422516,
+          "prediction": 0.3483521342277527,
+          "error": -0.007047861814498901
+        },
+        {
+          "universe_id": "LH_648",
+          "target": 0.21819999814033508,
+          "prediction": 0.3144376277923584,
+          "error": 0.09623762965202332
+        },
+        {
+          "universe_id": "LH_433",
+          "target": 0.12219999730587006,
+          "prediction": 0.22715623676776886,
+          "error": 0.1049562394618988
+        },
+        {
+          "universe_id": "LH_540",
+          "target": 0.4885999858379364,
+          "prediction": 0.41726255416870117,
+          "error": -0.07133743166923523
+        },
+        {
+          "universe_id": "LH_640",
+          "target": 0.38940000534057617,
+          "prediction": 0.4088386297225952,
+          "error": 0.019438624382019043
+        },
+        {
+          "universe_id": "LH_169",
+          "target": 0.44020000100135803,
+          "prediction": 0.35631561279296875,
+          "error": -0.08388438820838928
+        },
+        {
+          "universe_id": "LH_562",
+          "target": 0.1565999984741211,
+          "prediction": 0.22715623676776886,
+          "error": 0.07055623829364777
+        }
+      ]
+    },
+    {
+      "experiment_dir": "experiments/evolvegcn_h_750u_top1000_h32_seed42_none_mlp_relu_repeat",
+      "prediction_csv": "experiments/evolvegcn_h_750u_top1000_h32_seed42_none_mlp_relu_repeat/predictions/test_predictions.csv",
+      "target_column": "true_omega_m",
+      "prediction_column": "pred_omega_m",
+      "universe_id_column": "universe_id",
+      "num_samples": 201,
+      "target_mean": 0.30861990042586823,
+      "target_std": 0.1210735444440492,
+      "prediction_mean": 0.31361408590973905,
+      "prediction_std": 0.07433098800603095,
+      "prediction_std_over_target_std": 0.6139325345379723,
+      "target_range": [
+        0.10100000351667404,
+        0.49939998984336853
+      ],
+      "prediction_range": [
+        0.22715623676776886,
+        0.5585076212882996
+      ],
+      "mae": 0.061760590221751385,
+      "rmse": 0.07365219992010104,
+      "pearson_correlation": 0.8213882825592572,
+      "r2": 0.6299393277684502,
+      "diagnosis": "Not heavily collapsed",
+      "first_20_rows": [
+        {
+          "universe_id": "LH_21",
+          "target": 0.13420000672340393,
+          "prediction": 0.22715623676776886,
+          "error": 0.09295623004436493
+        },
+        {
+          "universe_id": "LH_346",
+          "target": 0.33379998803138733,
+          "prediction": 0.28731492161750793,
+          "error": -0.046485066413879395
+        },
+        {
+          "universe_id": "LH_703",
+          "target": 0.1777999997138977,
+          "prediction": 0.23668567836284637,
+          "error": 0.05888567864894867
+        },
+        {
+          "universe_id": "LH_230",
+          "target": 0.10300000011920929,
+          "prediction": 0.22715623676776886,
+          "error": 0.12415623664855957
+        },
+        {
+          "universe_id": "LH_253",
+          "target": 0.27900001406669617,
+          "prediction": 0.3632190227508545,
+          "error": 0.08421900868415833
+        },
+        {
+          "universe_id": "LH_123",
+          "target": 0.2946000099182129,
+          "prediction": 0.30975282192230225,
+          "error": 0.015152812004089355
+        },
+        {
+          "universe_id": "LH_462",
+          "target": 0.29499998688697815,
+          "prediction": 0.2870098650455475,
+          "error": -0.007990121841430664
+        },
+        {
+          "universe_id": "LH_529",
+          "target": 0.48539999127388,
+          "prediction": 0.43478095531463623,
+          "error": -0.050619035959243774
+        },
+        {
+          "universe_id": "LH_448",
+          "target": 0.2773999869823456,
+          "prediction": 0.22715623676776886,
+          "error": -0.05024375021457672
+        },
+        {
+          "universe_id": "LH_590",
+          "target": 0.3310000002384186,
+          "prediction": 0.3397834897041321,
+          "error": 0.008783489465713501
+        },
+        {
+          "universe_id": "LH_631",
+          "target": 0.2021999955177307,
+          "prediction": 0.22715623676776886,
+          "error": 0.024956241250038147
+        },
+        {
+          "universe_id": "LH_319",
+          "target": 0.4986000061035156,
+          "prediction": 0.4667689800262451,
+          "error": -0.03183102607727051
+        },
+        {
+          "universe_id": "LH_205",
+          "target": 0.305400013923645,
+          "prediction": 0.27690011262893677,
+          "error": -0.028499901294708252
+        },
+        {
+          "universe_id": "LH_588",
+          "target": 0.3553999960422516,
+          "prediction": 0.3483521342277527,
+          "error": -0.007047861814498901
+        },
+        {
+          "universe_id": "LH_648",
+          "target": 0.21819999814033508,
+          "prediction": 0.3144376277923584,
+          "error": 0.09623762965202332
+        },
+        {
+          "universe_id": "LH_433",
+          "target": 0.12219999730587006,
+          "prediction": 0.22715623676776886,
+          "error": 0.1049562394618988
+        },
+        {
+          "universe_id": "LH_540",
+          "target": 0.4885999858379364,
+          "prediction": 0.41726255416870117,
+          "error": -0.07133743166923523
+        },
+        {
+          "universe_id": "LH_640",
+          "target": 0.38940000534057617,
+          "prediction": 0.4088386297225952,
+          "error": 0.019438624382019043
+        },
+        {
+          "universe_id": "LH_169",
+          "target": 0.44020000100135803,
+          "prediction": 0.35631561279296875,
+          "error": -0.08388438820838928
+        },
+        {
+          "universe_id": "LH_562",
+          "target": 0.1565999984741211,
+          "prediction": 0.22715623676776886,
+          "error": 0.07055623829364777
+        }
+      ]
+    },
+    {
+      "experiment_dir": "experiments/evolvegcn_h_750u_top1000_h32_seed42_none_linear_head",
+      "prediction_csv": "experiments/evolvegcn_h_750u_top1000_h32_seed42_none_linear_head/predictions/test_predictions.csv",
+      "target_column": "true_omega_m",
+      "prediction_column": "pred_omega_m",
+      "universe_id_column": "universe_id",
+      "num_samples": 201,
+      "target_mean": 0.30861990042586823,
+      "target_std": 0.1210735444440492,
+      "prediction_mean": 0.29350371666215547,
+      "prediction_std": 0.09060569276465298,
+      "prediction_std_over_target_std": 0.7483525255719584,
+      "target_range": [
+        0.10100000351667404,
+        0.49939998984336853
+      ],
+      "prediction_range": [
+        0.07899680733680725,
+        0.5457879304885864
+      ],
+      "mae": 0.05029454063716812,
+      "rmse": 0.06192755114281537,
+      "pearson_correlation": 0.8779287045777445,
+      "r2": 0.7383809887085353,
+      "diagnosis": "Not heavily collapsed",
+      "first_20_rows": [
+        {
+          "universe_id": "LH_21",
+          "target": 0.13420000672340393,
+          "prediction": 0.16817165911197662,
+          "error": 0.03397165238857269
+        },
+        {
+          "universe_id": "LH_346",
+          "target": 0.33379998803138733,
+          "prediction": 0.3178955912590027,
+          "error": -0.015904396772384644
+        },
+        {
+          "universe_id": "LH_703",
+          "target": 0.1777999997138977,
+          "prediction": 0.24427056312561035,
+          "error": 0.06647056341171265
+        },
+        {
+          "universe_id": "LH_230",
+          "target": 0.10300000011920929,
+          "prediction": 0.12460795044898987,
+          "error": 0.02160795032978058
+        },
+        {
+          "universe_id": "LH_253",
+          "target": 0.27900001406669617,
+          "prediction": 0.31379157304763794,
+          "error": 0.03479155898094177
+        },
+        {
+          "universe_id": "LH_123",
+          "target": 0.2946000099182129,
+          "prediction": 0.2812572121620178,
+          "error": -0.013342797756195068
+        },
+        {
+          "universe_id": "LH_462",
+          "target": 0.29499998688697815,
+          "prediction": 0.27401527762413025,
+          "error": -0.0209847092628479
+        },
+        {
+          "universe_id": "LH_529",
+          "target": 0.48539999127388,
+          "prediction": 0.4528895914554596,
+          "error": -0.03251039981842041
+        },
+        {
+          "universe_id": "LH_448",
+          "target": 0.2773999869823456,
+          "prediction": 0.23145994544029236,
+          "error": -0.04594004154205322
+        },
+        {
+          "universe_id": "LH_590",
+          "target": 0.3310000002384186,
+          "prediction": 0.3549674153327942,
+          "error": 0.02396741509437561
+        },
+        {
+          "universe_id": "LH_631",
+          "target": 0.2021999955177307,
+          "prediction": 0.2138139009475708,
+          "error": 0.011613905429840088
+        },
+        {
+          "universe_id": "LH_319",
+          "target": 0.4986000061035156,
+          "prediction": 0.4545899033546448,
+          "error": -0.04401010274887085
+        },
+        {
+          "universe_id": "LH_205",
+          "target": 0.305400013923645,
+          "prediction": 0.31812673807144165,
+          "error": 0.01272672414779663
+        },
+        {
+          "universe_id": "LH_588",
+          "target": 0.3553999960422516,
+          "prediction": 0.3788613975048065,
+          "error": 0.02346140146255493
+        },
+        {
+          "universe_id": "LH_648",
+          "target": 0.21819999814033508,
+          "prediction": 0.29092979431152344,
+          "error": 0.07272979617118835
+        },
+        {
+          "universe_id": "LH_433",
+          "target": 0.12219999730587006,
+          "prediction": 0.22017936408519745,
+          "error": 0.09797936677932739
+        },
+        {
+          "universe_id": "LH_540",
+          "target": 0.4885999858379364,
+          "prediction": 0.4752606749534607,
+          "error": -0.013339310884475708
+        },
+        {
+          "universe_id": "LH_640",
+          "target": 0.38940000534057617,
+          "prediction": 0.4054345190525055,
+          "error": 0.01603451371192932
+        },
+        {
+          "universe_id": "LH_169",
+          "target": 0.44020000100135803,
+          "prediction": 0.35906097292900085,
+          "error": -0.08113902807235718
+        },
+        {
+          "universe_id": "LH_562",
+          "target": 0.1565999984741211,
+          "prediction": 0.16879740357398987,
+          "error": 0.012197405099868774
+        }
+      ]
+    }
+  ]
+}

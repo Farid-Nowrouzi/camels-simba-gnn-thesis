@@ -1,0 +1,123 @@
+{
+  "schema_version": "1.0",
+  "analysis_name": "controlled_knn_by_hidden_dim_factorial_500u_top100",
+  "title": "Controlled kNN by Hidden-Dimension Factorial at 500 Universes and Top100 Halos",
+  "scientific_question": "How do periodic-kNN connectivity and hidden dimension jointly affect Omega_m prediction within the canonical EvolveGCN-H and Static GCN protocols?",
+  "analysis_type": "paired_family",
+  "families": [
+    {
+      "label": "EvolveGCN-H",
+      "family_spec_path": "configs/experiment_families/canonical_evolvegcn_knn_by_hidden_dim_factorial_500u_top100.json"
+    },
+    {
+      "label": "Static GCN",
+      "family_spec_path": "configs/experiment_families/canonical_static_gcn_knn_by_hidden_dim_factorial_500u_top100.json"
+    }
+  ],
+  "grouping_field": "factorial_cell",
+  "grouping_axis_label": "Factorial cell (hidden dimension × k)",
+  "grouping_value_label": "factorial cell",
+  "plot_grouping_suffix": "factorial_cell",
+  "grouping_values": [
+    "h32_k4",
+    "h32_k6",
+    "h32_k8",
+    "h32_k12",
+    "h64_k4",
+    "h64_k6",
+    "h64_k8",
+    "h64_k12"
+  ],
+  "required_seeds": [
+    42,
+    123,
+    2025
+  ],
+  "metrics": [
+    "test_mae",
+    "test_rmse",
+    "test_r2",
+    "test_pearson"
+  ],
+  "required_fixed_protocol": {
+    "fixed_scientific_settings.config.num_total_universes": 500,
+    "fixed_scientific_settings.config.num_nodes": 100,
+    "fixed_scientific_settings.dataset_metadata.num_universes_successful": 500,
+    "fixed_scientific_settings.dataset_metadata.num_nodes": 100,
+    "fixed_scientific_settings.dataset_metadata.normalization": "minmax",
+    "fixed_scientific_settings.dataset_metadata.graph_mode": "knn",
+    "fixed_scientific_settings.dataset_metadata.periodic_boundary": true,
+    "fixed_scientific_settings.dataset_metadata.periodic_boundary_knn": true,
+    "fixed_scientific_settings.dataset_metadata.box_size": 25.0,
+    "fixed_scientific_settings.dataset_metadata.feature_names": [
+      "log10_Mvir",
+      "X",
+      "Y",
+      "Z",
+      "VX",
+      "VY",
+      "VZ"
+    ],
+    "fixed_scientific_settings.dataset_metadata.node_selection": "top_num_nodes_by_raw_Mvir_descending"
+  },
+  "fields_allowed_to_differ": [
+    {
+      "field": "fixed_scientific_settings.config.model",
+      "reason": "The analysis intentionally compares the complete canonical EvolveGCN-H and Static GCN protocols."
+    },
+    {
+      "field": "fixed_scientific_settings.config.dataset_format",
+      "reason": "EvolveGCN-H uses temporal graph sequences; Static GCN uses final-snapshot static graphs."
+    },
+    {
+      "field": "fixed_scientific_settings.config.batch_size",
+      "reason": "The established model-specific protocols use batch sizes 4 and 8."
+    },
+    {
+      "field": "fixed_scientific_settings.config.num_layers",
+      "reason": "The established protocols use two EvolveGCN-H layers and three Static GCN layers."
+    },
+    {
+      "field": "fixed_scientific_settings.config.temporal_pooling",
+      "reason": "Mean temporal pooling applies only to EvolveGCN-H."
+    },
+    {
+      "field": "fixed_scientific_settings.config.conv_type",
+      "reason": "Convolution implementation is model-specific."
+    },
+    {
+      "field": "fixed_scientific_settings.config.head_type",
+      "reason": "Each architecture retains its established regression head."
+    },
+    {
+      "field": "fixed_scientific_settings.config.num_snapshots",
+      "reason": "EvolveGCN-H uses five snapshots while Static GCN uses the final snapshot."
+    },
+    {
+      "field": "fixed_scientific_settings.dataset_metadata.dataset_type",
+      "reason": "The dataset representation is temporal for EvolveGCN-H and final-snapshot static for Static GCN."
+    },
+    {
+      "field": "fixed_scientific_settings.dataset_metadata.num_snapshots",
+      "reason": "Five temporal snapshots apply only to EvolveGCN-H."
+    },
+    {
+      "field": "fixed_scientific_settings.dataset_metadata.preferred_snapshot",
+      "reason": "Final-snapshot selection metadata applies only to Static GCN."
+    }
+  ],
+  "output_directory": "reports/analysis/controlled_knn_by_hidden_dim_factorial_500u_top100",
+  "prediction_plots_enabled": true,
+  "representative_seed_policy": {
+    "policy": "median_test_mae"
+  },
+  "figure_formats": [
+    "png",
+    "pdf"
+  ],
+  "metric_tolerance": 0.000001,
+  "reference_family": null,
+  "controlled_variables_summary": "Within each model, k, hidden dimension, and seed are the only varying experimental factors. All rows use the same 500-universe population, Top100 raw-mass selection, seven node features, minmax normalization, periodic kNN construction, and exact seed-specific split IDs.",
+  "limitations_summary": "Only three seeds are available. Cross-model differences are descriptive comparisons of complete protocols and do not isolate a causal effect of temporal processing.",
+  "comparison_statement": "Controlled within each model for k and hidden dimension. Static-versus-Evolve results are descriptive protocol-level comparisons because temporal input, architecture, layer count, batch size, and regression heads intentionally differ."
+}

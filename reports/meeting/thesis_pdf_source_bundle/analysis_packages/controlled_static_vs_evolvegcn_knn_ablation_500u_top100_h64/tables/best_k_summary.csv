@@ -1,0 +1,3 @@
+model,descriptive_best_k,mean_test_mae,sample_sd_test_mae,runner_up_k,mean_mae_difference_to_runner_up,interpretation
+EvolveGCN-H,8,0.0965620176990827,0.009953557220221036,6,0.0003332230779859724,Descriptive only; four k values and three seeds do not establish a universal optimum.
+Static GCN,8,0.09629471232493719,0.009143633177109978,6,0.00047003255950078815,Descriptive only; four k values and three seeds do not establish a universal optimum.

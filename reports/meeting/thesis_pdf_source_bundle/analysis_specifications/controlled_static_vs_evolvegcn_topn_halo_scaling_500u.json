@@ -1,0 +1,165 @@
+{
+  "schema_version": "1.0",
+  "analysis_name": "controlled_static_vs_evolvegcn_topn_halo_scaling_500u",
+  "title": "Controlled Top-N Halo-Count Scaling: Static GCN and EvolveGCN-H at U500",
+  "scientific_question": "How does increasing the retained halo population from the 100 most massive halos to 200 and 500 halos affect Omega_m regression under fixed, model-stratified U500 EvolveGCN-H and Static GCN protocols?",
+  "analysis_type": "paired_family",
+  "families": [
+    {
+      "label": "EvolveGCN-H",
+      "family_spec_path": "configs/experiment_families/canonical_evolvegcn_topn_halo_scaling_500u.json"
+    },
+    {
+      "label": "Static GCN",
+      "family_spec_path": "configs/experiment_families/canonical_static_gcn_topn_halo_scaling_500u.json"
+    }
+  ],
+  "grouping_field": "top_n",
+  "grouping_axis_label": "Retained halos per universe and snapshot (Top-N)",
+  "grouping_value_label": "Top-N",
+  "plot_grouping_suffix": "topn",
+  "grouping_values": [100, 200, 500],
+  "required_seeds": [42, 123, 2025],
+  "pairing_fields": ["model", "seed", "split_signature"],
+  "metrics": ["test_mae", "test_rmse", "test_r2", "test_pearson"],
+  "required_fixed_protocol": {
+    "fixed_scientific_settings.config.num_total_universes": 500,
+    "fixed_scientific_settings.config.hidden_dim": 32,
+    "fixed_scientific_settings.config.graph_pooling": "mean",
+    "fixed_scientific_settings.dataset_metadata.num_universes_successful": 500,
+    "fixed_scientific_settings.dataset_metadata.normalization": "minmax",
+    "fixed_scientific_settings.dataset_metadata.graph_mode": "knn",
+    "fixed_scientific_settings.dataset_metadata.k": 8,
+    "fixed_scientific_settings.dataset_metadata.periodic_boundary": true,
+    "fixed_scientific_settings.dataset_metadata.periodic_boundary_knn": true,
+    "fixed_scientific_settings.dataset_metadata.box_size": 25.0,
+    "fixed_scientific_settings.dataset_metadata.feature_names": ["log10_Mvir", "X", "Y", "Z", "VX", "VY", "VZ"],
+    "fixed_scientific_settings.dataset_metadata.node_selection": "top_num_nodes_by_raw_Mvir_descending",
+    "fixed_scientific_settings.dataset_metadata.graph_positions": "raw_physical_XYZ_before_feature_normalization"
+  },
+  "fields_allowed_to_differ": [
+    {
+      "field": "fixed_scientific_settings.config.model",
+      "reason": "Model-stratified analysis intentionally includes two architectures."
+    },
+    {
+      "field": "fixed_scientific_settings.config.batch_size",
+      "reason": "Established model-specific protocols use batch sizes 4 and 8."
+    },
+    {
+      "field": "fixed_scientific_settings.config.num_layers",
+      "reason": "Established protocols use Evolve L2 and Static L3."
+    },
+    {
+      "field": "fixed_scientific_settings.config.temporal_pooling",
+      "reason": "Mean temporal pooling applies only to Evolve."
+    },
+    {
+      "field": "fixed_scientific_settings.config.conv_type",
+      "reason": "Convolution mechanics are model-specific."
+    },
+    {
+      "field": "fixed_scientific_settings.config.head_type",
+      "reason": "Regression heads are model-specific."
+    },
+    {
+      "field": "fixed_scientific_settings.config.num_snapshots",
+      "reason": "Evolve uses five snapshots; Static consumes one final snapshot."
+    },
+    {
+      "field": "fixed_scientific_settings.dataset_metadata.dataset_type",
+      "reason": "Evolve datasets are temporal; Static consumes final-snapshot inputs, including the final element of the Top500 temporal container."
+    },
+    {
+      "field": "fixed_scientific_settings.dataset_metadata.num_snapshots",
+      "reason": "Dataset storage reflects temporal sequences versus final-snapshot graphs."
+    }
+  ],
+  "output_directory": "reports/analysis/controlled_static_vs_evolvegcn_topn_halo_scaling_500u",
+  "prediction_plots_enabled": true,
+  "representative_seed_policy": {"policy": "median_test_mae"},
+  "figure_formats": ["png", "pdf"],
+  "metric_tolerance": 1e-06,
+  "require_exact_paired_splits": true,
+  "require_unique_prediction_hashes": true,
+  "require_negative_r2_retention": true,
+  "reference_family": null,
+  "focused_rebuild_script": "reports/analysis/controlled_static_vs_evolvegcn_topn_halo_scaling_500u/rebuild_topn_halo_scaling_analysis.py",
+  "expected_row_counts": {
+    "seed_level_results": 18,
+    "aggregated_results": 6,
+    "paired_topn_differences": 18,
+    "paired_model_differences": 9,
+    "prediction_diagnostics": 18,
+    "representative_runs": 6
+  },
+  "required_output_files": [
+    "analysis_manifest.json",
+    "compatibility_report.md",
+    "protocol_table.csv",
+    "protocol_table.md",
+    "dataset_topn_table.csv",
+    "dataset_topn_table.md",
+    "seed_level_results.csv",
+    "aggregated_results.csv",
+    "paired_topn_differences.csv",
+    "paired_model_differences.csv",
+    "prediction_diagnostics.csv",
+    "representative_runs.csv",
+    "topn_implementation.md",
+    "normalization_interaction.md",
+    "computational_scaling.md",
+    "scientific_summary.md",
+    "thesis_section.md",
+    "presentation_ready_summary.md",
+    "README.md",
+    "tables/main_results_table.csv",
+    "tables/main_results_table.md",
+    "tables/main_results_table.tex",
+    "tables/evolvegcn_topn_results.csv",
+    "tables/evolvegcn_topn_results.md",
+    "tables/evolvegcn_topn_results.tex",
+    "tables/static_gcn_topn_results.csv",
+    "tables/static_gcn_topn_results.md",
+    "tables/static_gcn_topn_results.tex",
+    "tables/seed_level_topn_results.csv",
+    "tables/seed_level_topn_results.md",
+    "tables/seed_level_topn_results.tex",
+    "tables/paired_topn_differences.csv",
+    "tables/paired_topn_differences.md",
+    "tables/paired_topn_differences.tex",
+    "tables/descriptive_model_comparison.csv",
+    "tables/descriptive_model_comparison.md",
+    "tables/descriptive_model_comparison.tex",
+    "tables/prediction_collapse_diagnostics.csv",
+    "tables/prediction_collapse_diagnostics.md",
+    "tables/prediction_collapse_diagnostics.tex",
+    "tables/computational_scaling.csv",
+    "tables/computational_scaling.md",
+    "tables/computational_scaling.tex",
+    "tables/descriptive_best_topn_summary.csv",
+    "tables/descriptive_best_topn_summary.md"
+  ],
+  "required_figures": [
+    "test_mae_vs_topn",
+    "test_rmse_vs_topn",
+    "test_r2_vs_topn",
+    "per_seed_mae_trajectories",
+    "paired_top200_minus_top100_mae",
+    "paired_top500_minus_top200_mae",
+    "paired_top500_minus_top100_mae",
+    "prediction_std_ratio_vs_topn",
+    "repeated_prediction_fraction_vs_topn",
+    "representative_true_vs_predicted",
+    "representative_residuals_vs_true",
+    "representative_prediction_distributions",
+    "seed_variability_vs_topn",
+    "nodes_and_edges_vs_topn",
+    "predictive_performance_vs_graph_size",
+    "descriptive_model_difference_vs_topn",
+    "topn_effect_summary"
+  ],
+  "controlled_variables_summary": "Within each model, Top-N is the only intended scientific factor. All rows use the U500 population, raw-Mvir ranking, seven features, sample-local minmax normalization, periodic kNN k=8, h32, model-specific architecture and training protocol, three matched seeds, and exact ordered splits.",
+  "limitations_summary": "Changing Top-N also changes sample-local minmax statistics and rebuilt kNN topology. Three seeds support descriptive paired evidence. Static-versus-Evolve differences are cross-protocol descriptions.",
+  "comparison_statement": "Controlled within each model for Top-N. Static-versus-Evolve comparisons are descriptive because temporal input, architecture, depth, batch size, and heads differ."
+}

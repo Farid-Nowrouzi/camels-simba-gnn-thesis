@@ -1,0 +1,26 @@
+{
+  "current_git_branch": "thesis-controlled-scaling",
+  "current_git_commit": "33b52b1356ec602e696301fa11d672f7ff4b849e",
+  "current_git_dirty_state": "dirty",
+  "errors_count": 0,
+  "generated_files": [
+    "reports/experiment_registry/master_experiment_registry.csv",
+    "reports/experiment_registry/master_experiment_registry.md",
+    "reports/experiment_registry/experiment_family_summary.csv",
+    "reports/experiment_registry/incomplete_or_duplicate_experiments.csv",
+    "reports/experiment_registry/analysis_artifact_index.csv",
+    "reports/experiment_registry/registry_validation_report.md",
+    "reports/experiment_registry/professor_request_experiment_inventory.md",
+    "reports/experiment_registry/registry_build_metadata.json",
+    "docs/experiment_naming_convention.md"
+  ],
+  "number_of_folders_scanned": 175,
+  "number_of_rows_generated": 175,
+  "platform": "Linux-6.8.12-18-pve-x86_64-with-glibc2.35",
+  "python_version": "3.10.12 (main, Mar  3 2026, 11:56:32) [GCC 11.4.0]",
+  "registry_generation_timestamp": "2026-07-30T00:30:48.944160+00:00",
+  "repository_root": "/home/ml/thesis-camels",
+  "script": "scripts/build_experiment_registry.py",
+  "script_version": "1.0.0",
+  "warnings_count": 52
+}

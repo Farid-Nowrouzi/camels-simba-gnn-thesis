@@ -1,0 +1,9 @@
+\begin{tabular}{llllllllll}
+\hline
+model & normalization & n & MAE mean ± SD & median MAE & RMSE mean ± SD & R² mean ± SD & prediction-SD ratio & mean repeated fraction & undefined Pearson \\
+\hline
+Static GCN & none & 5 & 0.045304 ± 0.003725 & 0.044509 & 0.056607 ± 0.005074 & 0.734660 ± 0.063450 & 0.845814 ± 0.012971 & 0.000000 & 0 \\
+Static GCN & minmax & 5 & 0.095986 ± 0.006421 & 0.097587 & 0.112223 ± 0.006731 & -0.024472 ± 0.027342 & 0.110663 ± 0.088484 & 0.426667 & 1 \\
+Static GCN & zscore & 5 & 0.099335 ± 0.005608 & 0.102558 & 0.116358 ± 0.005564 & -0.103769 ± 0.064522 & 0.262136 ± 0.114225 & 0.056000 & 0 \\
+\hline
+\end{tabular}

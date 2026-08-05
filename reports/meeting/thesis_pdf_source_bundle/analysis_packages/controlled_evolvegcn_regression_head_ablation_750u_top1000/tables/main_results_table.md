@@ -1,0 +1,8 @@
+# Main regression-head results
+
+EvolveGCN-H U750 Top1000 regression-head results: no normalization, periodic kNN k=8, hidden dimension 32, two layers, graph mean and temporal mean pooling, linear versus MLP heads, and five matched seeds.
+
+| regression head | seeds | head parameters | mean test MAE | SD test MAE | median test MAE | mean test RMSE | SD test RMSE | mean test R² | SD test R² | mean prediction-SD ratio | SD prediction-SD ratio | mean repeated fraction | undefined Pearson |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| linear | 5 | 33 | **0.055843** | 0.008748 | 0.052324 | **0.071136** | 0.009807 | **0.627697** | 0.102848 | **0.862457** | 0.134882 | **0.000000** | 0 |
+| mlp | 5 | 1089 | 0.061404 | 0.005142 | 0.061761 | 0.076820 | 0.005965 | 0.571180 | 0.057321 | 0.779290 | 0.146751 | 0.061692 | 0 |

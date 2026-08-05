@@ -1,0 +1,56 @@
+{
+  "Ridge": {
+    "train": {
+      "mae": 0.08699728751555086,
+      "rmse": 0.10176984791993207,
+      "num_samples": 400
+    },
+    "val": {
+      "mae": 0.09250646561384201,
+      "rmse": 0.10780744809439335,
+      "num_samples": 50
+    },
+    "test": {
+      "mae": 0.08942706376314163,
+      "rmse": 0.10541960911584637,
+      "num_samples": 50
+    },
+    "model": "Ridge"
+  },
+  "RandomForest": {
+    "train": {
+      "mae": 0.06807490070656998,
+      "rmse": 0.08083050288275473,
+      "num_samples": 400
+    },
+    "val": {
+      "mae": 0.091818033552378,
+      "rmse": 0.10630825680681075,
+      "num_samples": 50
+    },
+    "test": {
+      "mae": 0.09800815362180149,
+      "rmse": 0.10921881014863848,
+      "num_samples": 50
+    },
+    "model": "RandomForest"
+  },
+  "GradientBoosting": {
+    "train": {
+      "mae": 0.06642325037154453,
+      "rmse": 0.07939827959836453,
+      "num_samples": 400
+    },
+    "val": {
+      "mae": 0.09410217456109123,
+      "rmse": 0.11040993762128933,
+      "num_samples": 50
+    },
+    "test": {
+      "mae": 0.09749057801655876,
+      "rmse": 0.11114478132780184,
+      "num_samples": 50
+    },
+    "model": "GradientBoosting"
+  }
+}

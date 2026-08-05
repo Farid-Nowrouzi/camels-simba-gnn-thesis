@@ -1,0 +1,20 @@
+\begin{table}
+\centering
+\small
+\caption{Descriptive cross-protocol model comparison.}
+\begin{tabular}{llllllllll}
+\hline
+top\_n & seed & split\_signature & evolve\_experiment\_name & static\_experiment\_name & mae\_evolve\_minus\_static & rmse\_evolve\_minus\_static & r2\_evolve\_minus\_static & prediction\_sd\_ratio\_evolve\_minus\_static & comparison\_label \\
+\hline
+100 & 42 & 0f963679cd284fca861fc2c59d88bdae8e8f1f21e2cbe1bb73bd593b49056748 & evolvegcn\_h\_500u\_seed42\_final32 & static\_gcn\_u500\_top100\_norm-minmax\_k8\_h32\_l3\_gpool-mean\_conv-gcn\_batch8\_factorial\_seed42 & -0.0008026007811228475 & -0.0007936252813743883 & 0.01583431245671263 & -0.029738005367664244 & Descriptive cross-protocol model comparison. \\
+100 & 123 & 853549f16ef8eb3d7f18ae850c94b13c0c8bf0e770bb99cfbffff48b03530266 & evolvegcn\_h\_500u\_seed123\_final32 & static\_gcn\_u500\_top100\_norm-minmax\_k8\_h32\_l3\_gpool-mean\_conv-gcn\_batch8\_factorial\_seed123 & 0.0016582397619883255 & 0.0028947218857733326 & -0.05156636139875537 & 0.1284923892028289 & Descriptive cross-protocol model comparison. \\
+100 & 2025 & 3ce48b66c11e30bec459c52ba7f4a900809dd2b45be0995b8b56aeaefc747951 & evolvegcn\_h\_500u\_seed2025\_final32 & static\_gcn\_u500\_top100\_norm-minmax\_k8\_h32\_l3\_gpool-mean\_conv-gcn\_batch8\_factorial\_seed2025 & 0.0012427874406178707 & 0.0012434388659692402 & -0.021073514159725137 & -0.03997919047300845 & Descriptive cross-protocol model comparison. \\
+200 & 42 & 0f963679cd284fca861fc2c59d88bdae8e8f1f21e2cbe1bb73bd593b49056748 & evolvegcn\_h\_500u\_top200\_h32\_seed42 & static\_gcn\_500u\_top200\_h32\_seed42 & -0.0036569299300511643 & -0.0008850677969771403 & 0.017480305932217277 & 0.3097808005096165 & Descriptive cross-protocol model comparison. \\
+200 & 123 & 853549f16ef8eb3d7f18ae850c94b13c0c8bf0e770bb99cfbffff48b03530266 & evolvegcn\_h\_500u\_top200\_h32\_seed123 & static\_gcn\_500u\_top200\_h32\_seed123 & 0.0007664149999618564 & 0.002760109022059143 & -0.049789707595763844 & 0.37804012433674966 & Descriptive cross-protocol model comparison. \\
+200 & 2025 & 3ce48b66c11e30bec459c52ba7f4a900809dd2b45be0995b8b56aeaefc747951 & evolvegcn\_h\_500u\_top200\_h32\_seed2025 & static\_gcn\_500u\_top200\_h32\_seed2025 & -0.011542059381802874 & -0.011548635564198217 & 0.1883203698857736 & 0.2819268638626482 & Descriptive cross-protocol model comparison. \\
+500 & 42 & 0f963679cd284fca861fc2c59d88bdae8e8f1f21e2cbe1bb73bd593b49056748 & evolvegcn\_h\_500u\_top500\_h32\_seed42 & static\_gcn\_top500\_final\_snapshot\_same\_split\_h32\_seed42 & -0.005016041000684104 & -0.0026873723336128252 & 0.05243366443138575 & 0.3624228529543577 & Descriptive cross-protocol model comparison. \\
+500 & 123 & 853549f16ef8eb3d7f18ae850c94b13c0c8bf0e770bb99cfbffff48b03530266 & evolvegcn\_h\_500u\_top500\_h32\_seed123\_minmax & static\_gcn\_500u\_top500\_final\_snapshot\_h32\_seed123\_minmax & -0.00989406824111938 & -0.008287808723968407 & 0.14050081740057596 & 0.5189559642300661 & Descriptive cross-protocol model comparison. \\
+500 & 2025 & 3ce48b66c11e30bec459c52ba7f4a900809dd2b45be0995b8b56aeaefc747951 & evolvegcn\_h\_500u\_top500\_h32\_seed2025\_minmax & static\_gcn\_500u\_top500\_final\_snapshot\_h32\_seed2025\_minmax & -0.01470905244350433 & -0.015741798387989198 & 0.24835199161045718 & 0.41039722970690956 & Descriptive cross-protocol model comparison. \\
+\hline
+\end{tabular}
+\end{table}

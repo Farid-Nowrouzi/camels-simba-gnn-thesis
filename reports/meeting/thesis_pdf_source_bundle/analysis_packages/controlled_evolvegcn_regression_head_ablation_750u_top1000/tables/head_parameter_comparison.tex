@@ -1,0 +1,13 @@
+\begin{table}[htbp]
+\centering
+\caption{Regression-head parameter comparison}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{llllllll}
+\hline
+head\_type & architecture & input\_dimension & hidden\_dimensions & activation & dropout & output\_activation & parameter\_count \\
+\hline
+linear & Linear(32,1) & 32 &  & none & 0.0 & identity & 33 \\
+mlp & Linear(32,32)-ReLU-Dropout(0.2)-Linear(32,1) & 32 & 32 & ReLU & 0.2 & identity & 1089 \\
+\hline
+\end{tabular}}
+\end{table}

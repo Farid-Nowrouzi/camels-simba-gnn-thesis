@@ -1,0 +1,40 @@
+| field | required_value | EvolveGCN-H | Static GCN | status |
+|---|---|---|---|---|
+| fixed_scientific_settings.config.activation |  | relu | relu | matched |
+| fixed_scientific_settings.config.add_self_loops |  | True | True | matched |
+| fixed_scientific_settings.config.batch_size |  | 4 | 8 | intentional_difference |
+| fixed_scientific_settings.config.conv_type |  | <not applicable> | gcn | intentional_difference |
+| fixed_scientific_settings.config.dataset_format |  | <not applicable> | static | intentional_difference |
+| fixed_scientific_settings.config.dropout | 0.2 | 0.2 | 0.2 | matched |
+| fixed_scientific_settings.config.epochs | 300 | 300 | 300 | matched |
+| fixed_scientific_settings.config.grad_clip_norm | 1.0 | 1.0 | 1.0 | matched |
+| fixed_scientific_settings.config.graph_pooling | mean | mean | mean | matched |
+| fixed_scientific_settings.config.head_type |  | mlp | established_static_mlp | intentional_difference |
+| fixed_scientific_settings.config.hidden_dim | 32 | 32 | 32 | matched |
+| fixed_scientific_settings.config.learning_rate | 0.001 | 0.001 | 0.001 | matched |
+| fixed_scientific_settings.config.model |  | EvolveGCNHRegressor | StaticGCNRegressor | intentional_difference |
+| fixed_scientific_settings.config.node_features | 7 | 7 | 7 | matched |
+| fixed_scientific_settings.config.normalize_target | False | False | False | matched |
+| fixed_scientific_settings.config.num_layers | 2 | 2 | 2 | matched |
+| fixed_scientific_settings.config.num_nodes | 100 | 100 | 100 | matched |
+| fixed_scientific_settings.config.num_snapshots |  | 5 | <not applicable> | intentional_difference |
+| fixed_scientific_settings.config.patience | 40 | 40 | 40 | matched |
+| fixed_scientific_settings.config.temporal_pooling |  | mean | <not applicable> | intentional_difference |
+| fixed_scientific_settings.config.test_ratio | 0.15 | 0.15 | 0.15 | matched |
+| fixed_scientific_settings.config.train_ratio | 0.7 | 0.7 | 0.7 | matched |
+| fixed_scientific_settings.config.use_summary_features | False | False | False | matched |
+| fixed_scientific_settings.config.val_ratio | 0.15 | 0.15 | 0.15 | matched |
+| fixed_scientific_settings.config.weight_decay | 1e-05 | 1e-05 | 1e-05 | matched |
+| fixed_scientific_settings.dataset_metadata.box_size | 25.0 | 25.0 | 25.0 | matched |
+| fixed_scientific_settings.dataset_metadata.dataset_type |  | <not applicable> | static_final_snapshot_graphs | intentional_difference |
+| fixed_scientific_settings.dataset_metadata.feature_names | ["log10_Mvir", "X", "Y", "Z", "VX", "VY", "VZ"] | ["log10_Mvir", "X", "Y", "Z", "VX", "VY", "VZ"] | ["log10_Mvir", "X", "Y", "Z", "VX", "VY", "VZ"] | matched |
+| fixed_scientific_settings.dataset_metadata.graph_mode | knn | knn | knn | matched |
+| fixed_scientific_settings.dataset_metadata.k | 8 | 8 | 8 | matched |
+| fixed_scientific_settings.dataset_metadata.node_selection |  | <not applicable> | top_num_nodes_by_raw_Mvir_descending | intentional_difference |
+| fixed_scientific_settings.dataset_metadata.normalization | minmax | minmax | minmax | matched |
+| fixed_scientific_settings.dataset_metadata.num_nodes | 100 | 100 | 100 | matched |
+| fixed_scientific_settings.dataset_metadata.num_snapshots |  | 5 | <not applicable> | intentional_difference |
+| fixed_scientific_settings.dataset_metadata.periodic_boundary | True | True | True | matched |
+| fixed_scientific_settings.dataset_metadata.periodic_boundary_knn | True | True | True | matched |
+| fixed_scientific_settings.dataset_metadata.preferred_snapshot |  | <not applicable> | 1.0 | intentional_difference |
+| fixed_scientific_settings.dataset_metadata.preprocessing_version |  | <not applicable> | v2_logmass_minmax_top100_periodic_knn | intentional_difference |

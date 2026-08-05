@@ -1,0 +1,128 @@
+{
+  "schema_version": "1.0",
+  "analysis_name": "controlled_evolvegcn_graph_pooling_ablation_750u_top1000",
+  "title": "Controlled EvolveGCN-H Graph-Pooling Ablation at U750 Top1000",
+  "scientific_question": "Does mean_max graph pooling improve Omega_m regression over mean pooling under a fixed five-seed EvolveGCN-H protocol?",
+  "analysis_type": "single_family",
+  "families": [
+    {
+      "label": "EvolveGCN-H",
+      "family_spec_path": "configs/experiment_families/canonical_evolvegcn_graph_pooling_ablation_750u_top1000.json"
+    }
+  ],
+  "grouping_field": "graph_pooling",
+  "grouping_axis_label": "Graph pooling",
+  "grouping_value_label": "graph-pooling method",
+  "plot_grouping_suffix": "graph_pooling",
+  "grouping_values": [
+    "mean",
+    "mean_max"
+  ],
+  "required_seeds": [
+    42,
+    123,
+    777,
+    999,
+    2025
+  ],
+  "pairing_fields": [
+    "seed",
+    "split_signature"
+  ],
+  "metrics": [
+    "test_mae",
+    "test_rmse",
+    "test_r2",
+    "test_pearson"
+  ],
+  "required_fixed_protocol": {
+    "fixed_scientific_settings.config.num_total_universes": 750,
+    "fixed_scientific_settings.config.num_nodes": 1000,
+    "fixed_scientific_settings.config.hidden_dim": 32,
+    "fixed_scientific_settings.config.num_layers": 2,
+    "fixed_scientific_settings.config.batch_size": 4,
+    "fixed_scientific_settings.config.temporal_pooling": "mean",
+    "fixed_scientific_settings.config.head_type": "linear",
+    "fixed_scientific_settings.dataset_metadata.num_universes_successful": 750,
+    "fixed_scientific_settings.dataset_metadata.num_nodes": 1000,
+    "fixed_scientific_settings.dataset_metadata.normalization": "none",
+    "fixed_scientific_settings.dataset_metadata.graph_mode": "knn",
+    "fixed_scientific_settings.dataset_metadata.k": 8,
+    "fixed_scientific_settings.dataset_metadata.periodic_boundary_knn": true,
+    "fixed_scientific_settings.dataset_metadata.box_size": 25.0
+  },
+  "fields_allowed_to_differ": [],
+  "output_directory": "reports/analysis/controlled_evolvegcn_graph_pooling_ablation_750u_top1000",
+  "prediction_plots_enabled": true,
+  "representative_seed_policy": {
+    "policy": "median_test_mae"
+  },
+  "figure_formats": [
+    "png",
+    "pdf"
+  ],
+  "metric_tolerance": 1e-06,
+  "require_exact_paired_splits": true,
+  "require_unique_prediction_hashes": true,
+  "require_negative_r2_retention": true,
+  "reference_family": null,
+  "focused_rebuild_script": "reports/analysis/controlled_evolvegcn_graph_pooling_ablation_750u_top1000/rebuild_graph_pooling_analysis.py",
+  "expected_row_counts": {
+    "seed_level_results": 10,
+    "aggregated_results": 2,
+    "paired_pooling_differences": 5,
+    "prediction_diagnostics": 10,
+    "representative_runs": 2
+  },
+  "required_output_files": [
+    "analysis_manifest.json",
+    "compatibility_report.md",
+    "protocol_table.csv",
+    "protocol_table.md",
+    "seed_level_results.csv",
+    "aggregated_results.csv",
+    "paired_pooling_differences.csv",
+    "prediction_diagnostics.csv",
+    "representative_runs.csv",
+    "pooling_implementation.md",
+    "scientific_summary.md",
+    "presentation_ready_summary.md",
+    "README.md",
+    "tables/main_results_table.csv",
+    "tables/main_results_table.md",
+    "tables/main_results_table.tex",
+    "tables/seed_level_pooling_results.csv",
+    "tables/seed_level_pooling_results.md",
+    "tables/seed_level_pooling_results.tex",
+    "tables/aggregate_pooling_results.csv",
+    "tables/aggregate_pooling_results.md",
+    "tables/aggregate_pooling_results.tex",
+    "tables/paired_pooling_differences.csv",
+    "tables/paired_pooling_differences.md",
+    "tables/paired_pooling_differences.tex",
+    "tables/prediction_collapse_diagnostics.csv",
+    "tables/prediction_collapse_diagnostics.md",
+    "tables/prediction_collapse_diagnostics.tex",
+    "tables/descriptive_pooling_summary.csv",
+    "tables/descriptive_pooling_summary.md"
+  ],
+  "required_figures": [
+    "test_mae_by_graph_pooling",
+    "test_rmse_by_graph_pooling",
+    "test_r2_by_graph_pooling",
+    "paired_mae_difference_by_seed",
+    "paired_rmse_difference_by_seed",
+    "paired_r2_difference_by_seed",
+    "per_seed_mae_trajectories",
+    "prediction_std_ratio_by_graph_pooling",
+    "repeated_prediction_fraction_by_graph_pooling",
+    "representative_true_vs_predicted",
+    "representative_residuals_vs_true",
+    "representative_prediction_distributions",
+    "seed_variability_by_graph_pooling",
+    "pooling_effect_summary"
+  ],
+  "controlled_variables_summary": "Graph pooling is the only intended factor; mean_max necessarily doubles the graph embedding and linear-head input from 32 to 64.",
+  "limitations_summary": "Only simple mean and concatenated mean-and-maximum pooling were tested for EvolveGCN-H under the U750 Top1000 protocol; attention remains unimplemented.",
+  "comparison_statement": "Controlled five-seed within-model graph-pooling ablation with exact paired splits."
+}

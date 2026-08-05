@@ -1,0 +1,56 @@
+{
+  "dataset_path": "data/processed/temporal_500u_minmax_top500_periodic_knn/camels_500u_temporal_logmass_minmax_top500_periodic_knn.pt",
+  "seed": 42,
+  "num_universes": 500,
+  "num_features": 100,
+  "target_min": 0.10180000215768814,
+  "target_max": 0.4997999966144562,
+  "target_mean": 0.2993255853652954,
+  "train_size": 349,
+  "val_size": 75,
+  "test_size": 76,
+  "results": {
+    "Ridge": {
+      "train": {
+        "mae": 0.08202894032001495,
+        "rmse": 0.09657204540689321
+      },
+      "val": {
+        "mae": 0.09554678946733475,
+        "rmse": 0.10800154514305706
+      },
+      "test": {
+        "mae": 0.08677587658166885,
+        "rmse": 0.10085329153416955
+      }
+    },
+    "RandomForest": {
+      "train": {
+        "mae": 0.031681584383560404,
+        "rmse": 0.03852672566304946
+      },
+      "val": {
+        "mae": 0.07677529201508006,
+        "rmse": 0.09366879838010232
+      },
+      "test": {
+        "mae": 0.07636079502480192,
+        "rmse": 0.09180388705209958
+      }
+    },
+    "GradientBoosting": {
+      "train": {
+        "mae": 0.027469325871185328,
+        "rmse": 0.0338248148389744
+      },
+      "val": {
+        "mae": 0.08099455394676519,
+        "rmse": 0.09705500119386
+      },
+      "test": {
+        "mae": 0.07519833834445057,
+        "rmse": 0.08924867281719462
+      }
+    }
+  }
+}

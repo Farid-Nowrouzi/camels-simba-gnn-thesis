@@ -1,0 +1,5 @@
+model,hidden_dim,descriptive_best_k,mean_test_mae,std_test_mae,interpretation
+EvolveGCN-H,32,12,0.0961808881163597,0.009015620284178271,Descriptively lowest mean MAE under the tested protocol.
+EvolveGCN-H,64,8,0.0965620176990827,0.009953557220221036,Descriptively lowest mean MAE under the tested protocol.
+Static GCN,32,6,0.0950965201523569,0.008226835196896327,Descriptively lowest mean MAE under the tested protocol.
+Static GCN,64,8,0.09629471232493719,0.009143633177109978,Descriptively lowest mean MAE under the tested protocol.

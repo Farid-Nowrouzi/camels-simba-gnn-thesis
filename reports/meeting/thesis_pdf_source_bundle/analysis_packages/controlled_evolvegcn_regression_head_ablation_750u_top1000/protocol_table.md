@@ -1,0 +1,14 @@
+# Controlled regression-head protocol
+
+| field | value |
+|---|---|
+| model | EvolveGCN-H |
+| universes | 750 |
+| halos | Top1000 |
+| normalization | none |
+| periodic kNN | k=8, box size 25 |
+| hidden dimension / layers | 32 / 2 |
+| graph / temporal pooling | mean / mean |
+| regression-head factor | linear (33 parameters) vs MLP (1089 parameters) |
+| seeds | 42, 123, 777, 999, 2025 |
+| splits | 450 train / 99 validation / 201 test; exact matched IDs |

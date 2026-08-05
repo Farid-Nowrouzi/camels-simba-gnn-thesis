@@ -1,0 +1,40 @@
+{
+  "target_csv": "outputs/target_inspection_20u.csv",
+  "experiment_name": "debug_mean_baseline_20u_seed42",
+  "seed": 42,
+  "train_ratio": 0.8,
+  "val_ratio": 0.1,
+  "test_ratio": 0.1,
+  "num_total_universes": 20,
+  "num_train_universes": 16,
+  "num_val_universes": 2,
+  "num_test_universes": 2,
+  "train_ids": [
+    "LH_19",
+    "LH_5",
+    "LH_14",
+    "LH_4",
+    "LH_9",
+    "LH_13",
+    "LH_15",
+    "LH_18",
+    "LH_6",
+    "LH_12",
+    "LH_17",
+    "LH_10",
+    "LH_1",
+    "LH_11",
+    "LH_2",
+    "LH_16"
+  ],
+  "val_ids": [
+    "LH_7",
+    "LH_8"
+  ],
+  "test_ids": [
+    "LH_0",
+    "LH_3"
+  ],
+  "prediction_rule": "predict_training_set_mean_omega_m",
+  "train_mean_omega_m": 0.27107499999999995
+}

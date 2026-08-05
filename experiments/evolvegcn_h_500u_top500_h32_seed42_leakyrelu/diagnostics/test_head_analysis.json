@@ -1,0 +1,368 @@
+{
+  "experiment_dir": "experiments/evolvegcn_h_500u_top500_h32_seed42_leakyrelu",
+  "config_path": "experiments/evolvegcn_h_500u_top500_h32_seed42_leakyrelu/config.json",
+  "checkpoint_path": "experiments/evolvegcn_h_500u_top500_h32_seed42_leakyrelu/checkpoints/best_model.pt",
+  "dataset_path": "data/processed/temporal_500u_minmax_top500_periodic_knn/camels_500u_temporal_logmass_minmax_top500_periodic_knn.pt",
+  "split": "test",
+  "num_samples": 75,
+  "universe_ids": [
+    "LH_98",
+    "LH_295",
+    "LH_185",
+    "LH_316",
+    "LH_321",
+    "LH_424",
+    "LH_150",
+    "LH_282",
+    "LH_40",
+    "LH_193",
+    "LH_63",
+    "LH_274",
+    "LH_235",
+    "LH_373",
+    "LH_22",
+    "LH_413",
+    "LH_135",
+    "LH_309",
+    "LH_176",
+    "LH_433",
+    "LH_183",
+    "LH_49",
+    "LH_194",
+    "LH_480",
+    "LH_490",
+    "LH_172",
+    "LH_390",
+    "LH_110",
+    "LH_79",
+    "LH_464",
+    "LH_174",
+    "LH_483",
+    "LH_357",
+    "LH_81",
+    "LH_412",
+    "LH_388",
+    "LH_3",
+    "LH_445",
+    "LH_414",
+    "LH_142",
+    "LH_301",
+    "LH_229",
+    "LH_112",
+    "LH_214",
+    "LH_486",
+    "LH_359",
+    "LH_332",
+    "LH_366",
+    "LH_101",
+    "LH_287",
+    "LH_13",
+    "LH_308",
+    "LH_258",
+    "LH_119",
+    "LH_111",
+    "LH_47",
+    "LH_15",
+    "LH_16",
+    "LH_216",
+    "LH_302",
+    "LH_44",
+    "LH_279",
+    "LH_456",
+    "LH_496",
+    "LH_346",
+    "LH_52",
+    "LH_377",
+    "LH_71",
+    "LH_114",
+    "LH_125",
+    "LH_140",
+    "LH_379",
+    "LH_12",
+    "LH_57",
+    "LH_327"
+  ],
+  "model": {
+    "hidden_dim": 32,
+    "num_layers": 2,
+    "dropout": 0.2,
+    "activation": "leaky_relu",
+    "temporal_pooling": "mean",
+    "graph_pooling": "mean",
+    "summary_feature_dim": 0,
+    "use_summary_features": false
+  },
+  "target": {
+    "mean": 0.2916933298110962,
+    "std": 0.10134269297122955,
+    "min": 0.10700000077486038,
+    "max": 0.4814000129699707
+  },
+  "comparison": {
+    "linear_probe_temporal": {
+      "metrics": {
+        "r2": 0.5545172742926721,
+        "mae": 0.056336439863622446,
+        "rmse": 0.06764066708494462,
+        "pearson_correlation": 0.7446591665269907,
+        "prediction_mean": 0.29169333279134835,
+        "prediction_std": 0.07546576655628963
+      },
+      "coefficient_norm": 634.8457182324431,
+      "intercept": 2.5585477723697574
+    },
+    "trained_head": {
+      "r2": 0.030320248733274102,
+      "mae": 0.08075621724128723,
+      "rmse": 0.09979449957609177,
+      "pearson_correlation": 0.3104055859098974,
+      "prediction_mean": 0.31763043999671936,
+      "prediction_std": 0.03378811851143837
+    }
+  },
+  "head_analysis": {
+    "first_linear": {
+      "weights": {
+        "name": "first_linear",
+        "weight_shape": [
+          32,
+          32
+        ],
+        "weight_mean": -0.012791370041668415,
+        "weight_std": 0.11894861608743668,
+        "weight_min": -0.3774559199810028,
+        "weight_max": 0.3462482690811157,
+        "percent_near_zero_weights_abs_lt_1e-6": 0.0,
+        "percent_near_zero_weights_abs_lt_1e-5": 0.0,
+        "percent_near_zero_weights_abs_lt_1e-4": 0.09765625,
+        "singular_values": [
+          2.0222434997558594,
+          1.2961170673370361,
+          1.0105019807815552,
+          0.9761797189712524,
+          0.9070300459861755,
+          0.8679171204566956,
+          0.8154079914093018,
+          0.7918554544448853,
+          0.737289547920227,
+          0.687748908996582,
+          0.6639481782913208,
+          0.6037692427635193,
+          0.5491212010383606,
+          0.5143253803253174,
+          0.4940589964389801,
+          0.4584670066833496,
+          0.43821945786476135,
+          0.4153560400009155,
+          0.4120374619960785,
+          0.3902413547039032,
+          0.3295291066169739,
+          0.31432998180389404,
+          0.3047758638858795,
+          0.2479809671640396,
+          0.2155439555644989,
+          0.1887577623128891,
+          0.1758609563112259,
+          0.15103821456432343,
+          0.10329966992139816,
+          0.08324772119522095,
+          0.017227716743946075,
+          0.011065674014389515
+        ],
+        "max_singular_value": 2.0222434997558594,
+        "min_singular_value": 0.011065674014389515,
+        "effective_rank": 24.297452926635742,
+        "bias_mean": -0.010880198329687119,
+        "bias_std": 0.09676053375005722,
+        "bias_min": -0.17226038873195648,
+        "bias_max": 0.14469048380851746
+      },
+      "activations": {
+        "name": "first_linear",
+        "output_before_activation": {
+          "shape": [
+            75,
+            32
+          ],
+          "mean": -0.048376116901636124,
+          "std": 0.08294276148080826,
+          "variance": 0.006879501976072788,
+          "min": -0.22411496937274933,
+          "max": 0.1346132755279541
+        },
+        "output_after_activation": {
+          "shape": [
+            75,
+            32
+          ],
+          "mean": 0.016459723934531212,
+          "std": 0.027788955718278885,
+          "variance": 0.0007722260197624564,
+          "min": 0.0,
+          "max": 0.1346132755279541
+        },
+        "percent_dead_activations": 65.20833373069763,
+        "num_units_entirely_zero": 15,
+        "percent_units_entirely_zero": 46.875,
+        "hidden_unit_target_correlations": {
+          "max_absolute_correlation": 0.33516277042946385,
+          "mean_absolute_correlation": 0.2432373067632641,
+          "median_absolute_correlation": 0.23835166734978186,
+          "top_10_hidden_units_by_absolute_correlation": [
+            {
+              "unit": 29,
+              "correlation": 0.33516277042946385,
+              "absolute_correlation": 0.33516277042946385
+            },
+            {
+              "unit": 20,
+              "correlation": 0.3076647981253826,
+              "absolute_correlation": 0.3076647981253826
+            },
+            {
+              "unit": 13,
+              "correlation": 0.28687006322955355,
+              "absolute_correlation": 0.28687006322955355
+            },
+            {
+              "unit": 8,
+              "correlation": 0.2778563332652263,
+              "absolute_correlation": 0.2778563332652263
+            },
+            {
+              "unit": 23,
+              "correlation": 0.2706023880135279,
+              "absolute_correlation": 0.2706023880135279
+            },
+            {
+              "unit": 1,
+              "correlation": 0.2596630616137198,
+              "absolute_correlation": 0.2596630616137198
+            },
+            {
+              "unit": 27,
+              "correlation": 0.25146700658802956,
+              "absolute_correlation": 0.25146700658802956
+            },
+            {
+              "unit": 31,
+              "correlation": 0.24257060250728657,
+              "absolute_correlation": 0.24257060250728657
+            },
+            {
+              "unit": 15,
+              "correlation": 0.23835166734978186,
+              "absolute_correlation": 0.23835166734978186
+            },
+            {
+              "unit": 9,
+              "correlation": 0.23300720208436,
+              "absolute_correlation": 0.23300720208436
+            }
+          ],
+          "per_hidden_unit_correlation": [
+            -0.21174381039646065,
+            0.2596630616137198,
+            NaN,
+            NaN,
+            NaN,
+            NaN,
+            -0.20814175013903596,
+            NaN,
+            0.2778563332652263,
+            0.23300720208436,
+            NaN,
+            -0.22634131562927964,
+            NaN,
+            0.28687006322955355,
+            -0.19690913107209246,
+            0.23835166734978186,
+            NaN,
+            NaN,
+            NaN,
+            NaN,
+            0.3076647981253826,
+            NaN,
+            NaN,
+            0.2706023880135279,
+            -0.1876428723529109,
+            -0.19486323394928204,
+            NaN,
+            0.25146700658802956,
+            NaN,
+            0.33516277042946385,
+            0.20617620823009625,
+            0.24257060250728657
+          ]
+        }
+      }
+    },
+    "dropout_eval_output_before_final_linear": {
+      "shape": [
+        75,
+        32
+      ],
+      "mean": 0.016459723934531212,
+      "std": 0.027788955718278885,
+      "variance": 0.0007722260197624564,
+      "min": 0.0,
+      "max": 0.1346132755279541
+    },
+    "final_linear": {
+      "weights": {
+        "name": "final_linear",
+        "weight_shape": [
+          1,
+          32
+        ],
+        "weight_mean": -0.02771368809044361,
+        "weight_std": 0.15980325639247894,
+        "weight_min": -0.3996211290359497,
+        "weight_max": 0.16987915337085724,
+        "percent_near_zero_weights_abs_lt_1e-6": 0.0,
+        "percent_near_zero_weights_abs_lt_1e-5": 0.0,
+        "percent_near_zero_weights_abs_lt_1e-4": 0.0,
+        "singular_values": [
+          0.9174770712852478
+        ],
+        "max_singular_value": 0.9174770712852478,
+        "min_singular_value": 0.9174770712852478,
+        "effective_rank": 1.0,
+        "bias_mean": 0.2829245626926422,
+        "bias_std": 0.0,
+        "bias_min": 0.2829245626926422,
+        "bias_max": 0.2829245626926422
+      },
+      "output": {
+        "output": {
+          "shape": [
+            75,
+            1
+          ],
+          "mean": 0.3176303803920746,
+          "std": 0.03378811478614807,
+          "variance": 0.0011416367487981915,
+          "min": 0.14776454865932465,
+          "max": 0.36891597509384155
+        },
+        "metrics": {
+          "r2": 0.030320248733274102,
+          "mae": 0.08075621724128723,
+          "rmse": 0.09979449957609177,
+          "pearson_correlation": 0.3104055859098974,
+          "prediction_mean": 0.31763043999671936,
+          "prediction_std": 0.03378811851143837
+        },
+        "correlation_with_target": 0.3104055859098974
+      },
+      "metrics": {
+        "r2": 0.030320248733274102,
+        "mae": 0.08075621724128723,
+        "rmse": 0.09979449957609177,
+        "pearson_correlation": 0.3104055859098974,
+        "prediction_mean": 0.31763043999671936,
+        "prediction_std": 0.03378811851143837
+      }
+    }
+  }
+}

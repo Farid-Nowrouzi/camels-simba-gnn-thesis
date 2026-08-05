@@ -1,0 +1,16 @@
+\begin{table}
+\centering
+\small
+\begin{tabular}{lllllllllllllll}
+\hline
+model & top\_n & snapshots\_processed\_per\_universe & nodes\_per\_snapshot & k & directed\_neighbor\_selections\_per\_snapshot & symmetric\_adjacency\_nonzeros\_per\_snapshot & dense\_adjacency\_capacity\_per\_snapshot & self\_loops & padded\_nodes & mean\_test\_mae & wall\_time & peak\_gpu\_memory & peak\_cpu\_memory & prediction\_time \\
+\hline
+EvolveGCN-H & 100 & 5 & 100 & 8 & 800 & 800 to 1600 & 10000 & excluded in preprocessing; added by model layers & excluded from neighbor selection & 0.09696193625529607 & not recorded & not recorded & not recorded & not recorded \\
+EvolveGCN-H & 200 & 5 & 200 & 8 & 1600 & 1600 to 3200 & 40000 & excluded in preprocessing; added by model layers & excluded from neighbor selection & 0.0921737516257498 & not recorded & not recorded & not recorded & not recorded \\
+EvolveGCN-H & 500 & 5 & 500 & 8 & 4000 & 4000 to 8000 & 250000 & excluded in preprocessing; added by model layers & excluded from neighbor selection & 0.0861660827199618 & not recorded & not recorded & not recorded & not recorded \\
+Static GCN & 100 & 1 & 100 & 8 & 800 & 800 to 1600 & 10000 & excluded in preprocessing; added by model layers & excluded from neighbor selection & 0.09626246078146829 & not recorded & not recorded & not recorded & not recorded \\
+Static GCN & 200 & 1 & 200 & 8 & 1600 & 1600 to 3200 & 40000 & excluded in preprocessing; added by model layers & excluded from neighbor selection & 0.09698460972971386 & not recorded & not recorded & not recorded & not recorded \\
+Static GCN & 500 & 1 & 500 & 8 & 4000 & 4000 to 8000 & 250000 & excluded in preprocessing; added by model layers & excluded from neighbor selection & 0.09603913661506441 & not recorded & not recorded & not recorded & not recorded \\
+\hline
+\end{tabular}
+\end{table}

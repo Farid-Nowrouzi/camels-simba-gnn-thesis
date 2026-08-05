@@ -1,0 +1,137 @@
+{
+  "schema_version": "1.0",
+  "analysis_name": "controlled_static_vs_evolvegcn_universe_scaling_top100",
+  "title": "Controlled Universe-Count Scaling: Static GCN versus EvolveGCN-H",
+  "scientific_question": "How does increasing the number of universes from 20 to 500 affect Omega_m regression performance, and how do Static GCN and EvolveGCN-H compare under the controlled Top100 protocol?",
+  "analysis_type": "scaling",
+  "families": [
+    {
+      "label": "EvolveGCN-H",
+      "family_spec_path": "configs/experiment_families/canonical_evolvegcn_universe_scaling.json"
+    },
+    {
+      "label": "Static GCN",
+      "family_spec_path": "configs/experiment_families/canonical_static_gcn_universe_scaling.json"
+    }
+  ],
+  "grouping_field": "universes",
+  "grouping_axis_label": "Number of universes",
+  "grouping_value_label": "universes",
+  "plot_grouping_suffix": "universes",
+  "grouping_values": [
+    20,
+    50,
+    100,
+    200,
+    500
+  ],
+  "required_seeds": [
+    42,
+    123,
+    2025
+  ],
+  "metrics": [
+    "test_mae",
+    "test_rmse",
+    "test_r2",
+    "test_pearson"
+  ],
+  "required_fixed_protocol": {
+    "fixed_scientific_settings.config.epochs": 300,
+    "fixed_scientific_settings.config.patience": 40,
+    "fixed_scientific_settings.config.learning_rate": 0.001,
+    "fixed_scientific_settings.config.weight_decay": 0.00001,
+    "fixed_scientific_settings.config.hidden_dim": 32,
+    "fixed_scientific_settings.config.num_layers": 2,
+    "fixed_scientific_settings.config.dropout": 0.2,
+    "fixed_scientific_settings.config.graph_pooling": "mean",
+    "fixed_scientific_settings.config.train_ratio": 0.7,
+    "fixed_scientific_settings.config.val_ratio": 0.15,
+    "fixed_scientific_settings.config.test_ratio": 0.15,
+    "fixed_scientific_settings.config.grad_clip_norm": 1.0,
+    "fixed_scientific_settings.config.use_summary_features": false,
+    "fixed_scientific_settings.config.normalize_target": false,
+    "fixed_scientific_settings.config.num_nodes": 100,
+    "fixed_scientific_settings.config.node_features": 7,
+    "fixed_scientific_settings.dataset_metadata.num_nodes": 100,
+    "fixed_scientific_settings.dataset_metadata.normalization": "minmax",
+    "fixed_scientific_settings.dataset_metadata.graph_mode": "knn",
+    "fixed_scientific_settings.dataset_metadata.k": 8,
+    "fixed_scientific_settings.dataset_metadata.periodic_boundary": true,
+    "fixed_scientific_settings.dataset_metadata.periodic_boundary_knn": true,
+    "fixed_scientific_settings.dataset_metadata.box_size": 25.0,
+    "fixed_scientific_settings.dataset_metadata.feature_names": [
+      "log10_Mvir",
+      "X",
+      "Y",
+      "Z",
+      "VX",
+      "VY",
+      "VZ"
+    ]
+  },
+  "fields_allowed_to_differ": [
+    {
+      "field": "fixed_scientific_settings.config.model",
+      "reason": "Static GCN and EvolveGCN-H are intentionally different architectures."
+    },
+    {
+      "field": "fixed_scientific_settings.config.batch_size",
+      "reason": "Static GCN uses its established batch size 8; EvolveGCN-H uses canonical batch size 4."
+    },
+    {
+      "field": "fixed_scientific_settings.config.dataset_format",
+      "reason": "Static GCN consumes native final-snapshot graphs; EvolveGCN-H consumes temporal graphs."
+    },
+    {
+      "field": "fixed_scientific_settings.config.conv_type",
+      "reason": "The explicit Static GCN convolution selector is model-specific."
+    },
+    {
+      "field": "fixed_scientific_settings.config.head_type",
+      "reason": "Each architecture uses its established canonical MLP regression head."
+    },
+    {
+      "field": "fixed_scientific_settings.config.num_snapshots",
+      "reason": "EvolveGCN-H uses five snapshots; Static GCN uses only the final snapshot."
+    },
+    {
+      "field": "fixed_scientific_settings.config.temporal_pooling",
+      "reason": "Temporal pooling applies only to EvolveGCN-H."
+    },
+    {
+      "field": "fixed_scientific_settings.dataset_metadata.dataset_type",
+      "reason": "Static metadata identifies native final-snapshot graphs."
+    },
+    {
+      "field": "fixed_scientific_settings.dataset_metadata.node_selection",
+      "reason": "Static metadata records the shared Top-N selection explicitly; the temporal family documents it through preprocessing provenance."
+    },
+    {
+      "field": "fixed_scientific_settings.dataset_metadata.num_snapshots",
+      "reason": "EvolveGCN-H uses five snapshots; Static GCN uses one final snapshot."
+    },
+    {
+      "field": "fixed_scientific_settings.dataset_metadata.preferred_snapshot",
+      "reason": "The final-snapshot value applies to the native Static dataset."
+    },
+    {
+      "field": "fixed_scientific_settings.dataset_metadata.preprocessing_version",
+      "reason": "The Static metadata records its preprocessing version explicitly."
+    }
+  ],
+  "output_directory": "reports/analysis/controlled_static_vs_evolvegcn_universe_scaling_top100",
+  "prediction_plots_enabled": true,
+  "representative_seed_policy": {
+    "policy": "median_test_mae"
+  },
+  "figure_formats": [
+    "png",
+    "pdf"
+  ],
+  "metric_tolerance": 0.000001,
+  "reference_family": null,
+  "comparison_statement": "Matched universe counts, graph protocol, seeds, and split IDs, with intentional architecture and temporal-input differences.",
+  "controlled_variables_summary": "Universe counts, Top100 graph protocol, minmax normalization, periodic kNN with k=8 and box size 25, seven node features, seeds, and exact split IDs are matched.",
+  "limitations_summary": "The five universe-count datasets change population size, so adjacent points are not independent repeated samples of one fixed dataset."
+}

@@ -1,0 +1,13 @@
+\begin{table}[htbp]
+\centering
+\caption{Controlled head-only progression}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lllll}
+\hline
+stage & fixed\_protocol & change & mean\_mae & paired\_delta \\
+\hline
+Baseline & U750 Top1000; graph mean; temporal mean; all encoder/training settings fixed & MLP head & 0.061404 & — \\
+Head ablation & identical to baseline & linear head & 0.055843 & -0.005561 \\
+\hline
+\end{tabular}}
+\end{table}
