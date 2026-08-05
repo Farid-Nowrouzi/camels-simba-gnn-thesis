@@ -93,11 +93,19 @@ from src.data.camels_graph_utils import (
     PREPROCESSING_VERSION,
     VELOCITY_COLUMNS,
     build_universe_sequence,
+    choose_snapshot_files,
+    find_universe_files,
     GRAPH_STORAGE_DENSE,
     GRAPH_STORAGE_SPARSE,
     SPARSE_SCHEMA_VERSION,
 )
 from src.data.atomic_dataset import atomic_write_sparse_dataset
+from src.data.source_manifest import (
+    SOURCE_MANIFEST_POLICY_FULL,
+    SOURCE_MANIFEST_POLICY_LEGACY,
+    build_full_source_manifest,
+    verify_full_source_manifest,
+)
 
 
 # ============================================================
@@ -585,6 +593,7 @@ def build_temporal_dataset(
     graph_storage: str = GRAPH_STORAGE_DENSE,
     overwrite: bool = False,
     force_unsafe_dense: bool = False,
+    source_manifest_policy: Optional[str] = None,
 ) -> Dict[str, Any]:
     """
     Build temporal graph sequences from raw CAMELS-SIMBA halo catalogs.
@@ -655,6 +664,16 @@ def build_temporal_dataset(
         raise ValueError("num_nodes must be positive.")
     if graph_storage not in {GRAPH_STORAGE_DENSE, GRAPH_STORAGE_SPARSE}:
         raise ValueError("graph_storage must be dense_adjacency or sparse_edge_index.")
+    resolved_manifest_policy = source_manifest_policy or (
+        SOURCE_MANIFEST_POLICY_FULL
+        if graph_storage == GRAPH_STORAGE_SPARSE
+        else SOURCE_MANIFEST_POLICY_LEGACY
+    )
+    if graph_storage == GRAPH_STORAGE_SPARSE and resolved_manifest_policy != SOURCE_MANIFEST_POLICY_FULL:
+        raise ValueError(
+            "New sparse builds require source_manifest_policy=full_sha256; "
+            "legacy/stat-only provenance is not accepted."
+        )
     if graph_storage == GRAPH_STORAGE_DENSE and num_nodes > 512 and not force_unsafe_dense:
         raise ValueError(
             "Dense graph storage above 512 nodes is blocked by the resource guard; "
@@ -683,6 +702,26 @@ def build_temporal_dataset(
         print()
 
     output_path.parent.mkdir(parents=True, exist_ok=True)
+
+    source_manifest = None
+    if resolved_manifest_policy == SOURCE_MANIFEST_POLICY_FULL:
+        planned_catalogue_paths = []
+        for universe_id in range(num_universes):
+            planned_catalogue_paths.extend(choose_snapshot_files(
+                find_universe_files(raw_dir=raw_dir, universe_id=universe_id),
+                num_snapshots=num_snapshots,
+            ))
+        source_manifest = build_full_source_manifest(
+            catalogue_paths=planned_catalogue_paths,
+            raw_root=raw_dir,
+            target_path=targets_csv,
+            target_root=Path(targets_csv).parent if targets_csv is not None else None,
+            require_target=targets_csv is not None,
+        )
+        verify_full_source_manifest(
+            source_manifest,
+            require_target=targets_csv is not None,
+        )
 
     if targets_csv is not None:
         targets = load_targets_csv(targets_csv)
@@ -722,6 +761,7 @@ def build_temporal_dataset(
     print(f"Graph mode:            {graph_mode}")
     print(f"Graph storage:         {graph_storage}")
     print(f"Overwrite:             {overwrite}")
+    print(f"Source manifest:       {resolved_manifest_policy}")
     print(f"k:                     {k}")
     print(f"Radius:                {radius}")
     print(f"Periodic boundary:     {periodic_boundary}")
@@ -898,6 +938,7 @@ def build_temporal_dataset(
         "pytorch_version": torch.__version__,
         "pyg_version": None,
         "creation_timestamp_utc": datetime.now(timezone.utc).isoformat(),
+        "source_manifest_policy": resolved_manifest_policy,
     }
 
     config_material = {key: metadata[key] for key in (
@@ -907,13 +948,46 @@ def build_temporal_dataset(
     metadata["builder_config_hash"] = hashlib.sha256(
         json.dumps(config_material, sort_keys=True, separators=(",", ":")).encode()
     ).hexdigest()
-    source_rows = []
-    for sample in dataset.values():
-        for snapshot in sample["snapshots"]:
-            source_path = Path(snapshot["path"])
+    catalogue_paths = [
+        snapshot["path"]
+        for sample in dataset.values()
+        for snapshot in sample["snapshots"]
+    ]
+    if resolved_manifest_policy == SOURCE_MANIFEST_POLICY_FULL:
+        if source_manifest is None:
+            raise RuntimeError("Full-SHA256 source manifest was not created before preprocessing.")
+        verification = verify_full_source_manifest(
+            source_manifest,
+            require_target=targets_csv is not None,
+        )
+        target_entries = [
+            entry for entry in source_manifest["entries"]
+            if entry["source_role"] == "target_table"
+        ]
+        metadata.update({
+            "source_manifest": source_manifest,
+            "source_manifest_schema_version": source_manifest["schema_version"],
+            "source_manifest_entry_count": source_manifest["entry_count"],
+            "source_manifest_catalogue_count": source_manifest["catalogue_count"],
+            "source_manifest_target_source_count": source_manifest["target_source_count"],
+            "source_manifest_sha256": source_manifest["manifest_sha256"],
+            "source_manifest_hash": source_manifest["manifest_sha256"],
+            "source_root_identity": source_manifest["source_root_identity"],
+            "source_manifest_verification": verification,
+            "target_source_relative_path": target_entries[0]["relative_path"] if target_entries else None,
+            "target_source_sha256": target_entries[0]["sha256"] if target_entries else None,
+        })
+    else:
+        source_rows = []
+        for source_value in catalogue_paths:
+            source_path = Path(source_value)
             stat = source_path.stat()
             source_rows.append(f"{source_path}\t{stat.st_size}\t{stat.st_mtime_ns}\n")
-    metadata["source_manifest_hash"] = hashlib.sha256("".join(source_rows).encode()).hexdigest()
+        metadata["source_manifest_hash"] = hashlib.sha256("".join(source_rows).encode()).hexdigest()
+        metadata["source_manifest_verification"] = {
+            "verified": False,
+            "verification_result": "legacy_unverified_stat_only",
+        }
     selection_hashes = [
         meta["selection_hash_sha256"]
         for sample in dataset.values() for meta in sample["snapshots"]
@@ -1015,6 +1089,12 @@ def main() -> None:
     )
     parser.add_argument("--overwrite", action="store_true", help="Replace an existing sparse output explicitly.")
     parser.add_argument("--force_unsafe_dense", action="store_true", help="Permit dense storage above the guarded Top-N threshold.")
+    parser.add_argument(
+        "--source_manifest_policy",
+        choices=[SOURCE_MANIFEST_POLICY_FULL, SOURCE_MANIFEST_POLICY_LEGACY],
+        default=None,
+        help="Sparse builds require full_sha256; dense legacy builds default to legacy_stat_only.",
+    )
 
     parser.add_argument(
         "--output_path",
@@ -1149,6 +1229,7 @@ def main() -> None:
         graph_storage=args.graph_storage,
         overwrite=args.overwrite,
         force_unsafe_dense=args.force_unsafe_dense,
+        source_manifest_policy=args.source_manifest_policy,
     )
 
 
