@@ -1,0 +1,17 @@
+field,metadata_sidecar,serialized_root,universe_records,snapshot_records,independent_authority,status
+preprocessing_version,v2_logmass_minmax_top100_periodic_knn,no separate root metadata object,"v2_logmass_minmax_top100_periodic_knn (1000/1000)","v2_logmass_minmax_top100_periodic_knn (5000/5000)",generated future label would be v3_logmass_none_top1000_periodic_knn_k8_box25_sparse_edge_index,STALE_PROVENANCE_ONLY
+universe_count,1000,1000 universe keys,n/a,n/a,"ordered LH_0..LH_999; validator PASS",MATCH
+successful_universes,1000,n/a,n/a,n/a,"failed_universes=[]; allow_partial=false",MATCH
+snapshot_count,5,n/a,"5 lists and 5 metadata records (1000/1000)",5000 total,"ordered 0.2|0.25|0.51209|0.75065|1.0",MATCH
+node_shape,"num_nodes=1000; 7 feature names",n/a,"Nodes_list length 5",[1000x7] for 5000/5000,"full serialized tensor scan",MATCH
+feature_semantics,"log10_Mvir|X|Y|Z|VX|VY|VZ",n/a,"same feature_names (1000/1000)","same feature_names (5000/5000)",mass_feature=log10_Mvir and raw feature columns, MATCH
+normalization,none,n/a,none (1000/1000),none (5000/5000),serialized field plus unnormalized-value validator rules,MATCH
+top_n,1000,n/a,"num_nodes=1000 (1000/1000)",selected count and mask per snapshot,"top_n=1000; node_selection=raw Mvir descending",MATCH
+graph_storage,sparse_edge_index,n/a,"sparse_edge_index and schema camels_temporal_sparse_v1 (1000/1000)",edge_index tensor [2xE],"no dense keys or [1000x1000] tensors",MATCH
+graph_mode,knn,n/a,knn (1000/1000),knn (5000/5000),edge invariants checked,MATCH
+k,8,n/a,not duplicated at universe level,8 (5000/5000),sidecar and every snapshot,MATCH
+periodic,true,n/a,true (1000/1000),"periodic_boundary=true and periodic_boundary_knn=true (5000/5000)",sidecar and every record,MATCH
+box_size,25.0,n/a,25.0 (1000/1000),25.0 (5000/5000),sidecar and every record,MATCH
+target_table,outputs/target_inspection_1000u.csv,n/a,scalar target per universe,n/a,"SHA256 9692a97760ee0e3a97cf3293f1b73911ee0a1af028617f03fe85f88f431703c2; exact 1000-ID float32 match",MATCH
+source_manifest,full_sha256 camels_source_manifest_v1,n/a,snapshot path names match manifest plan,snapshot paths match expected names,"5001 entries; SHA256 ba22c3611a70763566ffb38a20f9b5a36fb6c1a27c3ad8030c4a7e189ce87618; verified_full_sha256",MATCH
+dataset_checksum,6a794c38216175212ec969283fdbd214bcdc64caecde78d24b81545e681a332a,n/a,n/a,n/a,completion marker and recomputed SHA256,MATCH
