@@ -84,6 +84,8 @@ import torch.nn as nn
 from torch.utils.data import DataLoader, Dataset
 
 from src.models.evolvegcn_h import EvolveGCNHRegressor, count_parameters
+from src.training.sparse_batch import collate_sparse_temporal, sparse_batch_to
+from src.training.split_manifest import load_split_manifest
 
 
 # ============================================================
@@ -146,12 +148,14 @@ class CamelsTemporalDataset(Dataset):
         universe_id = self.universe_ids[index]
         sample = self.data_dict[universe_id]
 
-        required_keys = ["A_list", "Nodes_list", "mask_list", "target"]
+        sparse = "edge_index_list" in sample
+        required_keys = ["Nodes_list", "mask_list", "target"]
+        required_keys.append("edge_index_list" if sparse else "A_list")
         for key in required_keys:
             if key not in sample:
                 raise KeyError(f"{universe_id}: missing required key {key}")
 
-        A_seq = torch.stack(sample["A_list"], dim=0).float()
+        A_seq = sample if sparse else torch.stack(sample["A_list"], dim=0).float()
         X_seq = torch.stack(sample["Nodes_list"], dim=0).float()
         mask_seq = torch.stack(sample["mask_list"], dim=0).float()
 
@@ -348,6 +352,14 @@ def collate_fn(batch):
     """
     universe_ids = [item[0] for item in batch]
 
+    if isinstance(batch[0][1], dict):
+        sparse_temporal = collate_sparse_temporal([item[1] for item in batch])
+        target = torch.stack([item[4] for item in batch], dim=0)
+        if len(batch[0]) == 6:
+            summary_features = torch.stack([item[5] for item in batch], dim=0)
+            return universe_ids, sparse_temporal, None, None, target, summary_features
+        return universe_ids, sparse_temporal, None, None, target
+
     A_seq = torch.stack([item[1] for item in batch], dim=0)
     X_seq = torch.stack([item[2] for item in batch], dim=0)
     mask_seq = torch.stack([item[3] for item in batch], dim=0)
@@ -464,19 +476,24 @@ def create_loaders(
     test_ratio: float,
     use_summary_features: bool = False,
     summary_feature_scaler_eps: float = 1e-6,
+    split_manifest_path: str | Path | None = None,
+    dataset_identity: str | None = None,
 ):
     """
     Create train, validation, and test DataLoaders.
     """
     universe_ids = sorted(data.keys(), key=universe_sort_key)
 
-    train_ids, val_ids, test_ids = split_universes(
-        universe_ids=universe_ids,
-        seed=seed,
-        train_ratio=train_ratio,
-        val_ratio=val_ratio,
-        test_ratio=test_ratio,
-    )
+    if split_manifest_path is not None:
+        manifest = load_split_manifest(split_manifest_path, universe_ids, dataset_identity or "")
+        train_ids = list(manifest["train_ids"])
+        val_ids = list(manifest["val_ids"])
+        test_ids = list(manifest["test_ids"])
+    else:
+        train_ids, val_ids, test_ids = split_universes(
+            universe_ids=universe_ids, seed=seed, train_ratio=train_ratio,
+            val_ratio=val_ratio, test_ratio=test_ratio,
+        )
 
     summary_feature_mean = None
     summary_feature_std = None
@@ -513,7 +530,7 @@ def create_loaders(
     train_loader = DataLoader(
         train_dataset,
         batch_size=batch_size,
-        shuffle=True,
+        shuffle=split_manifest_path is None,
         collate_fn=collate_fn,
     )
 
@@ -548,15 +565,22 @@ def create_loaders(
 # ============================================================
 
 def validate_example_batch(
-    A_seq: torch.Tensor,
-    X_seq: torch.Tensor,
-    mask_seq: torch.Tensor,
+    A_seq,
+    X_seq,
+    mask_seq,
     target: torch.Tensor,
     summary_features: torch.Tensor | None = None,
 ) -> None:
     """
     Validate one example batch before training.
     """
+    if isinstance(A_seq, dict):
+        snapshots = A_seq.get("snapshots", [])
+        if not snapshots or any(graph["edge_index"].shape[0] != 2 for graph in snapshots):
+            raise ValueError("Invalid sparse temporal example batch.")
+        if target.ndim != 2 or target.shape[1] != 1:
+            raise ValueError(f"Expected target [B,1], got {tuple(target.shape)}")
+        return
     if A_seq.ndim != 4:
         raise ValueError(f"Expected A_seq [B, T, N, N], got {tuple(A_seq.shape)}")
 
@@ -621,9 +645,9 @@ def validate_example_batch(
 
 
 def move_batch_to_device(
-    A_seq: torch.Tensor,
-    X_seq: torch.Tensor,
-    mask_seq: torch.Tensor,
+    A_seq,
+    X_seq,
+    mask_seq,
     target: torch.Tensor,
     device: torch.device,
     summary_features: torch.Tensor | None = None,
@@ -631,9 +655,12 @@ def move_batch_to_device(
     """
     Move batch tensors to selected device.
     """
-    A_seq = A_seq.to(device)
-    X_seq = X_seq.to(device)
-    mask_seq = mask_seq.to(device)
+    if isinstance(A_seq, dict):
+        A_seq = sparse_batch_to(A_seq, device)
+    else:
+        A_seq = A_seq.to(device)
+        X_seq = X_seq.to(device)
+        mask_seq = mask_seq.to(device)
     target = target.to(device)
 
     if summary_features is not None:
@@ -958,6 +985,8 @@ def train_evolvegcn_h(
     grad_clip_norm: float = 1.0,
     use_summary_features: bool = False,
     normalize_target: bool = False,
+    split_manifest_path: str | Path | None = None,
+    dataset_identity: str | None = None,
     device_name: str = "auto",
 ) -> Dict[str, Any]:
     """
@@ -1005,6 +1034,7 @@ def train_evolvegcn_h(
     print(f"Grad clip norm:     {grad_clip_norm}")
     print(f"Summary features:   {use_summary_features}")
     print(f"Normalize target:   {normalize_target}")
+    print(f"Split manifest:     {split_manifest_path}")
     print("=" * 90)
 
     data = load_temporal_dataset(dataset_path)
@@ -1029,6 +1059,8 @@ def train_evolvegcn_h(
         test_ratio=test_ratio,
         use_summary_features=use_summary_features,
         summary_feature_scaler_eps=summary_feature_scaler_eps,
+        split_manifest_path=split_manifest_path,
+        dataset_identity=dataset_identity,
     )
 
     target_mean = None
@@ -1051,7 +1083,12 @@ def train_evolvegcn_h(
         summary_features=summary_features,
     )
 
-    _, num_snapshots, num_nodes, node_features = X_seq.shape
+    if isinstance(A_seq, dict):
+        num_snapshots = int(A_seq["num_timesteps"])
+        num_nodes = max(int(graph["x"].shape[0]) for graph in A_seq["snapshots"])
+        node_features = int(A_seq["snapshots"][0]["x"].shape[1])
+    else:
+        _, num_snapshots, num_nodes, node_features = X_seq.shape
     summary_feature_dim = 0
 
     if summary_features is not None:
@@ -1067,9 +1104,7 @@ def train_evolvegcn_h(
     print(f"Num snapshots:       {num_snapshots}")
     print(f"Num nodes:           {num_nodes}")
     print(f"Node features:       {node_features}")
-    print(f"Example A_seq:       {tuple(A_seq.shape)}")
-    print(f"Example X_seq:       {tuple(X_seq.shape)}")
-    print(f"Example mask_seq:    {tuple(mask_seq.shape)}")
+    print(f"Example graph:       {'sparse_edge_index' if isinstance(A_seq, dict) else tuple(A_seq.shape)}")
     print(f"Example target:      {tuple(target.shape)}")
     print(f"Summary features:    {use_summary_features}")
     print(f"Summary feature dim: {summary_feature_dim}")
@@ -1182,6 +1217,8 @@ def train_evolvegcn_h(
         "train_ids": train_ids,
         "val_ids": val_ids,
         "test_ids": test_ids,
+        "split_source": str(split_manifest_path) if split_manifest_path else "generated_from_seed_and_ratios",
+        "dataset_identity": dataset_identity,
         "trainable_parameters": trainable_params,
     }
 
@@ -1351,6 +1388,10 @@ def main() -> None:
     )
 
     parser.add_argument("--dataset_path", type=str, required=True)
+    parser.add_argument("--split_manifest_path", type=str, default=None,
+                        help="Optional immutable split manifest with ordered IDs and verified hashes.")
+    parser.add_argument("--dataset_identity", type=str, default=None,
+                        help="Dataset checksum/identity required by --split_manifest_path.")
     parser.add_argument("--experiment_name", type=str, required=True)
     parser.add_argument("--output_root", type=str, default="experiments")
 
@@ -1461,6 +1502,8 @@ def main() -> None:
         grad_clip_norm=args.grad_clip_norm,
         use_summary_features=args.use_summary_features,
         normalize_target=args.normalize_target,
+        split_manifest_path=args.split_manifest_path,
+        dataset_identity=args.dataset_identity,
         device_name=args.device,
     )
 

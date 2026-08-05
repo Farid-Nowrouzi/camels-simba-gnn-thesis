@@ -1,0 +1,8 @@
+risk_id,severity,risk,evidence,mitigation,status
+SR01,medium,"exact row-streamed kNN is O(R^2) time","no dense allocation remains but every source evaluates R distances","pilot production build runtime before authorization; memory is O(R+E)",controlled
+SR02,low,"system Python lacks project dependencies","system probe missed pandas while project venv contains pandas/PyG/torch-sparse","use envs/camels-gnn/bin/python; no installation performed",controlled
+SR03,low,"CUDA unavailable in validation environment","expected CUDA initialization warning during backward","CPU equivalence passed; production resource pilot remains separate",environment
+SR04,medium,"source-manifest hash uses ordered path/size/mtime records rather than full catalogue content","full hashing 5000 large catalogues is outside this bounded refactor","review source manifest policy before production build; raw root is immutable by policy",controlled
+SR05,low,"legacy dense Top-N ordering becomes deterministic","equal-mass order was previously unspecified","scientific raw-Mvir semantics preserved; old serialized datasets untouched",accepted
+SR06,low,"sparse master is eagerly loaded","projected sparse representation is O(U*T*(N*F+E)), not dense O(U*T*N^2)",measure production pilot RSS before build authorization",controlled
+SR07,low,"atomic writer restarts monolithic interrupted builds from scratch rather than resuming shards","partial targets are detected and never accepted","safe explicit-overwrite restart is implemented; add verified shards only if production timing requires",controlled

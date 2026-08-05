@@ -33,10 +33,12 @@ Current thesis setting:
     - Target = Omega_m
 """
 
-from typing import Literal, Optional
+from typing import Any, Dict, List, Literal, Optional
 
 import torch
 import torch.nn as nn
+
+from src.models.static_gcn import normalize_sparse_edges, sparse_graph_pool, sparse_message
 
 
 # ============================================================
@@ -397,6 +399,35 @@ class EvolveGCNHLayer(nn.Module):
 
         return H_seq
 
+    def forward_sparse(self, snapshots: List[Dict[str, Any]]) -> List[torch.Tensor]:
+        """Sparse equivalent of `forward`, retaining per-graph GRU weight states."""
+        if not snapshots:
+            raise ValueError("Sparse Evolve input requires at least one snapshot.")
+        batch_size = int(snapshots[0]["num_graphs"])
+        current_weight = self.initial_weight.reshape(1, -1).expand(batch_size, -1)
+        outputs: List[torch.Tensor] = []
+        for graph in snapshots:
+            if int(graph["num_graphs"]) != batch_size:
+                raise ValueError("Sparse snapshot batch sizes do not match.")
+            X_t = graph["x"].float()
+            batch = graph["batch"].long()
+            if X_t.ndim != 2 or X_t.shape[1] != self.in_features:
+                raise ValueError(
+                    f"Expected sparse x [total_nodes,{self.in_features}], got {tuple(X_t.shape)}"
+                )
+            graph_summary = sparse_graph_pool(X_t, batch, batch_size, "mean")
+            current_weight = self.weight_evolver(graph_summary, current_weight)
+            W_t = current_weight.reshape(batch_size, self.in_features, self.out_features)
+            support = torch.bmm(X_t.unsqueeze(1), W_t[batch]).squeeze(1)
+            edge_index, edge_weight = normalize_sparse_edges(
+                graph["edge_index"], X_t.shape[0], graph.get("edge_weight"), self.add_self_loops
+            )
+            H_t = sparse_message(edge_index, edge_weight, support) + self.bias
+            if self.activation:
+                H_t = self.activation_layer(H_t)
+            outputs.append(self.dropout(H_t))
+        return outputs
+
 
 # ============================================================
 # EvolveGCN-H regressor
@@ -586,8 +617,8 @@ class EvolveGCNHRegressor(nn.Module):
 
     def forward(
         self,
-        A_seq: torch.Tensor,
-        X_seq: torch.Tensor,
+        A_seq: torch.Tensor | Dict[str, Any],
+        X_seq: Optional[torch.Tensor] = None,
         mask_seq: Optional[torch.Tensor] = None,
         summary_features: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
@@ -611,6 +642,27 @@ class EvolveGCNHRegressor(nn.Module):
             prediction:
                 Regression prediction [B, 1].
         """
+        if isinstance(A_seq, dict):
+            sparse_batch = A_seq
+            snapshots = sparse_batch.get("snapshots")
+            if not isinstance(snapshots, list) or not snapshots:
+                raise ValueError("Sparse temporal batch must contain snapshots.")
+            current = snapshots
+            for layer in self.layers:
+                outputs = layer.forward_sparse(current)
+                current = [dict(graph, x=output) for graph, output in zip(current, outputs)]
+            pooled = [
+                sparse_graph_pool(
+                    graph["x"], graph["batch"].long(), int(graph["num_graphs"]), self.graph_pooling
+                )
+                for graph in current
+            ]
+            graph_seq = torch.stack(pooled, dim=1)
+            universe_embedding = self.temporal_pool(graph_seq)
+            return self._regress(universe_embedding, summary_features)
+
+        if X_seq is None:
+            raise ValueError("Dense Evolve input requires X_seq.")
         validate_temporal_inputs(
             A_seq=A_seq,
             X_seq=X_seq,
@@ -635,6 +687,13 @@ class EvolveGCNHRegressor(nn.Module):
 
         universe_embedding = self.temporal_pool(graph_seq)
 
+        return self._regress(universe_embedding, summary_features)
+
+    def _regress(
+        self,
+        universe_embedding: torch.Tensor,
+        summary_features: Optional[torch.Tensor],
+    ) -> torch.Tensor:
         if self.summary_feature_dim > 0:
             if summary_features is None:
                 raise ValueError(
@@ -671,9 +730,7 @@ class EvolveGCNHRegressor(nn.Module):
                 "summary_features were provided, but summary_feature_dim is 0."
             )
 
-        prediction = self.regressor(universe_embedding)
-
-        return prediction
+        return self.regressor(universe_embedding)
 
 
 # ============================================================

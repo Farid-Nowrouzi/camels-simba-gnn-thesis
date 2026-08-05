@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
@@ -34,6 +35,10 @@ import torch
 # ============================================================
 
 PREPROCESSING_VERSION = "v2_logmass_minmax_top100_periodic_knn"
+SPARSE_SCHEMA_VERSION = "camels_temporal_sparse_v1"
+GRAPH_STORAGE_DENSE = "dense_adjacency"
+GRAPH_STORAGE_SPARSE = "sparse_edge_index"
+HALO_ID_COLUMN = "col_1"
 
 DEFAULT_BOX_SIZE = 25.0
 
@@ -140,6 +145,8 @@ def clean_halo_dataframe(df: pd.DataFrame) -> pd.DataFrame:
     ]
 
     df = df.copy()
+    if "_original_row_index" not in df.columns:
+        df["_original_row_index"] = np.arange(len(df), dtype=np.int64)
 
     # Replace infinities only in required columns, then remove invalid rows.
     df[required_columns] = df[required_columns].replace([np.inf, -np.inf], np.nan)
@@ -171,13 +178,44 @@ def select_top_halos(
             f"Available columns: {list(df.columns)}"
         )
 
-    selected = (
-        df.sort_values(by=mass_column, ascending=False)
-        .head(num_nodes)
-        .reset_index(drop=True)
-    )
+    tie_column = HALO_ID_COLUMN if HALO_ID_COLUMN in df.columns else "_original_row_index"
+    if tie_column not in df.columns:
+        working = df.copy()
+        working["_original_row_index"] = np.arange(len(working), dtype=np.int64)
+        tie_column = "_original_row_index"
+    else:
+        working = df
+
+    selected = working.sort_values(
+        by=[mass_column, tie_column],
+        ascending=[False, True],
+        kind="mergesort",
+    ).head(num_nodes).reset_index(drop=True)
+    selected.attrs["selection_tie_column"] = tie_column
+    selected.attrs["selection_method"] = "raw_Mvir_desc_stable_then_tie_key_asc"
 
     return selected
+
+
+def selection_provenance(df_selected: pd.DataFrame) -> Dict[str, object]:
+    """Return deterministic selected-key/rank hashes without changing feature tensors."""
+    tie_column = str(df_selected.attrs.get("selection_tie_column", "_original_row_index"))
+    if tie_column not in df_selected.columns:
+        tie_column = HALO_ID_COLUMN if HALO_ID_COLUMN in df_selected.columns else "_original_row_index"
+    keys = [str(value) for value in df_selected[tie_column].tolist()]
+    ranks = list(range(1, len(keys) + 1))
+    payload = "".join(f"{rank}\t{key}\n" for rank, key in zip(ranks, keys))
+    return {
+        "selection_method": "raw_Mvir_desc_stable_then_tie_key_asc",
+        "tie_breaking_policy": (
+            "authoritative_halo_id_ascending" if tie_column == HALO_ID_COLUMN
+            else "stable_original_row_index_ascending"
+        ),
+        "selection_key_column": tie_column,
+        "selected_halo_keys": keys,
+        "raw_mass_rank": ranks,
+        "selection_hash_sha256": hashlib.sha256(payload.encode("utf-8")).hexdigest(),
+    }
 
 
 def build_node_features(
@@ -449,6 +487,63 @@ def build_knn_adjacency(
     return adjacency
 
 
+def build_sparse_knn_edge_index(
+    positions: np.ndarray,
+    mask: np.ndarray,
+    k: int = 8,
+    periodic_boundary: bool = True,
+    box_size: float = DEFAULT_BOX_SIZE,
+    tie_keys: Optional[np.ndarray] = None,
+) -> np.ndarray:
+    """Build exact deterministic symmetric kNN edges with O(R+E) peak storage.
+
+    For each of R real nodes, only one `[R,3]` displacement row and `[R]`
+    squared-distance row are live. Total distance work is O(R^2); no `[R,R]`
+    distance matrix or `[R,R,3]` displacement cube is created.
+
+    Edge convention is `[source, target]`. The graph is symmetrized, contains
+    no duplicates or self-loops, excludes padding, and is lexicographically
+    ordered by `(source, target)`.
+    """
+    if positions.ndim != 2 or positions.shape[1] != 3:
+        raise ValueError(f"positions must have shape [N,3], got {positions.shape}")
+    if k <= 0:
+        raise ValueError("k must be positive.")
+    if periodic_boundary and box_size <= 0:
+        raise ValueError("box_size must be positive for periodic kNN.")
+
+    valid_indices = np.flatnonzero(mask.reshape(-1) > 0).astype(np.int64)
+    real_count = valid_indices.size
+    if real_count <= 1:
+        return np.empty((2, 0), dtype=np.int64)
+    valid_positions = positions[valid_indices].astype(np.float64, copy=False)
+    if tie_keys is None:
+        keys = np.arange(real_count, dtype=np.int64)
+    else:
+        keys = np.asarray(tie_keys)[:real_count]
+        if keys.shape[0] != real_count:
+            raise ValueError("tie_keys length must equal the number of real nodes.")
+    effective_k = min(k, real_count - 1)
+    edge_pairs: set[tuple[int, int]] = set()
+
+    for local_i in range(real_count):
+        diff = valid_positions - valid_positions[local_i]
+        if periodic_boundary:
+            abs_diff = np.abs(diff)
+            diff = np.minimum(abs_diff, box_size - abs_diff)
+        distance_sq = np.einsum("ij,ij->i", diff, diff)
+        distance_sq[local_i] = np.inf
+        order = np.lexsort((keys, distance_sq))[:effective_k]
+        global_i = int(valid_indices[local_i])
+        for local_j in order:
+            global_j = int(valid_indices[int(local_j)])
+            edge_pairs.add((global_i, global_j))
+            edge_pairs.add((global_j, global_i))
+
+    ordered = sorted(edge_pairs)
+    return np.asarray(ordered, dtype=np.int64).T if ordered else np.empty((2, 0), dtype=np.int64)
+
+
 def build_radius_adjacency(
     positions: np.ndarray,
     mask: np.ndarray,
@@ -631,6 +726,7 @@ def process_snapshot(
     periodic_boundary: bool = True,
     box_size: float = DEFAULT_BOX_SIZE,
     device: str = "cpu",
+    graph_storage: str = GRAPH_STORAGE_DENSE,
 ) -> Dict[str, object]:
     """
     Process one snapshot file into graph tensors.
@@ -692,22 +788,35 @@ def process_snapshot(
         num_nodes=num_nodes,
     )
 
-    adjacency = build_adjacency(
-        positions=positions_padded,
-        mask=mask,
-        graph_mode=graph_mode,
-        k=k,
-        radius=radius,
-        periodic_boundary=periodic_boundary,
-        box_size=box_size,
-    )
+    if graph_storage not in {GRAPH_STORAGE_DENSE, GRAPH_STORAGE_SPARSE}:
+        raise ValueError(f"Unknown graph_storage: {graph_storage}")
+    if graph_storage == GRAPH_STORAGE_SPARSE and graph_mode != "knn":
+        raise ValueError("The sparse path currently supports graph_mode='knn' only.")
+
+    selection = selection_provenance(df_selected)
+    adjacency = None
+    edge_index = None
+    if graph_storage == GRAPH_STORAGE_DENSE:
+        adjacency = build_adjacency(
+            positions=positions_padded, mask=mask, graph_mode=graph_mode, k=k,
+            radius=radius, periodic_boundary=periodic_boundary, box_size=box_size,
+        )
+    else:
+        edge_index = build_sparse_knn_edge_index(
+            positions=positions_padded,
+            mask=mask,
+            k=k,
+            periodic_boundary=periodic_boundary,
+            box_size=box_size,
+            tie_keys=np.arange(selected_num_halos, dtype=np.int64),
+        )
 
     if X_padded.shape != (num_nodes, 7):
         raise ValueError(
             f"Expected X shape {(num_nodes, 7)}, got {X_padded.shape}"
         )
 
-    if adjacency.shape != (num_nodes, num_nodes):
+    if adjacency is not None and adjacency.shape != (num_nodes, num_nodes):
         raise ValueError(
             f"Expected A shape {(num_nodes, num_nodes)}, got {adjacency.shape}"
         )
@@ -720,15 +829,13 @@ def process_snapshot(
     if not np.isfinite(X_padded).all():
         raise ValueError(f"NaN or Inf found in X after preprocessing: {path}")
 
-    if not np.isfinite(adjacency).all():
+    if adjacency is not None and not np.isfinite(adjacency).all():
         raise ValueError(f"NaN or Inf found in adjacency after preprocessing: {path}")
 
-    A_tensor = torch.tensor(adjacency, dtype=torch.float32, device=device)
     X_tensor = torch.tensor(X_padded, dtype=torch.float32, device=device)
     mask_tensor = torch.tensor(mask, dtype=torch.float32, device=device)
 
-    return {
-        "A": A_tensor,
+    result = {
         "X": X_tensor,
         "mask": mask_tensor,
         "path": str(path),
@@ -754,7 +861,17 @@ def process_snapshot(
         "periodic_boundary": periodic_boundary,
         "periodic_boundary_knn": bool(periodic_boundary and graph_mode.lower() == "knn"),
         "box_size": box_size,
+        "graph_storage": graph_storage,
+        "schema_version": SPARSE_SCHEMA_VERSION if graph_storage == GRAPH_STORAGE_SPARSE else None,
+        "num_real_nodes": selected_num_halos,
+        **selection,
     }
+    if adjacency is not None:
+        result["A"] = torch.tensor(adjacency, dtype=torch.float32, device=device)
+    else:
+        result["edge_index"] = torch.tensor(edge_index, dtype=torch.long, device=device)
+        result["edge_weight"] = None
+    return result
 
 
 def build_universe_sequence(
@@ -770,6 +887,7 @@ def build_universe_sequence(
     periodic_boundary: bool = True,
     box_size: float = DEFAULT_BOX_SIZE,
     device: str = "cpu",
+    graph_storage: str = GRAPH_STORAGE_DENSE,
 ) -> Dict[str, object]:
     """
     Build a temporal graph sequence for one universe.
@@ -791,6 +909,7 @@ def build_universe_sequence(
     )
 
     A_list = []
+    edge_index_list = []
     Nodes_list = []
     mask_list = []
     snapshots = []
@@ -806,9 +925,13 @@ def build_universe_sequence(
             periodic_boundary=periodic_boundary,
             box_size=box_size,
             device=device,
+            graph_storage=graph_storage,
         )
 
-        A_list.append(snapshot["A"])
+        if graph_storage == GRAPH_STORAGE_DENSE:
+            A_list.append(snapshot["A"])
+        else:
+            edge_index_list.append(snapshot["edge_index"])
         Nodes_list.append(snapshot["X"])
         mask_list.append(snapshot["mask"])
 
@@ -833,6 +956,10 @@ def build_universe_sequence(
                 "periodic_boundary": snapshot["periodic_boundary"],
                 "periodic_boundary_knn": snapshot["periodic_boundary_knn"],
                 "box_size": snapshot["box_size"],
+                "num_real_nodes": snapshot["num_real_nodes"],
+                "selection_hash_sha256": snapshot["selection_hash_sha256"],
+                "tie_breaking_policy": snapshot["tie_breaking_policy"],
+                "selected_halo_keys": snapshot["selected_halo_keys"],
             }
         )
 
@@ -842,8 +969,7 @@ def build_universe_sequence(
         device=torch.device(device),
     )
 
-    return {
-        "A_list": A_list,
+    result = {
         "Nodes_list": Nodes_list,
         "mask_list": mask_list,
         "target": target_tensor,
@@ -865,4 +991,12 @@ def build_universe_sequence(
         "periodic_boundary": periodic_boundary,
         "periodic_boundary_knn": bool(periodic_boundary and graph_mode.lower() == "knn"),
         "box_size": box_size,
+        "graph_storage": graph_storage,
+        "schema_version": SPARSE_SCHEMA_VERSION if graph_storage == GRAPH_STORAGE_SPARSE else None,
     }
+    if graph_storage == GRAPH_STORAGE_DENSE:
+        result["A_list"] = A_list
+    else:
+        result["edge_index_list"] = edge_index_list
+        result["edge_weight_list"] = None
+    return result

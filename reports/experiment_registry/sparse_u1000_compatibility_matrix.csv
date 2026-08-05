@@ -1,0 +1,14 @@
+surface,legacy_dense_behavior,sparse_behavior,default,validation,status
+builder,"A_list dense output and direct legacy serialization remain available","edge_index_list with atomic writer and resource checks",dense_adjacency,"signature/default and dense model regression test",pass
+Top-N,"raw-Mvir prefix semantics preserved","stable raw-Mvir descending then halo-ID/original-row key",legacy call uses deterministic improvement,selection tests,pass
+temporal_loader,"existing dense dictionaries load unchanged","sparse dictionaries load without conversion",auto by keys,trainer loader tests,pass
+Evolve_collate,"[B,T,N,N] and padded X/mask stacks","five disconnected sparse snapshot batches",auto by keys,variable-node/five-snapshot test,pass
+Static_collate,"[B,N,N] and padded X/mask stacks","one disconnected sparse batch",auto by keys,variable-node test,pass
+Static_model,"dense positional A/X/mask path unchanged","same parameters with sparse normalization/index_add",dense positional API,forward/gradient equivalence,pass
+Evolve_model,"dense positional A_seq/X_seq/mask_seq path unchanged","same GRU weights/layers/pooling/head with sparse messages",dense positional API,layer/forward/gradient equivalence,pass
+Static_final_snapshot,"A_list[-1] view preserved","edge_index_list[-1] view plus snapshot identity",temporal_final_snapshot explicit,identity test,pass
+internal_split,"historical seeded ratio split preserved","same when no manifest",internal split,legacy behavior inspection,pass
+external_split_config,"Static historical train/val/test config remains","still supported",optional,existing code path,pass
+external_split_manifest,"not previously available","both trainers verify identity/count/order/hash/overlap/missing/duplicates/parent",optional,trainer integration tests,pass
+output,"legacy dense direct save retained for historical compatibility","lock/temp/validate/checksum/fsync/rename/complete",mode dependent,atomic tests and smoke,pass
+existing_configs,"no graph_storage key required","future config opts into sparse_edge_index",dense_adjacency,CLI help and compilation,pass

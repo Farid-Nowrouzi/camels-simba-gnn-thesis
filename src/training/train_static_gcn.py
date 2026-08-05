@@ -79,6 +79,8 @@ import torch.nn as nn
 from torch.utils.data import DataLoader, Dataset
 
 from src.models.static_gcn import StaticGCNRegressor, count_parameters
+from src.training.sparse_batch import collate_sparse_static, sparse_batch_to
+from src.training.split_manifest import load_split_manifest
 
 
 # ============================================================
@@ -129,16 +131,24 @@ class CamelsStaticGraphDataset(Dataset):
         universe_id = self.universe_ids[index]
         sample = self.data_dict[universe_id]
 
+        target = sample["target"]
+        if not torch.is_tensor(target):
+            target = torch.tensor(float(target), dtype=torch.float32)
+        target = target.float().view(1)
+
+        if "edge_index" in sample:
+            graph = {
+                "graph_storage": "sparse_edge_index",
+                "x": sample["X"].float(),
+                "edge_index": sample["edge_index"].long(),
+                "edge_weight": sample.get("edge_weight"),
+                "mask": sample["mask"].float(),
+            }
+            return universe_id, graph, None, None, target
+
         A = sample["A"].float()
         X = sample["X"].float()
         mask = sample["mask"].float()
-
-        target = sample["target"]
-
-        if not torch.is_tensor(target):
-            target = torch.tensor(float(target), dtype=torch.float32)
-
-        target = target.float().view(1)
 
         return universe_id, A, X, mask, target
 
@@ -148,6 +158,11 @@ def collate_fn(batch):
     Custom collate function because universe_id is a string.
     """
     universe_ids = [item[0] for item in batch]
+
+    if isinstance(batch[0][1], dict):
+        graph = collate_sparse_static([item[1] for item in batch])
+        target = torch.stack([item[4] for item in batch], dim=0)
+        return universe_ids, graph, None, None, target
 
     A = torch.stack([item[1] for item in batch], dim=0)
     X = torch.stack([item[2] for item in batch], dim=0)
@@ -199,12 +214,15 @@ def convert_temporal_final_snapshot_to_static(
     static_data: Dict[str, Dict[str, Any]] = {}
 
     for universe_id, sample in data.items():
-        required_keys = ["A_list", "Nodes_list", "mask_list", "target"]
+        sparse = "edge_index_list" in sample
+        required_keys = ["Nodes_list", "mask_list", "target"]
+        required_keys.append("edge_index_list" if sparse else "A_list")
         for key in required_keys:
             if key not in sample:
                 raise KeyError(f"{universe_id}: missing required key {key}")
 
-        if len(sample["A_list"]) == 0:
+        graph_list = sample["edge_index_list"] if sparse else sample["A_list"]
+        if len(graph_list) == 0:
             raise ValueError(f"{universe_id}: A_list is empty.")
 
         if len(sample["Nodes_list"]) == 0:
@@ -213,12 +231,21 @@ def convert_temporal_final_snapshot_to_static(
         if len(sample["mask_list"]) == 0:
             raise ValueError(f"{universe_id}: mask_list is empty.")
 
-        static_data[universe_id] = {
-            "A": sample["A_list"][-1],
+        converted = {
             "X": sample["Nodes_list"][-1],
             "mask": sample["mask_list"][-1],
             "target": sample["target"],
+            "universe_id": universe_id,
+            "snapshot": sample.get("snapshots", [None])[-1],
         }
+        if sparse:
+            converted["edge_index"] = sample["edge_index_list"][-1]
+            weights = sample.get("edge_weight_list")
+            converted["edge_weight"] = None if weights is None else weights[-1]
+            converted["graph_storage"] = "sparse_edge_index"
+        else:
+            converted["A"] = sample["A_list"][-1]
+        static_data[universe_id] = converted
 
     return static_data
 
@@ -393,13 +420,22 @@ def create_loaders(
     val_ratio: float,
     test_ratio: float,
     split_config_path: str | Path | None = None,
+    split_manifest_path: str | Path | None = None,
+    dataset_identity: str | None = None,
 ):
     """
     Create train, validation, and test DataLoaders.
     """
     universe_ids = sorted(data.keys(), key=universe_sort_key)
 
-    if split_config_path is not None:
+    if split_config_path is not None and split_manifest_path is not None:
+        raise ValueError("Use only one of split_config_path and split_manifest_path.")
+    if split_manifest_path is not None:
+        manifest = load_split_manifest(split_manifest_path, universe_ids, dataset_identity or "")
+        train_ids = list(manifest["train_ids"])
+        val_ids = list(manifest["val_ids"])
+        test_ids = list(manifest["test_ids"])
+    elif split_config_path is not None:
         split_config = load_split_config(split_config_path)
         train_ids = list(split_config["train_ids"])
         val_ids = list(split_config["val_ids"])
@@ -426,7 +462,7 @@ def create_loaders(
     train_loader = DataLoader(
         train_dataset,
         batch_size=batch_size,
-        shuffle=True,
+        shuffle=split_manifest_path is None,
         collate_fn=collate_fn,
     )
 
@@ -452,18 +488,21 @@ def create_loaders(
 # ============================================================
 
 def move_batch_to_device(
-    A: torch.Tensor,
-    X: torch.Tensor,
-    mask: torch.Tensor,
+    A,
+    X,
+    mask,
     target: torch.Tensor,
     device: torch.device,
 ):
     """
     Move batch tensors to selected device.
     """
-    A = A.to(device)
-    X = X.to(device)
-    mask = mask.to(device)
+    if isinstance(A, dict):
+        A = sparse_batch_to(A, device)
+    else:
+        A = A.to(device)
+        X = X.to(device)
+        mask = mask.to(device)
     target = target.to(device)
 
     return A, X, mask, target
@@ -702,6 +741,8 @@ def train_static_gcn(
     output_root: str | Path = "experiments",
     dataset_format: str = "static",
     split_config_path: str | Path | None = None,
+    split_manifest_path: str | Path | None = None,
+    dataset_identity: str | None = None,
     seed: int = 123,
     batch_size: int = 8,
     epochs: int = 300,
@@ -761,6 +802,7 @@ def train_static_gcn(
     print(f"Conv type:          {conv_type}")
     print(f"Grad clip norm:     {grad_clip_norm}")
     print(f"Split config path:  {split_config_path}")
+    print(f"Split manifest:     {split_manifest_path}")
     print("=" * 90)
 
     data = load_dataset(
@@ -776,17 +818,21 @@ def train_static_gcn(
         val_ratio=val_ratio,
         test_ratio=test_ratio,
         split_config_path=split_config_path,
+        split_manifest_path=split_manifest_path,
+        dataset_identity=dataset_identity,
     )
 
     _, A_example, X_example, mask_example, target_example = next(iter(train_loader))
 
-    batch_size_real, num_nodes, _ = A_example.shape
-    _, num_nodes_x, node_features = X_example.shape
-
-    if num_nodes != num_nodes_x:
-        raise ValueError(
-            f"Node mismatch between A and X: A nodes={num_nodes}, X nodes={num_nodes_x}"
-        )
+    if isinstance(A_example, dict):
+        batch_size_real = int(A_example["num_graphs"])
+        num_nodes = int(A_example["x"].shape[0])
+        node_features = int(A_example["x"].shape[1])
+    else:
+        batch_size_real, num_nodes, _ = A_example.shape
+        _, num_nodes_x, node_features = X_example.shape
+        if num_nodes != num_nodes_x:
+            raise ValueError(f"Node mismatch between A and X: A nodes={num_nodes}, X nodes={num_nodes_x}")
 
     print()
     print("Data summary")
@@ -797,9 +843,7 @@ def train_static_gcn(
     print(f"Test universes:      {len(test_ids)}")
     print(f"Num nodes:           {num_nodes}")
     print(f"Node features:       {node_features}")
-    print(f"Example A:           {tuple(A_example.shape)}")
-    print(f"Example X:           {tuple(X_example.shape)}")
-    print(f"Example mask:        {tuple(mask_example.shape)}")
+    print(f"Example graph:       {'sparse_edge_index' if isinstance(A_example, dict) else tuple(A_example.shape)}")
     print(f"Example target:      {tuple(target_example.shape)}")
 
     print()
@@ -866,10 +910,11 @@ def train_static_gcn(
         "val_ratio": val_ratio,
         "test_ratio": test_ratio,
         "split_source": (
-            str(split_config_path)
-            if split_config_path is not None
+            str(split_manifest_path or split_config_path)
+            if split_manifest_path is not None or split_config_path is not None
             else "generated_from_seed_and_ratios"
         ),
+        "dataset_identity": dataset_identity,
         "grad_clip_norm": grad_clip_norm,
         "device": str(device),
         "num_total_universes": len(data),
@@ -1042,6 +1087,10 @@ def main() -> None:
         default=None,
         help="Optional config.json containing train_ids, val_ids, and test_ids to reuse.",
     )
+    parser.add_argument("--split_manifest_path", type=str, default=None,
+                        help="Optional immutable split manifest with hashes and dataset identity.")
+    parser.add_argument("--dataset_identity", type=str, default=None,
+                        help="Dataset checksum/identity required by --split_manifest_path.")
     parser.add_argument("--experiment_name", type=str, required=True)
     parser.add_argument("--output_root", type=str, default="experiments")
 
@@ -1093,6 +1142,8 @@ def main() -> None:
         output_root=args.output_root,
         dataset_format=args.dataset_format,
         split_config_path=args.split_config_path,
+        split_manifest_path=args.split_manifest_path,
+        dataset_identity=args.dataset_identity,
         seed=args.seed,
         batch_size=args.batch_size,
         epochs=args.epochs,

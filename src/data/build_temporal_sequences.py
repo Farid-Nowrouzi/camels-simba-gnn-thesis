@@ -72,7 +72,12 @@ python -m src.data.build_temporal_sequences \\
 """
 
 import argparse
+import hashlib
 import json
+import platform
+import shutil
+import subprocess
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
@@ -88,7 +93,11 @@ from src.data.camels_graph_utils import (
     PREPROCESSING_VERSION,
     VELOCITY_COLUMNS,
     build_universe_sequence,
+    GRAPH_STORAGE_DENSE,
+    GRAPH_STORAGE_SPARSE,
+    SPARSE_SCHEMA_VERSION,
 )
+from src.data.atomic_dataset import atomic_write_sparse_dataset
 
 
 # ============================================================
@@ -349,27 +358,23 @@ def validate_temporal_sequence_tensors(
     """
     Validate shapes and tensor quality for one universe sequence.
     """
-    required_keys = [
-        "A_list",
-        "Nodes_list",
-        "mask_list",
-        "target",
-        "snapshots",
-    ]
+    sparse = sequence.get("graph_storage") == GRAPH_STORAGE_SPARSE
+    graph_key = "edge_index_list" if sparse else "A_list"
+    required_keys = [graph_key, "Nodes_list", "mask_list", "target", "snapshots"]
 
     for key in required_keys:
         if key not in sequence:
             raise ValueError(f"{universe_key}: missing required key: {key}")
 
-    A_list = sequence["A_list"]
+    graph_list = sequence[graph_key]
     X_list = sequence["Nodes_list"]
     mask_list = sequence["mask_list"]
     snapshots = sequence["snapshots"]
 
-    if len(A_list) != num_snapshots:
+    if len(graph_list) != num_snapshots:
         raise ValueError(
             f"{universe_key}: expected {num_snapshots} adjacency matrices, "
-            f"got {len(A_list)}"
+            f"got {len(graph_list)}"
         )
 
     if len(X_list) != num_snapshots:
@@ -398,10 +403,10 @@ def validate_temporal_sequence_tensors(
 
     snapshot_values = []
 
-    for snapshot_index, (A, X, mask, snapshot_meta) in enumerate(
-        zip(A_list, X_list, mask_list, snapshots)
+    for snapshot_index, (graph, X, mask, snapshot_meta) in enumerate(
+        zip(graph_list, X_list, mask_list, snapshots)
     ):
-        if not torch.is_tensor(A):
+        if not torch.is_tensor(graph):
             raise TypeError(
                 f"{universe_key}, snapshot {snapshot_index}: A is not a tensor."
             )
@@ -416,11 +421,11 @@ def validate_temporal_sequence_tensors(
                 f"{universe_key}, snapshot {snapshot_index}: mask is not a tensor."
             )
 
-        if tuple(A.shape) != (num_nodes, num_nodes):
-            raise ValueError(
-                f"{universe_key}, snapshot {snapshot_index}: "
-                f"A shape {tuple(A.shape)} != ({num_nodes}, {num_nodes})"
-            )
+        if sparse:
+            if graph.dtype != torch.long or graph.ndim != 2 or graph.shape[0] != 2:
+                raise ValueError(f"{universe_key}, snapshot {snapshot_index}: invalid edge_index")
+        elif tuple(graph.shape) != (num_nodes, num_nodes):
+            raise ValueError(f"{universe_key}, snapshot {snapshot_index}: invalid dense A shape")
 
         if tuple(X.shape) != (num_nodes, expected_features):
             raise ValueError(
@@ -434,12 +439,12 @@ def validate_temporal_sequence_tensors(
                 f"mask shape {tuple(mask.shape)} != ({num_nodes}, 1)"
             )
 
-        if torch.isnan(A.float()).any():
+        if torch.isnan(graph.float()).any():
             raise ValueError(
                 f"{universe_key}, snapshot {snapshot_index}: A contains NaN values."
             )
 
-        if torch.isinf(A.float()).any():
+        if torch.isinf(graph.float()).any():
             raise ValueError(
                 f"{universe_key}, snapshot {snapshot_index}: A contains Inf values."
             )
@@ -470,25 +475,28 @@ def validate_temporal_sequence_tensors(
                 f"{universe_key}, snapshot {snapshot_index}: mask indicates zero real nodes."
             )
 
-        nonzero_edges = int((A > 0).sum().item())
+        nonzero_edges = graph.shape[1] if sparse else int((graph > 0).sum().item())
         if nonzero_edges == 0:
             raise ValueError(
                 f"{universe_key}, snapshot {snapshot_index}: graph has no edges."
             )
 
-        symmetry_error = float(torch.abs(A.float() - A.float().T).sum().item())
-        if symmetry_error != 0.0:
-            raise ValueError(
-                f"{universe_key}, snapshot {snapshot_index}: adjacency is not symmetric. "
-                f"Symmetry error={symmetry_error}"
-            )
-
-        diag_nonzero = int((torch.diag(A.float()) > 0).sum().item())
-        if diag_nonzero != 0:
-            raise ValueError(
-                f"{universe_key}, snapshot {snapshot_index}: adjacency has self-loops. "
-                f"diag_nonzero={diag_nonzero}"
-            )
+        if sparse:
+            pairs = {tuple(pair) for pair in graph.T.tolist()}
+            if len(pairs) != graph.shape[1]:
+                raise ValueError(f"{universe_key}, snapshot {snapshot_index}: duplicate sparse edges")
+            if any(source == target for source, target in pairs):
+                raise ValueError(f"{universe_key}, snapshot {snapshot_index}: sparse self-loop")
+            if any((target, source) not in pairs for source, target in pairs):
+                raise ValueError(f"{universe_key}, snapshot {snapshot_index}: asymmetric sparse edges")
+            if graph.numel() and (int(graph.min()) < 0 or int(graph.max()) >= real_nodes):
+                raise ValueError(f"{universe_key}, snapshot {snapshot_index}: edge reaches padding")
+        else:
+            symmetry_error = float(torch.abs(graph.float() - graph.float().T).sum().item())
+            if symmetry_error != 0.0:
+                raise ValueError(f"{universe_key}, snapshot {snapshot_index}: adjacency is not symmetric")
+            if int((torch.diag(graph.float()) > 0).sum().item()) != 0:
+                raise ValueError(f"{universe_key}, snapshot {snapshot_index}: adjacency has self-loops")
 
         if normalization == "minmax":
             x_min = float(X.min().item())
@@ -574,6 +582,9 @@ def build_temporal_dataset(
     dummy_target: Optional[float] = None,
     device: str = "cpu",
     allow_partial: bool = False,
+    graph_storage: str = GRAPH_STORAGE_DENSE,
+    overwrite: bool = False,
+    force_unsafe_dense: bool = False,
 ) -> Dict[str, Any]:
     """
     Build temporal graph sequences from raw CAMELS-SIMBA halo catalogs.
@@ -642,6 +653,17 @@ def build_temporal_dataset(
 
     if num_nodes <= 0:
         raise ValueError("num_nodes must be positive.")
+    if graph_storage not in {GRAPH_STORAGE_DENSE, GRAPH_STORAGE_SPARSE}:
+        raise ValueError("graph_storage must be dense_adjacency or sparse_edge_index.")
+    if graph_storage == GRAPH_STORAGE_DENSE and num_nodes > 512 and not force_unsafe_dense:
+        raise ValueError(
+            "Dense graph storage above 512 nodes is blocked by the resource guard; "
+            "use sparse_edge_index or explicitly pass --force_unsafe_dense."
+        )
+    estimated_sparse_bytes = num_universes * num_snapshots * (num_nodes * 7 * 4 + 2 * num_nodes * k * 2 * 8)
+    free_bytes = shutil.disk_usage(output_path.parent if output_path.parent.exists() else raw_dir).free
+    if graph_storage == GRAPH_STORAGE_SPARSE and free_bytes < estimated_sparse_bytes * 2 + 1024 * 1024:
+        raise OSError("Insufficient disk space for sparse temporary output plus safety margin.")
 
     if graph_mode == "knn" and k <= 0:
         raise ValueError("k must be positive when graph_mode='knn'.")
@@ -698,6 +720,8 @@ def build_temporal_dataset(
     print(f"Number nodes:          {num_nodes}")
     print(f"Normalization:         {normalization}")
     print(f"Graph mode:            {graph_mode}")
+    print(f"Graph storage:         {graph_storage}")
+    print(f"Overwrite:             {overwrite}")
     print(f"k:                     {k}")
     print(f"Radius:                {radius}")
     print(f"Periodic boundary:     {periodic_boundary}")
@@ -746,6 +770,7 @@ def build_temporal_dataset(
                 periodic_boundary=periodic_boundary,
                 box_size=box_size,
                 device=device,
+                graph_storage=graph_storage,
             )
 
             validate_full_temporal_sample(
@@ -762,7 +787,7 @@ def build_temporal_dataset(
             sequence = tensor_to_cpu(sequence)
             dataset[universe_key] = sequence
 
-            first_a = sequence["A_list"][0]
+            first_a = sequence["edge_index_list"][0] if graph_storage == GRAPH_STORAGE_SPARSE else sequence["A_list"][0]
             first_x = sequence["Nodes_list"][0]
             first_mask = sequence["mask_list"][0]
 
@@ -814,8 +839,6 @@ def build_temporal_dataset(
             f"but built {len(dataset)}."
         )
 
-    torch.save(dataset, output_path)
-
     target_values = [
         safe_float(sample["target"])
         for sample in dataset.values()
@@ -860,10 +883,83 @@ def build_temporal_dataset(
             "mean": sum(target_values) / len(target_values),
         },
         "failed_universes": failed_universes,
+        "dataset_schema_version": SPARSE_SCHEMA_VERSION if graph_storage == GRAPH_STORAGE_SPARSE else "legacy_dense_v1",
+        "graph_storage": graph_storage,
+        "source_suite": "CAMELS-SIMBA",
+        "ordered_universe_ids": list(dataset),
+        "ordered_universe_ids_hash": hashlib.sha256("".join(f"{key}\n" for key in dataset).encode()).hexdigest(),
+        "snapshot_ids": [item["snapshot_value"] for item in next(iter(dataset.values()))["snapshots"]],
+        "top_n": num_nodes,
+        "selection_method": "raw_Mvir_desc_stable_then_tie_key_asc",
+        "tie_breaking_policy": "authoritative_halo_id_ascending_else_original_row_index",
+        "target_normalization": "none",
+        "edge_policy": "directed_k_choices_symmetrized_unique_no_builder_self_loops",
+        "python_version": platform.python_version(),
+        "pytorch_version": torch.__version__,
+        "pyg_version": None,
+        "creation_timestamp_utc": datetime.now(timezone.utc).isoformat(),
     }
 
+    config_material = {key: metadata[key] for key in (
+        "num_universes_requested", "num_snapshots", "num_nodes", "normalization",
+        "graph_mode", "k", "radius", "periodic_boundary", "box_size", "graph_storage",
+    )}
+    metadata["builder_config_hash"] = hashlib.sha256(
+        json.dumps(config_material, sort_keys=True, separators=(",", ":")).encode()
+    ).hexdigest()
+    source_rows = []
+    for sample in dataset.values():
+        for snapshot in sample["snapshots"]:
+            source_path = Path(snapshot["path"])
+            stat = source_path.stat()
+            source_rows.append(f"{source_path}\t{stat.st_size}\t{stat.st_mtime_ns}\n")
+    metadata["source_manifest_hash"] = hashlib.sha256("".join(source_rows).encode()).hexdigest()
+    selection_hashes = [
+        meta["selection_hash_sha256"]
+        for sample in dataset.values() for meta in sample["snapshots"]
+    ]
+    metadata["selected_halo_hash"] = hashlib.sha256(
+        "".join(f"{value}\n" for value in selection_hashes).encode()
+    ).hexdigest()
+    metadata["raw_catalogue_roots"] = [str(raw_dir)]
+    try:
+        metadata["git_commit"] = subprocess.check_output(
+            ["git", "rev-parse", "HEAD"], text=True, stderr=subprocess.DEVNULL
+        ).strip()
+    except (OSError, subprocess.CalledProcessError):
+        metadata["git_commit"] = "unknown"
+
+    node_counts = [int(meta["num_real_nodes"]) for sample in dataset.values() for meta in sample["snapshots"]]
+    edge_counts = [
+        int(edges.shape[1]) for sample in dataset.values() for edges in sample.get("edge_index_list", [])
+    ]
+    metadata["node_padding_statistics"] = {
+        "real_min": min(node_counts), "real_max": max(node_counts),
+        "real_mean": sum(node_counts) / len(node_counts),
+        "padded_total": sum(num_nodes - count for count in node_counts),
+    }
+    metadata["edge_statistics"] = (
+        {"directed_min": min(edge_counts), "directed_max": max(edge_counts), "directed_mean": sum(edge_counts) / len(edge_counts)}
+        if edge_counts else {"representation": "dense_adjacency"}
+    )
+
+    if graph_storage == GRAPH_STORAGE_SPARSE:
+        metadata = atomic_write_sparse_dataset(
+            dataset, output_path, metadata,
+            validate=lambda value: [
+                validate_full_temporal_sample(
+                    key, sample, num_snapshots, num_nodes, normalization,
+                    graph_mode, periodic_boundary, box_size,
+                ) for key, sample in value.items()
+            ],
+            overwrite=overwrite,
+        )
+    else:
+        torch.save(dataset, output_path)
+
     metadata_path = output_path.with_suffix(".metadata.json")
-    save_json(metadata_path, metadata)
+    if graph_storage == GRAPH_STORAGE_DENSE:
+        save_json(metadata_path, metadata)
 
     print()
     print("=" * 90)
@@ -912,6 +1008,13 @@ def main() -> None:
         required=True,
         help="Raw CAMELS-SIMBA halo catalog directory.",
     )
+    parser.add_argument(
+        "--graph_storage", choices=[GRAPH_STORAGE_DENSE, GRAPH_STORAGE_SPARSE],
+        default=GRAPH_STORAGE_DENSE,
+        help="Legacy dense adjacency (default) or optional sparse edge_index schema.",
+    )
+    parser.add_argument("--overwrite", action="store_true", help="Replace an existing sparse output explicitly.")
+    parser.add_argument("--force_unsafe_dense", action="store_true", help="Permit dense storage above the guarded Top-N threshold.")
 
     parser.add_argument(
         "--output_path",
@@ -1043,6 +1146,9 @@ def main() -> None:
         dummy_target=args.dummy_target,
         device=args.device,
         allow_partial=args.allow_partial,
+        graph_storage=args.graph_storage,
+        overwrite=args.overwrite,
+        force_unsafe_dense=args.force_unsafe_dense,
     )
 
 

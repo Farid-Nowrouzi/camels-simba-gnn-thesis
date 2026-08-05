@@ -61,7 +61,7 @@ This is the standard GCN-style normalized message passing operation.
 """
 
 import math
-from typing import Literal, Optional
+from typing import Any, Dict, Literal, Optional, Tuple
 
 import torch
 import torch.nn as nn
@@ -174,6 +174,66 @@ def normalize_adjacency(
     )
 
     return A_norm
+
+
+def normalize_sparse_edges(
+    edge_index: torch.Tensor,
+    num_nodes: int,
+    edge_weight: Optional[torch.Tensor] = None,
+    add_self_loops: bool = True,
+    eps: float = 1e-8,
+) -> Tuple[torch.Tensor, torch.Tensor]:
+    """Coalesce and symmetrically normalize sparse edges like dense `A + I`."""
+    edge_index = edge_index.long()
+    values = (
+        torch.ones(edge_index.shape[1], device=edge_index.device, dtype=torch.float32)
+        if edge_weight is None else edge_weight.float()
+    )
+    if add_self_loops:
+        nodes = torch.arange(num_nodes, device=edge_index.device)
+        edge_index = torch.cat([edge_index, torch.stack([nodes, nodes])], dim=1)
+        values = torch.cat([values, torch.ones(num_nodes, device=values.device)])
+    sparse = torch.sparse_coo_tensor(edge_index, values, (num_nodes, num_nodes)).coalesce()
+    indices = sparse.indices()
+    values = sparse.values()
+    # edge convention: source -> target; row/target degree matches dense A.sum(-1)
+    source, target = indices[0], indices[1]
+    degree = torch.zeros(num_nodes, device=values.device, dtype=values.dtype)
+    degree.index_add_(0, target, values)
+    norm = values * (degree[target] + eps).pow(-0.5) * (degree[source] + eps).pow(-0.5)
+    return indices, norm
+
+
+def sparse_message(
+    edge_index: torch.Tensor,
+    edge_weight: torch.Tensor,
+    features: torch.Tensor,
+) -> torch.Tensor:
+    source, target = edge_index[0], edge_index[1]
+    output = torch.zeros_like(features)
+    output.index_add_(0, target, features[source] * edge_weight.unsqueeze(-1))
+    return output
+
+
+def sparse_graph_pool(
+    features: torch.Tensor,
+    batch: torch.Tensor,
+    num_graphs: int,
+    mode: str,
+) -> torch.Tensor:
+    summed = torch.zeros((num_graphs, features.shape[-1]), device=features.device, dtype=features.dtype)
+    summed.index_add_(0, batch, features)
+    counts = torch.bincount(batch, minlength=num_graphs).to(features.dtype).clamp(min=1).unsqueeze(-1)
+    mean = summed / counts
+    if mode == "mean":
+        return mean
+    max_values = torch.full_like(summed, torch.finfo(features.dtype).min)
+    max_values.scatter_reduce_(0, batch.unsqueeze(-1).expand_as(features), features, reduce="amax", include_self=True)
+    if mode == "max":
+        return max_values
+    if mode == "mean_max":
+        return torch.cat([mean, max_values], dim=-1)
+    raise ValueError(f"Unknown graph pooling mode: {mode}")
 
 
 def masked_mean_pool(
@@ -561,8 +621,8 @@ class StaticGCNRegressor(nn.Module):
 
     def encode_nodes(
         self,
-        A: torch.Tensor,
-        X: torch.Tensor,
+        A: torch.Tensor | Dict[str, Any],
+        X: Optional[torch.Tensor] = None,
         mask: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
         """
@@ -576,6 +636,25 @@ class StaticGCNRegressor(nn.Module):
         Returns:
             H: node embeddings [B, N, hidden_dim]
         """
+        if isinstance(A, dict):
+            if self.conv_type != "gcn":
+                raise ValueError("Sparse Static support preserves the canonical conv_type='gcn' only.")
+            graph = A
+            X_sparse = graph["x"].float()
+            H = self.input_norm(self.input_dropout(self.input_activation(self.input_projection(X_sparse))))
+            edge_index, edge_weight = normalize_sparse_edges(
+                graph["edge_index"], H.shape[0], graph.get("edge_weight"), self.add_self_loops
+            )
+            for layer in self.layers:
+                H_in = H
+                H = layer.linear(sparse_message(edge_index, edge_weight, H))
+                H = layer.layer_norm(layer.dropout(layer.activation(H)))
+                if layer.use_residual:
+                    H = H + H_in
+            return H
+
+        if X is None:
+            raise ValueError("Dense Static input requires X.")
         validate_static_batch(A=A, X=X, mask=mask)
 
         if self.conv_type == "gcn":
@@ -625,8 +704,8 @@ class StaticGCNRegressor(nn.Module):
 
     def forward(
         self,
-        A: torch.Tensor,
-        X: torch.Tensor,
+        A: torch.Tensor | Dict[str, Any],
+        X: Optional[torch.Tensor] = None,
         mask: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
         """
@@ -641,7 +720,12 @@ class StaticGCNRegressor(nn.Module):
             prediction: Tensor [B, 1]
         """
         node_embeddings = self.encode_nodes(A=A, X=X, mask=mask)
-        graph_embedding = self.pool_graph(node_embeddings, mask)
+        if isinstance(A, dict):
+            graph_embedding = sparse_graph_pool(
+                node_embeddings, A["batch"].long(), int(A["num_graphs"]), self.graph_pooling
+            )
+        else:
+            graph_embedding = self.pool_graph(node_embeddings, mask)
         prediction = self.regressor(graph_embedding)
 
         return prediction
