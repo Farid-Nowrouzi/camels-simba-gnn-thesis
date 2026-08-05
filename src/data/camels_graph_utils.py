@@ -20,7 +20,7 @@ import torch
 # scale_of_last_MM(15), vmax(16),
 # X/Y/Z(17,18,19), VX/VY/VZ(20,21,22), ...
 #
-# Official thesis preprocessing version:
+# Legacy compatibility label used by historical static/single-snapshot tools:
 #   v2_logmass_minmax_top100_periodic_knn
 #
 # Scientific preprocessing rule:
@@ -41,6 +41,34 @@ GRAPH_STORAGE_SPARSE = "sparse_edge_index"
 HALO_ID_COLUMN = "col_1"
 
 DEFAULT_BOX_SIZE = 25.0
+
+
+def preprocessing_version_for_config(
+    *,
+    num_nodes: int,
+    normalization: str,
+    graph_mode: str,
+    k: int,
+    radius: Optional[float],
+    periodic_boundary: bool,
+    box_size: float,
+    graph_storage: str,
+) -> str:
+    """Return a provenance label derived entirely from effective build settings."""
+    boundary = "periodic" if periodic_boundary else "nonperiodic"
+    box = f"{float(box_size):g}"
+    if graph_mode == "knn":
+        graph = f"knn_k{int(k)}"
+    elif graph_mode == "radius":
+        if radius is None:
+            raise ValueError("radius is required when graph_mode='radius'")
+        graph = f"radius_r{float(radius):g}"
+    else:
+        raise ValueError(f"Unknown graph_mode: {graph_mode}")
+    return (
+        f"v3_logmass_{normalization}_top{int(num_nodes)}_{boundary}_"
+        f"{graph}_box{box}_{graph_storage}"
+    )
 
 MASS_COLUMN = "col_10"
 
@@ -908,6 +936,17 @@ def build_universe_sequence(
         num_snapshots=num_snapshots,
     )
 
+    preprocessing_version = preprocessing_version_for_config(
+        num_nodes=num_nodes,
+        normalization=normalization,
+        graph_mode=graph_mode,
+        k=k,
+        radius=radius,
+        periodic_boundary=periodic_boundary,
+        box_size=box_size,
+        graph_storage=graph_storage,
+    )
+
     A_list = []
     edge_index_list = []
     Nodes_list = []
@@ -939,7 +978,7 @@ def build_universe_sequence(
             {
                 "path": snapshot["path"],
                 "snapshot_value": snapshot["snapshot_value"],
-                "preprocessing_version": snapshot["preprocessing_version"],
+                "preprocessing_version": preprocessing_version,
                 "feature_names": snapshot["feature_names"],
                 "mass_feature": snapshot["mass_feature"],
                 "node_selection": snapshot["node_selection"],
@@ -987,7 +1026,7 @@ def build_universe_sequence(
         "graph_positions": "raw_physical_XYZ_before_feature_normalization",
         "num_nodes": num_nodes,
         "num_snapshots": num_snapshots,
-        "preprocessing_version": PREPROCESSING_VERSION,
+        "preprocessing_version": preprocessing_version,
         "periodic_boundary": periodic_boundary,
         "periodic_boundary_knn": bool(periodic_boundary and graph_mode.lower() == "knn"),
         "box_size": box_size,

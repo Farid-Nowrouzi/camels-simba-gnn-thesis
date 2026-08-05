@@ -21,9 +21,9 @@ Each universe contains multiple snapshot graphs, usually 5 snapshots:
 This temporal dataset is used for temporal graph neural networks such as
 EvolveGCN-H.
 
-Official preprocessing
-----------------------
-    v2_logmass_minmax_top100_periodic_knn
+Preprocessing provenance
+------------------------
+The saved label is generated from the effective CLI configuration.
 
 Scientific definition
 ---------------------
@@ -90,7 +90,6 @@ from src.data.camels_graph_utils import (
     FEATURE_NAMES,
     MASS_COLUMN,
     POSITION_COLUMNS,
-    PREPROCESSING_VERSION,
     VELOCITY_COLUMNS,
     build_universe_sequence,
     choose_snapshot_files,
@@ -98,6 +97,7 @@ from src.data.camels_graph_utils import (
     GRAPH_STORAGE_DENSE,
     GRAPH_STORAGE_SPARSE,
     SPARSE_SCHEMA_VERSION,
+    preprocessing_version_for_config,
 )
 from src.data.atomic_dataset import atomic_write_sparse_dataset
 from src.data.source_manifest import (
@@ -285,15 +285,16 @@ def validate_common_sequence_metadata(
     graph_mode: str,
     periodic_boundary: bool,
     box_size: float,
+    preprocessing_version: str,
 ) -> None:
     """
     Validate scientific metadata for one temporal graph sequence.
     """
-    if sequence.get("preprocessing_version") != PREPROCESSING_VERSION:
+    if sequence.get("preprocessing_version") != preprocessing_version:
         raise ValueError(
             f"{universe_key}: unexpected preprocessing version: "
             f"{sequence.get('preprocessing_version')}. "
-            f"Expected: {PREPROCESSING_VERSION}"
+            f"Expected: {preprocessing_version}"
         )
 
     if sequence.get("feature_names") != FEATURE_NAMES:
@@ -547,6 +548,7 @@ def validate_full_temporal_sample(
     graph_mode: str,
     periodic_boundary: bool,
     box_size: float,
+    preprocessing_version: str,
 ) -> None:
     """
     Run all validations for one temporal sample.
@@ -558,6 +560,7 @@ def validate_full_temporal_sample(
         graph_mode=graph_mode,
         periodic_boundary=periodic_boundary,
         box_size=box_size,
+        preprocessing_version=preprocessing_version,
     )
 
     validate_temporal_sequence_tensors(
@@ -746,12 +749,22 @@ def build_temporal_dataset(
 
     dataset: Dict[str, Any] = {}
     failed_universes: List[tuple[str, str]] = []
+    preprocessing_version = preprocessing_version_for_config(
+        num_nodes=num_nodes,
+        normalization=normalization,
+        graph_mode=graph_mode,
+        k=k,
+        radius=radius,
+        periodic_boundary=periodic_boundary,
+        box_size=box_size,
+        graph_storage=graph_storage,
+    )
 
     print("=" * 90)
     print("CAMELS-SIMBA TEMPORAL SEQUENCE BUILDER")
     print("=" * 90)
     print(f"Dataset type:          temporal_graph_sequences")
-    print(f"Preprocessing version: {PREPROCESSING_VERSION}")
+    print(f"Preprocessing version: {preprocessing_version}")
     print(f"Raw directory:         {raw_dir}")
     print(f"Output path:           {output_path}")
     print(f"Number universes:      {num_universes}")
@@ -822,6 +835,7 @@ def build_temporal_dataset(
                 graph_mode=graph_mode,
                 periodic_boundary=periodic_boundary,
                 box_size=box_size,
+                preprocessing_version=preprocessing_version,
             )
 
             sequence = tensor_to_cpu(sequence)
@@ -886,7 +900,7 @@ def build_temporal_dataset(
 
     metadata = {
         "dataset_type": "temporal_graph_sequences",
-        "preprocessing_version": PREPROCESSING_VERSION,
+        "preprocessing_version": preprocessing_version,
         "raw_dir": str(raw_dir),
         "output_path": str(output_path),
         "num_universes_requested": num_universes,
@@ -1024,6 +1038,7 @@ def build_temporal_dataset(
                 validate_full_temporal_sample(
                     key, sample, num_snapshots, num_nodes, normalization,
                     graph_mode, periodic_boundary, box_size,
+                    preprocessing_version,
                 ) for key, sample in value.items()
             ],
             overwrite=overwrite,
@@ -1043,7 +1058,7 @@ def build_temporal_dataset(
     print(f"Saved metadata:       {metadata_path}")
     print(f"Successful universes: {len(dataset)}")
     print(f"Failed universes:     {len(failed_universes)}")
-    print(f"Preprocessing:        {PREPROCESSING_VERSION}")
+    print(f"Preprocessing:        {preprocessing_version}")
     print(f"Feature names:        {FEATURE_NAMES}")
     print("Mass feature:         log10_Mvir")
     print("Node selection:       top_num_nodes_by_raw_Mvir_descending")

@@ -18,6 +18,7 @@ from src.data.camels_graph_utils import (
     build_knn_adjacency,
     build_sparse_knn_edge_index,
     clean_halo_dataframe,
+    preprocessing_version_for_config,
     select_top_halos,
     selection_provenance,
 )
@@ -55,6 +56,27 @@ def sparse_sample(x: torch.Tensor, adjacency: torch.Tensor, mask: torch.Tensor) 
 
 
 class TopNAndKNNTests(unittest.TestCase):
+    def test_preprocessing_label_is_generated_from_effective_configuration(self) -> None:
+        production = preprocessing_version_for_config(
+            num_nodes=1000, normalization="none", graph_mode="knn", k=8,
+            radius=None, periodic_boundary=True, box_size=25.0,
+            graph_storage="sparse_edge_index",
+        )
+        ablation = preprocessing_version_for_config(
+            num_nodes=500, normalization="zscore", graph_mode="knn", k=4,
+            radius=None, periodic_boundary=False, box_size=50.0,
+            graph_storage="dense_adjacency",
+        )
+        self.assertEqual(
+            production,
+            "v3_logmass_none_top1000_periodic_knn_k8_box25_sparse_edge_index",
+        )
+        self.assertEqual(
+            ablation,
+            "v3_logmass_zscore_top500_nonperiodic_knn_k4_box50_dense_adjacency",
+        )
+        self.assertNotIn("minmax_top100", production)
+
     def frame(self) -> pd.DataFrame:
         rows = []
         masses = [8.0, 10.0, np.nan, 10.0, -1.0, 9.0]
@@ -356,6 +378,19 @@ class ManifestAtomicAndSmokeTests(unittest.TestCase):
             self.assertTrue(output.exists())
             self.assertTrue(output.with_suffix(".complete").exists())
             loaded = torch.load(output, map_location="cpu", weights_only=False)
+            expected_version = (
+                "v3_logmass_none_top16_periodic_knn_k3_box25_sparse_edge_index"
+            )
+            metadata = json.loads(output.with_suffix(".metadata.json").read_text())
+            self.assertEqual(metadata["preprocessing_version"], expected_version)
+            self.assertTrue(all(
+                sample["preprocessing_version"] == expected_version
+                for sample in loaded.values()
+            ))
+            self.assertTrue(all(
+                snapshot["preprocessing_version"] == expected_version
+                for sample in loaded.values() for snapshot in sample["snapshots"]
+            ))
             temporal_batch = collate_sparse_temporal(list(loaded.values()))
             final_static = convert_temporal_final_snapshot_to_static(loaded)
             static_batch = collate_sparse_static([
