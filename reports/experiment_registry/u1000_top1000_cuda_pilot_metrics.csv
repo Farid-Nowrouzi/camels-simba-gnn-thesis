@@ -1,0 +1,3 @@
+model,universe_id,batch_size,snapshot_count,input_shapes,node_counts,edge_counts,output_shape,forward_ms,backward_ms,loss,outputs_finite,loss_finite,gradients_finite,host_rss_mib,cuda_allocated_mib,cuda_reserved_mib,cuda_peak_allocated_mib,cuda_peak_reserved_mib,sparse_only,final_snapshot_identity,status
+EvolveGCN-H,LH_475,1,5,"5 x [1000,7]","1000;1000;1000;1000;1000","10126;10034;9852;9838;9942","[1,1]",342.089996,109.482819,316.7449951171875,true,true,true,2344.277344,43.213379,118.000000,93.262695,118.000000,true,not_applicable,PASS
+Static GCN,LH_475,1,1,"[1000,7]",1000,9942,"[1,1]",7.624800,2.081792,0.14015208184719086,true,true,true,2353.277344,16.494141,44.000000,23.371582,44.000000,true,"PASS: zero-copy final a=1.0 snapshot",PASS

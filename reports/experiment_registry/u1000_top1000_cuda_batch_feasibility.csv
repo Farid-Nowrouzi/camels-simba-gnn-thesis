@@ -1,0 +1,5 @@
+model,batch_size,mode,status,output_shape,forward_ms,host_rss_mib,cuda_allocated_mib,cuda_reserved_mib,cuda_peak_allocated_mib,cuda_peak_reserved_mib,sparse_only
+EvolveGCN-H,2,forward_only,PASS,"[2,1]",10.829824,2369.777344,31.167480,60.000000,42.246094,60.000000,true
+EvolveGCN-H,4,forward_only,PASS,"[4,1]",11.098112,2378.777344,33.072754,84.000000,55.291504,84.000000,true
+Static GCN,4,forward_only,PASS,"[4,1]",3.375840,2378.777344,17.039062,46.000000,29.562012,46.000000,true
+Static GCN,8,forward_only,PASS,"[8,1]",3.234784,2378.777344,17.805176,58.000000,42.943359,58.000000,true
