@@ -882,6 +882,7 @@ def compute_metrics(rows: List[Dict[str, float | str]]) -> Dict[str, float | int
             "mse": float("nan"),
             "rmse": float("nan"),
             "mae": float("nan"),
+            "r2": float("nan"),
             "num_samples": 0,
         }
 
@@ -891,11 +892,16 @@ def compute_metrics(rows: List[Dict[str, float | str]]) -> Dict[str, float | int
     mse = float(np.mean(squared_errors))
     rmse = float(np.sqrt(mse))
     mae = float(np.mean(absolute_errors))
+    targets = np.asarray([float(row["true_omega_m"]) for row in rows], dtype=np.float64)
+    ss_res = float(np.sum(squared_errors, dtype=np.float64))
+    ss_tot = float(np.sum((targets - np.mean(targets)) ** 2, dtype=np.float64))
+    r2 = float(1.0 - ss_res / ss_tot) if ss_tot > 0.0 else float("nan")
 
     return {
         "mse": mse,
         "rmse": rmse,
         "mae": mae,
+        "r2": r2,
         "num_samples": len(rows),
     }
 
@@ -1193,6 +1199,17 @@ def train_evolvegcn_h(
         "val_ratio": val_ratio,
         "test_ratio": test_ratio,
         "grad_clip_norm": grad_clip_norm,
+        "optimizer": "AdamW",
+        "loss": "MSELoss",
+        "scheduler": {
+            "name": "ReduceLROnPlateau",
+            "mode": "min",
+            "factor": 0.5,
+            "patience": max(patience // 4, 5),
+            "min_lr": 1e-6,
+        },
+        "checkpoint_criterion": "minimum_validation_mse",
+        "deterministic_seed_handling": True,
         "use_summary_features": use_summary_features,
         "summary_feature_dim": summary_feature_dim,
         "summary_features_normalized": bool(use_summary_features),
