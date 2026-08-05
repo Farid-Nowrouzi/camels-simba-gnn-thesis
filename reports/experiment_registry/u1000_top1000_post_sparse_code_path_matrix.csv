@@ -1,0 +1,22 @@
+stage,entry_or_function,sparse_input,sparse_output,dense_reachable_in_sparse_mode,allocation_or_behavior,result
+CLI,src.data.build_temporal_sequences.main,--graph_storage sparse_edge_index,build_temporal_dataset arguments,no,"explicit opt-in; dense_adjacency remains default",PASS
+raw_read,camels_graph_utils.read_hlist_file,catalogue path,pandas rows,no,"reads col_1; col_10; col_17..22",PASS
+cleaning,camels_graph_utils.clean_halo_dataframe,raw rows,valid rows,no,"drops nonfinite required values and Mvir<=0; records original row",PASS
+TopN,camels_graph_utils.select_top_halos,valid rows,stable ordered prefix,no,"raw Mvir descending; col_1 ascending; mergesort preserves original-row fallback",PASS
+features,camels_graph_utils.build_node_features/normalize_features/pad_nodes,selected rows,"float32 [1000,7] plus mask [1000,1]",no,"log10 Mvir and raw XYZ/VXYZ; normalization none; padded zeros",PASS
+kNN,camels_graph_utils.build_sparse_knn_edge_index,"positions [1000,3]; real mask","int64 edge_index [2,E]",no,"per-source [R,3] diff and [R] distance/order; symmetric unique sorted; no loops/padding",PASS
+temporal,camels_graph_utils.build_universe_sequence,five ordered snapshot files,edge_index_list in chronological order,no,"choose_snapshot_files sorts numeric snapshot values",PASS
+accumulation,build_temporal_sequences.build_temporal_dataset,completed universe sequences,one in-memory dictionary,no,"all U universes retained before torch.save; estimated about 1.0 GB at U1000",PASS_WITH_OPERATIONAL_NOTE
+validation,build_temporal_sequences.validate_temporal_sequence_tensors,sparse sequence,validated sequence,no,"bounds; symmetry; uniqueness; no self loops; no padded edges",PASS
+source_manifest,build_temporal_sequences.build_temporal_dataset,catalogue paths,one aggregate SHA-256,no,"hash material is path size mtime_ns only; target CSV omitted",FAIL
+atomic_write,atomic_dataset.atomic_write_sparse_dataset,in-memory dataset,".pt metadata complete",no,"same-directory temp; exclusive lock; fsync; checksum; os.replace; collision refusal",PASS
+temporal_loader,train_evolvegcn_h.CamelsTemporalDataset,sparse dictionary,sample dictionary by reference,no,"dispatches on edge_index_list; never densifies",PASS
+temporal_collate,sparse_batch.collate_sparse_temporal,variable real-node samples,five disconnected sparse batches,no,"remaps/offsets indices; drops padded nodes",PASS
+static_reuse,train_static_gcn.convert_temporal_final_snapshot_to_static,temporal sample,final sparse graph view,no,"x edge_index weight mask target snapshot are direct references",PASS
+static_collate,sparse_batch.collate_sparse_static,final sparse graph,disconnected sparse batch,no,"x [sumR,7]; edge_index [2,sumE]; batch/ptr; 1-D optional weights",PASS
+normalization,static_gcn.normalize_sparse_edges,sparse edges,"coalesced edges and float32 weights [E]",no,"adds model loops; target degree; eps-safe normalization",PASS
+Static_model,static_gcn.StaticGCNRegressor.forward,sparse batch,"prediction [B,1]",no,"index_add message passing and sparse graph pool",PASS
+Evolve_model,evolvegcn_h.EvolveGCNHRegressor.forward,five sparse batches,"prediction [B,1]",no,"preserves list order and per-layer GRU evolution; index_add message passing",PASS
+split_manifest,split_manifest.load_split_manifest,manifest plus dataset identity,ordered split IDs,no,"checks identity counts hashes duplicates overlap unknown IDs and parent prefix",PARTIAL
+split_seed_binding,both trainers create_loaders,CLI seed plus manifest seed,loaders,no,"manifest seed field is never compared with invocation seed; seed42 accepted under seed999",FAIL
+legacy_dense,all compatibility dispatch,default CLI/model positional calls,dense behavior,yes_only_when_legacy_selected,"dense functions remain reachable only through explicit/default legacy branch, not sparse branch",PASS
