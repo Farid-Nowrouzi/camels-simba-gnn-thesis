@@ -51,26 +51,26 @@ mkdir -p "${LOG_DIR}"
 
 sample_gpu() {
   local trainer_pid="$1" output="$2"
-  echo "utc,pid,used_gpu_memory_mib,gpu_utilization_percent,free_gpu_memory_mib" > "${output}"
+  echo "utc,pid,used_gpu_memory_mib,gpu_utilization_percent,free_gpu_memory_mib,host_rss_kib" > "${output}"
   while kill -0 "${trainer_pid}" 2>/dev/null; do
-    local used util free
+    local used util free rss
     used="$(nvidia-smi --query-compute-apps=pid,used_gpu_memory --format=csv,noheader,nounits | awk -F, '{gsub(/ /,"",$2); if ($2+0 > peak) peak=$2+0} END {if (peak > 0) print peak}')"
     util="$(nvidia-smi --query-gpu=utilization.gpu --format=csv,noheader,nounits | head -1 | tr -d ' ')"
     free="$(nvidia-smi --query-gpu=memory.free --format=csv,noheader,nounits | head -1 | tr -d ' ')"
-    echo "$(date -u +%FT%TZ),${trainer_pid},${used:-},${util:-},${free:-}" >> "${output}"
+    rss="$(awk '/^VmRSS:/ {print $2}' "/proc/${trainer_pid}/status" 2>/dev/null || true)"
+    echo "$(date -u +%FT%TZ),${trainer_pid},${used:-},${util:-},${free:-},${rss:-}" >> "${output}"
     sleep 5
   done
 }
 
 run_model() {
   local model="$1" exp_name="$2"; shift 2
-  local timestamp log_file time_file telemetry_file start end status trainer_pid monitor_pid max_rss
+  local timestamp log_file telemetry_file start end status trainer_pid monitor_pid max_rss
   timestamp="$(date -u +%Y%m%dT%H%M%SZ)"
   log_file="${LOG_DIR}/${model}_${timestamp}.log"
-  time_file="${LOG_DIR}/${model}_${timestamp}.time"
   telemetry_file="${LOG_DIR}/${model}_gpu_telemetry.csv"
   start="$(date +%s)"
-  /usr/bin/time -v -o "${time_file}" "$@" > "${log_file}" 2>&1 &
+  "$@" > "${log_file}" 2>&1 &
   trainer_pid=$!
   printf 'CURRENT_MODEL=%q\nTRAINER_PID=%q\nSTART_EPOCH=%q\nLOG_FILE=%q\nEXPERIMENT_DIR=%q\n' \
     "${model}" "${trainer_pid}" "${start}" "${log_file}" "${REPO_ROOT}/experiments/${exp_name}" > "${STATE_FILE}"
@@ -80,7 +80,7 @@ run_model() {
   set -e
   wait "${monitor_pid}" 2>/dev/null || true
   end="$(date +%s)"
-  max_rss="$(awk -F: '/Maximum resident set size/ {gsub(/^[[:space:]]+/,"",$2); print $2}' "${time_file}")"
+  max_rss="$(awk -F, 'NR > 1 && $6+0 > peak {peak=$6+0} END {if (peak > 0) print peak}' "${telemetry_file}")"
   python - "${LOG_DIR}/${model}_runtime.json" "$((end-start))" "${max_rss:-null}" "${status}" "${log_file}" <<'PY'
 import json,sys
 path,runtime,rss,status,log=sys.argv[1:]
