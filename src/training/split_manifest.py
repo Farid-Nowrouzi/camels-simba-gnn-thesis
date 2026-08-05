@@ -13,6 +13,18 @@ def ordered_id_hash(ids: Iterable[str]) -> str:
     return hashlib.sha256("".join(f"{item}\n" for item in ids).encode("utf-8")).hexdigest()
 
 
+def canonical_manifest_sha256(manifest: Dict[str, Any]) -> str:
+    """Hash scientific manifest content while excluding volatile creation metadata."""
+    payload = {
+        key: value for key, value in manifest.items()
+        if key not in {"canonical_manifest_sha256", "creation_metadata", "manifest_sha256"}
+    }
+    encoded = json.dumps(
+        payload, sort_keys=True, separators=(",", ":"), ensure_ascii=False,
+    ).encode("utf-8")
+    return hashlib.sha256(encoded).hexdigest()
+
+
 def _read_manifest(path: Path) -> Dict[str, Any]:
     with path.open("r", encoding="utf-8") as handle:
         return json.load(handle)
@@ -108,10 +120,13 @@ def load_split_manifest(
 
     dataset_set = set(dataset_ids)
     sets: Dict[str, set[str]] = {}
-    for name, key in (("train", "train_ids"), ("val", "val_ids"), ("test", "test_ids")):
+    partitions = [("train", "train_ids"), ("val", "val_ids"), ("test", "test_ids")]
+    if "unused_ids" in manifest:
+        partitions.append(("unused", "unused_ids"))
+    for name, key in partitions:
         ids = manifest[key]
-        if not isinstance(ids, list) or not ids:
-            raise ValueError(f"Manifest {key} must be a non-empty list.")
+        if not isinstance(ids, list) or (name != "unused" and not ids):
+            raise ValueError(f"Manifest {key} must be a list (non-empty except unused_ids).")
         if len(ids) != len(set(ids)):
             raise ValueError(f"Manifest {key} contains duplicate IDs.")
         missing_ids = [item for item in ids if item not in dataset_set]
@@ -127,10 +142,30 @@ def load_split_manifest(
             )
         sets[name] = set(ids)
 
-    for left, right in (("train", "val"), ("train", "test"), ("val", "test")):
-        overlap = sorted(sets[left] & sets[right])
-        if overlap:
-            raise ValueError(f"Manifest splits {left}/{right} overlap: {overlap[:20]}")
+    split_names = list(sets)
+    for index, left in enumerate(split_names):
+        for right in split_names[index + 1:]:
+            overlap = sorted(sets[left] & sets[right])
+            if overlap:
+                raise ValueError(f"Manifest splits {left}/{right} overlap: {overlap[:20]}")
+
+    if "unused" in sets:
+        covered = set().union(*sets.values())
+        if covered != dataset_set:
+            missing_partition_ids = sorted(dataset_set - covered)
+            raise ValueError(
+                "Manifest partitions do not cover the dataset exactly: "
+                f"missing={missing_partition_ids[:20]}"
+            )
+
+    expected_canonical_hash = manifest.get("canonical_manifest_sha256")
+    if expected_canonical_hash is not None:
+        actual_canonical_hash = canonical_manifest_sha256(manifest)
+        if expected_canonical_hash != actual_canonical_hash:
+            raise ValueError(
+                "Canonical split-manifest hash mismatch: "
+                f"expected {expected_canonical_hash}, calculated {actual_canonical_hash}"
+            )
 
     parent = manifest["parent_training_subset"]
     if parent is not None:

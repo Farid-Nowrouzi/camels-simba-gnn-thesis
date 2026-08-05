@@ -1,0 +1,421 @@
+{
+  "manifest_count": 18,
+  "manifests": [
+    {
+      "counts": {
+        "population": 1000,
+        "test": 201,
+        "train": 20,
+        "unused": 680,
+        "val": 99
+      },
+      "dataset_sha256": "6a794c38216175212ec969283fdbd214bcdc64caecde78d24b81545e681a332a",
+      "manifest_sha256": "78ae197a5a3d723e0ab6192b89b078e25783d937aae4a45a945bb135976a5055",
+      "parent_sha256": null,
+      "partition_hashes": {
+        "test": "bb0ebc3a94dc385121094b1ef3372b09095f417eb56df4e0320bd94328511405",
+        "train": "ec55b18393051b2ff424f04df44d85e5b8af283e16f6afac9db0e44f0bfd794b",
+        "unused": "c0ffc34eec265440228eb6ab3764f532b25fde7718dc6c9b6b510cc75f2cd91a",
+        "val": "b3504d7eda165cd7523a3d206100f99fb03944f0bbf63b102cd02945b9a9c880"
+      },
+      "path": "configs/splits/u1000_top1000_none_k8_sparse/seed42_train20.json",
+      "seed": 42,
+      "target_sha256": "9692a97760ee0e3a97cf3293f1b73911ee0a1af028617f03fe85f88f431703c2",
+      "training_level": "Train20",
+      "validation_result": "PASS"
+    },
+    {
+      "counts": {
+        "population": 1000,
+        "test": 201,
+        "train": 50,
+        "unused": 650,
+        "val": 99
+      },
+      "dataset_sha256": "6a794c38216175212ec969283fdbd214bcdc64caecde78d24b81545e681a332a",
+      "manifest_sha256": "8de5c3cb742657fb0549d7f7acefc95d7bbfdca7ea673b8731c981b030cd6ee6",
+      "parent_sha256": "78ae197a5a3d723e0ab6192b89b078e25783d937aae4a45a945bb135976a5055",
+      "partition_hashes": {
+        "test": "bb0ebc3a94dc385121094b1ef3372b09095f417eb56df4e0320bd94328511405",
+        "train": "2143ddc06588483a0c873258d484ca7f9bc7e75a979a19c066e22fc5c532e244",
+        "unused": "68212fba3b09d0c9f30a944d773f13d2159152e96631e3167116350a53aa7929",
+        "val": "b3504d7eda165cd7523a3d206100f99fb03944f0bbf63b102cd02945b9a9c880"
+      },
+      "path": "configs/splits/u1000_top1000_none_k8_sparse/seed42_train50.json",
+      "seed": 42,
+      "target_sha256": "9692a97760ee0e3a97cf3293f1b73911ee0a1af028617f03fe85f88f431703c2",
+      "training_level": "Train50",
+      "validation_result": "PASS"
+    },
+    {
+      "counts": {
+        "population": 1000,
+        "test": 201,
+        "train": 100,
+        "unused": 600,
+        "val": 99
+      },
+      "dataset_sha256": "6a794c38216175212ec969283fdbd214bcdc64caecde78d24b81545e681a332a",
+      "manifest_sha256": "d184669284dd8c569c1124c2e3f73cf3bb6df7a5a7e2c4a8af39470e7b290699",
+      "parent_sha256": "8de5c3cb742657fb0549d7f7acefc95d7bbfdca7ea673b8731c981b030cd6ee6",
+      "partition_hashes": {
+        "test": "bb0ebc3a94dc385121094b1ef3372b09095f417eb56df4e0320bd94328511405",
+        "train": "9c323a9b7c4ea31fa07179e767a712d8e43488d91d44cd1b395f30325a4d1ab3",
+        "unused": "0ee93b7de2af33e14722c06a5d594ef27550635c14ad5008e0e473d21021df89",
+        "val": "b3504d7eda165cd7523a3d206100f99fb03944f0bbf63b102cd02945b9a9c880"
+      },
+      "path": "configs/splits/u1000_top1000_none_k8_sparse/seed42_train100.json",
+      "seed": 42,
+      "target_sha256": "9692a97760ee0e3a97cf3293f1b73911ee0a1af028617f03fe85f88f431703c2",
+      "training_level": "Train100",
+      "validation_result": "PASS"
+    },
+    {
+      "counts": {
+        "population": 1000,
+        "test": 201,
+        "train": 200,
+        "unused": 500,
+        "val": 99
+      },
+      "dataset_sha256": "6a794c38216175212ec969283fdbd214bcdc64caecde78d24b81545e681a332a",
+      "manifest_sha256": "21cf230eb1b7ff1c813aa61a3798db4e2b5bb5d68a8dead8c78543921ec562e8",
+      "parent_sha256": "d184669284dd8c569c1124c2e3f73cf3bb6df7a5a7e2c4a8af39470e7b290699",
+      "partition_hashes": {
+        "test": "bb0ebc3a94dc385121094b1ef3372b09095f417eb56df4e0320bd94328511405",
+        "train": "e8129e1886ff99147e5a49f74cb6b0d9d5270092ee075cfc96a8ebe6cb9733f5",
+        "unused": "71b6f136db26e253c5573d7808eba9d29607635b26b95f08d3a81e7c8498de04",
+        "val": "b3504d7eda165cd7523a3d206100f99fb03944f0bbf63b102cd02945b9a9c880"
+      },
+      "path": "configs/splits/u1000_top1000_none_k8_sparse/seed42_train200.json",
+      "seed": 42,
+      "target_sha256": "9692a97760ee0e3a97cf3293f1b73911ee0a1af028617f03fe85f88f431703c2",
+      "training_level": "Train200",
+      "validation_result": "PASS"
+    },
+    {
+      "counts": {
+        "population": 1000,
+        "test": 201,
+        "train": 450,
+        "unused": 250,
+        "val": 99
+      },
+      "dataset_sha256": "6a794c38216175212ec969283fdbd214bcdc64caecde78d24b81545e681a332a",
+      "manifest_sha256": "7f4fdb3a65c563b32f352c3515a73414270902b17cfcf74d404fea9760fc0b85",
+      "parent_sha256": "21cf230eb1b7ff1c813aa61a3798db4e2b5bb5d68a8dead8c78543921ec562e8",
+      "partition_hashes": {
+        "test": "bb0ebc3a94dc385121094b1ef3372b09095f417eb56df4e0320bd94328511405",
+        "train": "2da4582a3ef63f790c89d01ef3bf46321d666853c8bae692af5ab9edcd553457",
+        "unused": "c207c72a6e679b4afd2e6615e3b8393a68faf7e39851aa6c95b6eb9b450f738a",
+        "val": "b3504d7eda165cd7523a3d206100f99fb03944f0bbf63b102cd02945b9a9c880"
+      },
+      "path": "configs/splits/u1000_top1000_none_k8_sparse/seed42_train450.json",
+      "seed": 42,
+      "target_sha256": "9692a97760ee0e3a97cf3293f1b73911ee0a1af028617f03fe85f88f431703c2",
+      "training_level": "Train450",
+      "validation_result": "PASS"
+    },
+    {
+      "counts": {
+        "population": 1000,
+        "test": 201,
+        "train": 700,
+        "unused": 0,
+        "val": 99
+      },
+      "dataset_sha256": "6a794c38216175212ec969283fdbd214bcdc64caecde78d24b81545e681a332a",
+      "manifest_sha256": "c35f03cc40a044ecb9c11a7e4bc951e94feb02929498998e662d2774c444bb6a",
+      "parent_sha256": "7f4fdb3a65c563b32f352c3515a73414270902b17cfcf74d404fea9760fc0b85",
+      "partition_hashes": {
+        "test": "bb0ebc3a94dc385121094b1ef3372b09095f417eb56df4e0320bd94328511405",
+        "train": "2d984737c655efa5000c00f9f9185176bb394943c65970e4ba2fa057047c125b",
+        "unused": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "val": "b3504d7eda165cd7523a3d206100f99fb03944f0bbf63b102cd02945b9a9c880"
+      },
+      "path": "configs/splits/u1000_top1000_none_k8_sparse/seed42_train700.json",
+      "seed": 42,
+      "target_sha256": "9692a97760ee0e3a97cf3293f1b73911ee0a1af028617f03fe85f88f431703c2",
+      "training_level": "Train700",
+      "validation_result": "PASS"
+    },
+    {
+      "counts": {
+        "population": 1000,
+        "test": 201,
+        "train": 20,
+        "unused": 680,
+        "val": 99
+      },
+      "dataset_sha256": "6a794c38216175212ec969283fdbd214bcdc64caecde78d24b81545e681a332a",
+      "manifest_sha256": "dbb45c577f232265a138060028ddb2164262e64eb8b7008919e10dace72b0f65",
+      "parent_sha256": null,
+      "partition_hashes": {
+        "test": "1c9a2a141e3250b81595a9dc275f1eb5877f23506e13158e4b7296758231f0bf",
+        "train": "58cd85f410197e9371d4995835a607fd8200b9005238cd87cc4e656d0f623866",
+        "unused": "22859cedc48d706f2c4d8e9ba789731f1e6b4ffff8207a85051ac37e49f5af2e",
+        "val": "2e73c457617b7b3830e90af7e1a4b3ddd0807abebb6626b6d761ed6fd6001961"
+      },
+      "path": "configs/splits/u1000_top1000_none_k8_sparse/seed123_train20.json",
+      "seed": 123,
+      "target_sha256": "9692a97760ee0e3a97cf3293f1b73911ee0a1af028617f03fe85f88f431703c2",
+      "training_level": "Train20",
+      "validation_result": "PASS"
+    },
+    {
+      "counts": {
+        "population": 1000,
+        "test": 201,
+        "train": 50,
+        "unused": 650,
+        "val": 99
+      },
+      "dataset_sha256": "6a794c38216175212ec969283fdbd214bcdc64caecde78d24b81545e681a332a",
+      "manifest_sha256": "3707a92ede3547701c3bbf4303642c480e54ede1d31ac1303ba0600b1fdf70c0",
+      "parent_sha256": "dbb45c577f232265a138060028ddb2164262e64eb8b7008919e10dace72b0f65",
+      "partition_hashes": {
+        "test": "1c9a2a141e3250b81595a9dc275f1eb5877f23506e13158e4b7296758231f0bf",
+        "train": "0615947a9d3bccbeb46cc298a98a848cec49a32a9fcb2207ce37e3291771d0ee",
+        "unused": "92a78279a89073226a2d999e0acc85189fa552e0ea22bbc65ad2ec914b1f6353",
+        "val": "2e73c457617b7b3830e90af7e1a4b3ddd0807abebb6626b6d761ed6fd6001961"
+      },
+      "path": "configs/splits/u1000_top1000_none_k8_sparse/seed123_train50.json",
+      "seed": 123,
+      "target_sha256": "9692a97760ee0e3a97cf3293f1b73911ee0a1af028617f03fe85f88f431703c2",
+      "training_level": "Train50",
+      "validation_result": "PASS"
+    },
+    {
+      "counts": {
+        "population": 1000,
+        "test": 201,
+        "train": 100,
+        "unused": 600,
+        "val": 99
+      },
+      "dataset_sha256": "6a794c38216175212ec969283fdbd214bcdc64caecde78d24b81545e681a332a",
+      "manifest_sha256": "3bf9951b0c7162a831556280499340e42a3fbff648c29a292e75c61d4e5fac9b",
+      "parent_sha256": "3707a92ede3547701c3bbf4303642c480e54ede1d31ac1303ba0600b1fdf70c0",
+      "partition_hashes": {
+        "test": "1c9a2a141e3250b81595a9dc275f1eb5877f23506e13158e4b7296758231f0bf",
+        "train": "3ea30e25944a263d4169f56eecf9f4ad25933a85241e20a6b9d1416d303e9310",
+        "unused": "e89aaa97c4bb0aa8fbe636774dcf3aeaff3d51188174710c5293ec9820abfeb0",
+        "val": "2e73c457617b7b3830e90af7e1a4b3ddd0807abebb6626b6d761ed6fd6001961"
+      },
+      "path": "configs/splits/u1000_top1000_none_k8_sparse/seed123_train100.json",
+      "seed": 123,
+      "target_sha256": "9692a97760ee0e3a97cf3293f1b73911ee0a1af028617f03fe85f88f431703c2",
+      "training_level": "Train100",
+      "validation_result": "PASS"
+    },
+    {
+      "counts": {
+        "population": 1000,
+        "test": 201,
+        "train": 200,
+        "unused": 500,
+        "val": 99
+      },
+      "dataset_sha256": "6a794c38216175212ec969283fdbd214bcdc64caecde78d24b81545e681a332a",
+      "manifest_sha256": "a40ff0307eac77442041facd6ab329b3b2c749762294002188e2ad76b9ae193c",
+      "parent_sha256": "3bf9951b0c7162a831556280499340e42a3fbff648c29a292e75c61d4e5fac9b",
+      "partition_hashes": {
+        "test": "1c9a2a141e3250b81595a9dc275f1eb5877f23506e13158e4b7296758231f0bf",
+        "train": "9d49826f1acb9a6fb2a65281809fb9f2eb4c7e2d1c766070e5f4a8019ef4ab43",
+        "unused": "1e1f1ccd33605accc94abd5a1427de3459f5c0f736ab7944a9b1ddf5bb1da707",
+        "val": "2e73c457617b7b3830e90af7e1a4b3ddd0807abebb6626b6d761ed6fd6001961"
+      },
+      "path": "configs/splits/u1000_top1000_none_k8_sparse/seed123_train200.json",
+      "seed": 123,
+      "target_sha256": "9692a97760ee0e3a97cf3293f1b73911ee0a1af028617f03fe85f88f431703c2",
+      "training_level": "Train200",
+      "validation_result": "PASS"
+    },
+    {
+      "counts": {
+        "population": 1000,
+        "test": 201,
+        "train": 450,
+        "unused": 250,
+        "val": 99
+      },
+      "dataset_sha256": "6a794c38216175212ec969283fdbd214bcdc64caecde78d24b81545e681a332a",
+      "manifest_sha256": "243d3f45eb9e023593746019b6a4481796c34af114b0ef7378ff62ffca3101c9",
+      "parent_sha256": "a40ff0307eac77442041facd6ab329b3b2c749762294002188e2ad76b9ae193c",
+      "partition_hashes": {
+        "test": "1c9a2a141e3250b81595a9dc275f1eb5877f23506e13158e4b7296758231f0bf",
+        "train": "406e4488236a53f585db7da4f4bdbb4099d18c33bc04d137bbd87bf21e0459c0",
+        "unused": "c207c72a6e679b4afd2e6615e3b8393a68faf7e39851aa6c95b6eb9b450f738a",
+        "val": "2e73c457617b7b3830e90af7e1a4b3ddd0807abebb6626b6d761ed6fd6001961"
+      },
+      "path": "configs/splits/u1000_top1000_none_k8_sparse/seed123_train450.json",
+      "seed": 123,
+      "target_sha256": "9692a97760ee0e3a97cf3293f1b73911ee0a1af028617f03fe85f88f431703c2",
+      "training_level": "Train450",
+      "validation_result": "PASS"
+    },
+    {
+      "counts": {
+        "population": 1000,
+        "test": 201,
+        "train": 700,
+        "unused": 0,
+        "val": 99
+      },
+      "dataset_sha256": "6a794c38216175212ec969283fdbd214bcdc64caecde78d24b81545e681a332a",
+      "manifest_sha256": "59797a188225790d9680ce5d40692b78e0003941f07768dc1edce6fe8f35408f",
+      "parent_sha256": "243d3f45eb9e023593746019b6a4481796c34af114b0ef7378ff62ffca3101c9",
+      "partition_hashes": {
+        "test": "1c9a2a141e3250b81595a9dc275f1eb5877f23506e13158e4b7296758231f0bf",
+        "train": "81d841097ce264cd3f0da32040968ae21434585beaba6ba4720ac6be5ca3990c",
+        "unused": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "val": "2e73c457617b7b3830e90af7e1a4b3ddd0807abebb6626b6d761ed6fd6001961"
+      },
+      "path": "configs/splits/u1000_top1000_none_k8_sparse/seed123_train700.json",
+      "seed": 123,
+      "target_sha256": "9692a97760ee0e3a97cf3293f1b73911ee0a1af028617f03fe85f88f431703c2",
+      "training_level": "Train700",
+      "validation_result": "PASS"
+    },
+    {
+      "counts": {
+        "population": 1000,
+        "test": 201,
+        "train": 20,
+        "unused": 680,
+        "val": 99
+      },
+      "dataset_sha256": "6a794c38216175212ec969283fdbd214bcdc64caecde78d24b81545e681a332a",
+      "manifest_sha256": "e7caf097e3d7fa1f7e15f6b8ca8ddc276b9c0602f96fc21f3322f5da2e421511",
+      "parent_sha256": null,
+      "partition_hashes": {
+        "test": "ff6a0b1b9c04ac59477a0d9a2721186c6fba8b8fcbe303a45b088eb56314b0dd",
+        "train": "473013ffe3d3d5d768e8eda00af4448f8a92ad3a73fe59d23c3912258e32bfc1",
+        "unused": "aee61627b53da2683daf2b9b746a821f4b880b38a08e9204b7110afb10abcf46",
+        "val": "0b147c27abbcc8eb8e8dbf1dae075f8216a82a914f4ac3903219acc8d763dddd"
+      },
+      "path": "configs/splits/u1000_top1000_none_k8_sparse/seed2025_train20.json",
+      "seed": 2025,
+      "target_sha256": "9692a97760ee0e3a97cf3293f1b73911ee0a1af028617f03fe85f88f431703c2",
+      "training_level": "Train20",
+      "validation_result": "PASS"
+    },
+    {
+      "counts": {
+        "population": 1000,
+        "test": 201,
+        "train": 50,
+        "unused": 650,
+        "val": 99
+      },
+      "dataset_sha256": "6a794c38216175212ec969283fdbd214bcdc64caecde78d24b81545e681a332a",
+      "manifest_sha256": "9bbbd19ffc192fffc206ae20eedd13a4257d64f26d7348bc818e5a1eeca00c71",
+      "parent_sha256": "e7caf097e3d7fa1f7e15f6b8ca8ddc276b9c0602f96fc21f3322f5da2e421511",
+      "partition_hashes": {
+        "test": "ff6a0b1b9c04ac59477a0d9a2721186c6fba8b8fcbe303a45b088eb56314b0dd",
+        "train": "e1a8b47d034ef188ce19b3e68bb47d43c29a803fb329792a4eee2df33495ec0c",
+        "unused": "f9a72a97c219f6814748df596651332e972326c1446aef2e9398cb7f0e24084e",
+        "val": "0b147c27abbcc8eb8e8dbf1dae075f8216a82a914f4ac3903219acc8d763dddd"
+      },
+      "path": "configs/splits/u1000_top1000_none_k8_sparse/seed2025_train50.json",
+      "seed": 2025,
+      "target_sha256": "9692a97760ee0e3a97cf3293f1b73911ee0a1af028617f03fe85f88f431703c2",
+      "training_level": "Train50",
+      "validation_result": "PASS"
+    },
+    {
+      "counts": {
+        "population": 1000,
+        "test": 201,
+        "train": 100,
+        "unused": 600,
+        "val": 99
+      },
+      "dataset_sha256": "6a794c38216175212ec969283fdbd214bcdc64caecde78d24b81545e681a332a",
+      "manifest_sha256": "b53a836448ace1ea3f8efe7ced06dee9d8a6e0e9639c4a2608525280c379d040",
+      "parent_sha256": "9bbbd19ffc192fffc206ae20eedd13a4257d64f26d7348bc818e5a1eeca00c71",
+      "partition_hashes": {
+        "test": "ff6a0b1b9c04ac59477a0d9a2721186c6fba8b8fcbe303a45b088eb56314b0dd",
+        "train": "894b4c67ba2fa3e12d7746903cd26b8f8b21f4aed56d648e97838fef72a65321",
+        "unused": "b5b443d34d0a464f8e67493c1dd4943f0ce84eb68f4c1f5a99ec9fd6b1ce4fb6",
+        "val": "0b147c27abbcc8eb8e8dbf1dae075f8216a82a914f4ac3903219acc8d763dddd"
+      },
+      "path": "configs/splits/u1000_top1000_none_k8_sparse/seed2025_train100.json",
+      "seed": 2025,
+      "target_sha256": "9692a97760ee0e3a97cf3293f1b73911ee0a1af028617f03fe85f88f431703c2",
+      "training_level": "Train100",
+      "validation_result": "PASS"
+    },
+    {
+      "counts": {
+        "population": 1000,
+        "test": 201,
+        "train": 200,
+        "unused": 500,
+        "val": 99
+      },
+      "dataset_sha256": "6a794c38216175212ec969283fdbd214bcdc64caecde78d24b81545e681a332a",
+      "manifest_sha256": "3f1066d9f0290c460b69642f8292b3032f118a2672df6195d3aaafcadbd6dad7",
+      "parent_sha256": "b53a836448ace1ea3f8efe7ced06dee9d8a6e0e9639c4a2608525280c379d040",
+      "partition_hashes": {
+        "test": "ff6a0b1b9c04ac59477a0d9a2721186c6fba8b8fcbe303a45b088eb56314b0dd",
+        "train": "4231888133dec908b3b47f69bea8070935e77c494bd164591b9e7434f8dce4d5",
+        "unused": "e15397245d3b0a8e9cc388742f647fe0fa927377ce84ab482e8f48406df89147",
+        "val": "0b147c27abbcc8eb8e8dbf1dae075f8216a82a914f4ac3903219acc8d763dddd"
+      },
+      "path": "configs/splits/u1000_top1000_none_k8_sparse/seed2025_train200.json",
+      "seed": 2025,
+      "target_sha256": "9692a97760ee0e3a97cf3293f1b73911ee0a1af028617f03fe85f88f431703c2",
+      "training_level": "Train200",
+      "validation_result": "PASS"
+    },
+    {
+      "counts": {
+        "population": 1000,
+        "test": 201,
+        "train": 450,
+        "unused": 250,
+        "val": 99
+      },
+      "dataset_sha256": "6a794c38216175212ec969283fdbd214bcdc64caecde78d24b81545e681a332a",
+      "manifest_sha256": "dded12909b7d4b55c19ead8e15f9edb03829dae6e549baf0b7da57181055fb99",
+      "parent_sha256": "3f1066d9f0290c460b69642f8292b3032f118a2672df6195d3aaafcadbd6dad7",
+      "partition_hashes": {
+        "test": "ff6a0b1b9c04ac59477a0d9a2721186c6fba8b8fcbe303a45b088eb56314b0dd",
+        "train": "deff4fbf5874f3bdac0911bac272aecc1209f12ea0ef4c46151c2f46ba7983fd",
+        "unused": "c207c72a6e679b4afd2e6615e3b8393a68faf7e39851aa6c95b6eb9b450f738a",
+        "val": "0b147c27abbcc8eb8e8dbf1dae075f8216a82a914f4ac3903219acc8d763dddd"
+      },
+      "path": "configs/splits/u1000_top1000_none_k8_sparse/seed2025_train450.json",
+      "seed": 2025,
+      "target_sha256": "9692a97760ee0e3a97cf3293f1b73911ee0a1af028617f03fe85f88f431703c2",
+      "training_level": "Train450",
+      "validation_result": "PASS"
+    },
+    {
+      "counts": {
+        "population": 1000,
+        "test": 201,
+        "train": 700,
+        "unused": 0,
+        "val": 99
+      },
+      "dataset_sha256": "6a794c38216175212ec969283fdbd214bcdc64caecde78d24b81545e681a332a",
+      "manifest_sha256": "cf1dbae797b1ad60755bb8a8eb85256a2e98ca5c34c754b0b9f2c1626c012f83",
+      "parent_sha256": "dded12909b7d4b55c19ead8e15f9edb03829dae6e549baf0b7da57181055fb99",
+      "partition_hashes": {
+        "test": "ff6a0b1b9c04ac59477a0d9a2721186c6fba8b8fcbe303a45b088eb56314b0dd",
+        "train": "77e0812c10cf8b91401fe75d8e22ac513f41df62d50b157192997f3b5c61270d",
+        "unused": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "val": "0b147c27abbcc8eb8e8dbf1dae075f8216a82a914f4ac3903219acc8d763dddd"
+      },
+      "path": "configs/splits/u1000_top1000_none_k8_sparse/seed2025_train700.json",
+      "seed": 2025,
+      "target_sha256": "9692a97760ee0e3a97cf3293f1b73911ee0a1af028617f03fe85f88f431703c2",
+      "training_level": "Train700",
+      "validation_result": "PASS"
+    }
+  ],
+  "schema_version": "camels_split_manifest_inventory_v1",
+  "validation_result": "PASS"
+}

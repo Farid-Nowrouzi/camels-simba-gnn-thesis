@@ -7,7 +7,11 @@ from pathlib import Path
 
 import torch
 
-from src.training.split_manifest import load_split_manifest, ordered_id_hash
+from src.training.split_manifest import (
+    canonical_manifest_sha256,
+    load_split_manifest,
+    ordered_id_hash,
+)
 from src.training.train_evolvegcn_h import create_loaders as create_evolve_loaders
 from src.training.train_evolvegcn_h import train_evolvegcn_h
 from src.training.train_static_gcn import convert_temporal_final_snapshot_to_static
@@ -119,6 +123,30 @@ class SplitManifestSeedBindingTests(unittest.TestCase):
                 dataset_identity="tiny-v1", epochs=1,
             )
         self.assertFalse(output_root.exists())
+
+    def test_production_fields_validate_unused_coverage_and_canonical_identity(self) -> None:
+        path = self.write_manifest(42)
+        manifest = json.loads(path.read_text(encoding="utf-8"))
+        manifest["unused_ids"] = ["LH_4", "LH_5"]
+        manifest["counts"]["unused"] = 2
+        manifest["split_hashes"]["unused"] = ordered_id_hash(manifest["unused_ids"])
+        manifest["canonical_manifest_sha256"] = canonical_manifest_sha256(manifest)
+        path.write_text(json.dumps(manifest), encoding="utf-8")
+        loaded = load_split_manifest(path, self.ids, "tiny-v1", expected_seed=42)
+        self.assertEqual(loaded["unused_ids"], ["LH_4", "LH_5"])
+
+        manifest["unused_ids"] = ["LH_4", "LH_4"]
+        path.write_text(json.dumps(manifest), encoding="utf-8")
+        with self.assertRaisesRegex(ValueError, "duplicate IDs"):
+            load_split_manifest(path, self.ids, "tiny-v1", expected_seed=42)
+
+    def test_canonical_identity_ignores_creation_metadata_only(self) -> None:
+        manifest = {"seed": 42, "creation_metadata": {"timestamp": "first"}, "train_ids": ["LH_0"]}
+        first = canonical_manifest_sha256(manifest)
+        manifest["creation_metadata"]["timestamp"] = "second"
+        self.assertEqual(first, canonical_manifest_sha256(manifest))
+        manifest["train_ids"].append("LH_1")
+        self.assertNotEqual(first, canonical_manifest_sha256(manifest))
 
 
 if __name__ == "__main__":
