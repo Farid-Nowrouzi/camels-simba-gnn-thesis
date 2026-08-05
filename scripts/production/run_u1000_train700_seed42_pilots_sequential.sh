@@ -37,7 +37,7 @@ python scripts/validation/validate_u1000_train700_seed42_pilots.py --preflight
 python -c 'import torch,sys; ok=torch.cuda.is_available() and torch.cuda.get_device_name(0)=="NVIDIA L40"; print(torch.cuda.get_device_name(0) if torch.cuda.is_available() else "CUDA unavailable"); sys.exit(0 if ok else 1)' || fail "NVIDIA L40 CUDA gate failed"
 FREE_MIB="$(nvidia-smi --query-gpu=memory.free --format=csv,noheader,nounits | head -1 | tr -d ' ')"
 [[ "${FREE_MIB}" =~ ^[0-9]+$ && "${FREE_MIB}" -ge 40000 ]] || fail "less than 40000 MiB GPU memory free"
-CONFLICTS="$(ps -eo pid=,cmd= | awk -v self="$$" '$1 != self && $0 ~ /(src\.training\.train_|train_(static_gcn|evolvegcn)|build_temporal_sequences|run_u1000_top1000_sparse_build)/ {print}')"
+CONFLICTS="$(ps -eo pid=,cmd= | awk -v self="$$" '$1 != self && $0 !~ /awk -v self=/ && $0 ~ /(src\.training\.train_|train_(static_gcn|evolvegcn)|build_temporal_sequences|run_u1000_top1000_sparse_build)/ {print}')"
 [[ -z "${CONFLICTS}" ]] || fail "conflicting builder/trainer active: ${CONFLICTS}"
 for name in "${EVOLVE_NAME}" "${STATIC_NAME}"; do
   [[ ! -e "experiments/${name}/metrics.json" && ! -e "experiments/${name}/checkpoints/best_model.pt" ]] || fail "completed experiment already exists: ${name}"
