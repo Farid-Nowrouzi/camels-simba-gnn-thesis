@@ -1,0 +1,14 @@
+risk_id,severity,risk,evidence,mitigation,status
+R01,critical,dense O(N^2) adjacency preprocessing/storage/training,"Top1000 creates 1,000x1,000 float matrices and [N,N,3] displacement","refactor builder, schema, collate, and both models to sparse edge_index before build",open_blocker
+R02,high,whole dataset loaded into RAM,torch.load materializes the full projected ~20.2 GB dense file plus object overhead,sparse storage and lazy/sharded loading,open_blocker
+R03,high,Evolve has no external split interface,create_loaders always regenerates ratio split,port Static split_config_path loader/validation to Evolve,open_blocker
+R04,medium,unstable equal-mass ordering,pandas sort_values has no stable kind or secondary key,stable Mvir-desc then halo-ID-asc key; persist selected-ID hashes,open
+R05,medium,kNN equal-distance ties unspecified,np.argsort default and no secondary key,stable distance then halo rank/ID key; graph hashes,open
+R06,medium,early-snapshot severe tail padding,61 snapshots pad; maximum 843/1000,"retain masks, report distribution, preflight pilot on worst cases",controlled
+R07,high,builder overwrites directly and is non-atomic,torch.save writes final path; no lock/resume/completion marker,"temporary output, validation, fsync/atomic rename, checksum/complete marker",open_blocker
+R08,medium,metadata provenance incomplete,"sidecar lacks ordered IDs/snapshots, hashes, node/edge distributions, commit",extend metadata contract before build,open
+R09,medium,historical identity unproven,audit forbids graph deserialization; old selected IDs/hashes absent,post-refactor bounded equivalence test; otherwise retrain Train450,open
+R10,low,current GPU unavailable,CUDA false and nvidia-smi inaccessible now,run pilot only when L40-class GPU and memory telemetry available,environment
+R11,medium,experiment output collision,trainers mkdir existing directory and overwrite named artifacts,fail if nonempty unless explicit resume/overwrite,open
+R12,low,raw root duplication confusion,750 files are hard links duplicated by name under U750 and U1000 roots,declare U1000 root canonical and hash source manifest,controlled
+R13,low,train prediction row order differs from configured train order,final train predictions reuse shuffle=True loader; membership is exact but order is shuffled,use a separate shuffle=False train-evaluation loader and validate ordered IDs,open
