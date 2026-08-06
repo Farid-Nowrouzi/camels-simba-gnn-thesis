@@ -1,5 +1,5 @@
 {
-  "canonical_manifest_sha256": "f77df4ba46b84f14e98a7ee0b4e7b3eefedac656d8e09e94f652244779809c73",
+  "canonical_manifest_sha256": "e4b0840c558f628c8f1b0821cf73a8a57233cce23ca524c4350b14c29b681004",
   "counts": {
     "population": 1000,
     "test": 201,
@@ -14,21 +14,21 @@
     "role_source": "reports/experiment_registry/u1000_top1000_population_and_role_plan.csv"
   },
   "dataset_binding": {
-    "completion_marker_path": "data/processed/temporal_1000u_none_top1500_periodic_knn_sparse/camels_1000u_temporal_logmass_none_top1500_periodic_knn_sparse.complete",
-    "completion_marker_sha256": "PENDING_POST_BUILD",
     "dataset_path": "data/processed/temporal_1000u_none_top1500_periodic_knn_sparse/camels_1000u_temporal_logmass_none_top1500_periodic_knn_sparse.pt",
+    "dataset_sha256": "ff6f6a89517c0b67a96a8733ce5778dba1524df441cc23c27fbfa4e2f5cdb113",
+    "metadata_path": "data/processed/temporal_1000u_none_top1500_periodic_knn_sparse/camels_1000u_temporal_logmass_none_top1500_periodic_knn_sparse.metadata.json",
+    "metadata_sha256": "b76e1ae9c049ce3cff9a625a8acb6af7b53018b7bf0d02308b5f526148aef0ba",
+    "completion_marker_path": "data/processed/temporal_1000u_none_top1500_periodic_knn_sparse/camels_1000u_temporal_logmass_none_top1500_periodic_knn_sparse.complete",
+    "completion_marker_sha256": "cb8a14789bb84b96ab5274ba659fe58d9db4adb3a92965fc1dce29c2a9cd85a6",
     "dataset_schema_version": "camels_temporal_sparse_v1",
-    "dataset_sha256": "PENDING_POST_BUILD",
     "graph_storage_mode": "sparse_edge_index",
     "logical_dataset_id": "camels_simba_u1000_top1500_temporal5_none_periodic_knn_k8_box25_sparse_v1",
-    "metadata_path": "data/processed/temporal_1000u_none_top1500_periodic_knn_sparse/camels_1000u_temporal_logmass_none_top1500_periodic_knn_sparse.metadata.json",
-    "metadata_sha256": "PENDING_POST_BUILD",
     "source_manifest_policy": "full_sha256",
-    "source_manifest_sha256": "PENDING_POST_BUILD",
+    "source_manifest_sha256": "ba22c3611a70763566ffb38a20f9b5a36fb6c1a27c3ad8030c4a7e189ce87618",
     "target_table_path": "outputs/target_inspection_1000u.csv",
     "target_table_sha256": "9692a97760ee0e3a97cf3293f1b73911ee0a1af028617f03fe85f88f431703c2"
   },
-  "dataset_identity": "PENDING_POST_BUILD",
+  "dataset_identity": "ff6f6a89517c0b67a96a8733ce5778dba1524df441cc23c27fbfa4e2f5cdb113",
   "feature_protocol_summary": {
     "feature_names": [
       "log10_Mvir",
