@@ -29,6 +29,7 @@ The project progressed from raw-data and graph sanity checks, through 20U-500U s
 |evolvegcn-h_u50_top100_norm-minmax_h32_l2_gpool-mean_tpool-mean_head-mlp|123|0.10247249715|0|partly_controlled|
 |evolvegcn-h_u50_top100_norm-minmax_h32_l2_gpool-mean_tpool-mean_head-mlp|42,2025|0.110449951142|0.0239495607592|partly_controlled|
 |evolvegcn-h_u50_top100_norm-minmax_h32_l2_gpool-mean_tpool-mean_head-mlp|42,2025|0.110449951142|0.0239495607592|partly_controlled|
+|u1000-top1000-sparse-evolve-train700-seed42|42|0.0554427435594|0|partly_controlled|
 
 
 ## 4. Top-N Halo Investigation
@@ -43,10 +44,17 @@ The project progressed from raw-data and graph sanity checks, through 20U-500U s
 
 |family_name|seeds|mean_test_mae|scientific_conclusion|
 |---|---|---|---|
+|evolvegcn-h_u500_top100_norm-minmax_h32_l2_gpool-mean_tpool-mean_head-mlp|42,123,2025|0.0961808881164|See raw metrics; comparison requires matching sibling family rows.|
+|evolvegcn-h_u500_top100_norm-minmax_h32_l2_gpool-mean_tpool-mean_head-mlp|42,123,2025|0.0967075575391|See raw metrics; comparison requires matching sibling family rows.|
+|evolvegcn-h_u500_top100_norm-minmax_h32_l2_gpool-mean_tpool-mean_head-mlp|123,2025|0.101385438492|See raw metrics; comparison requires matching sibling family rows.|
 |evolvegcn-h_u500_top100_norm-minmax_h64_l2_gpool-mean_tpool-mean_head-mlp|42,123,2025|0.0974526766605|See raw metrics; comparison requires matching sibling family rows.|
 |evolvegcn-h_u500_top100_norm-minmax_h64_l2_gpool-mean_tpool-mean_head-mlp|42,123,2025|0.0977726910843|See raw metrics; comparison requires matching sibling family rows.|
 |evolvegcn-h_u500_top100_norm-minmax_h64_l2_gpool-mean_tpool-mean_head-mlp|42,123,2025|0.0968952407771|See raw metrics; comparison requires matching sibling family rows.|
 |evolvegcn-h_u500_top100_norm-minmax_h64_l2_gpool-mean_tpool-mean_head-mlp|42,123,2025|0.0965620176991|See raw metrics; comparison requires matching sibling family rows.|
+|static-gcn_u500_top100_norm-minmax_h32_l3_gpool-mean_tpool-na_head-na|42,123,2025|0.0954448503587|See raw metrics; comparison requires matching sibling family rows.|
+|static-gcn_u500_top100_norm-minmax_h32_l3_gpool-mean_tpool-na_head-na|42,123,2025|0.0958549307121|See raw metrics; comparison requires matching sibling family rows.|
+|static-gcn_u500_top100_norm-minmax_h32_l3_gpool-mean_tpool-na_head-na|42,123,2025|0.0950965201524|See raw metrics; comparison requires matching sibling family rows.|
+|static-gcn_u500_top100_norm-minmax_h32_l3_gpool-mean_tpool-na_head-na|42,123,2025|0.0962624607815|See raw metrics; comparison requires matching sibling family rows.|
 |static-gcn_u500_top100_norm-minmax_h64_l3_gpool-mean_tpool-na_head-na|42,123,2025|0.0974326691031|See raw metrics; comparison requires matching sibling family rows.|
 |static-gcn_u500_top100_norm-minmax_h64_l3_gpool-mean_tpool-na_head-na|42,123,2025|0.0973181975881|See raw metrics; comparison requires matching sibling family rows.|
 |static-gcn_u500_top100_norm-minmax_h64_l3_gpool-mean_tpool-na_head-na|42,123,2025|0.0967647448844|See raw metrics; comparison requires matching sibling family rows.|
@@ -78,6 +86,10 @@ The project progressed from raw-data and graph sanity checks, through 20U-500U s
 |static-gcn_u50_top100_norm-none_h32_l2_gpool-mean_tpool-na_head-na|42|0.144618517719|debug_static_gcn_50u_h32_dropout0_none_lr1e4|
 |static-gcn_u50_top100_norm-zscore_h32_l2_gpool-mean_tpool-na_head-na|42|0.120119789243|debug_static_gcn_50u_h32_dropout0_zscore|
 |static-gcn_u500_top500_norm-minmax_h32_l3_gpool-mean_tpool-na_head-na|42|0.0872836575905|static_graphsage_500u_top500_final_snapshot_h32_seed42|
+|static-gcn_u500_top100_norm-minmax_h32_l3_gpool-mean_tpool-na_head-na|42,123,2025|0.0954448503587|static_gcn_u500_top100_norm-minmax_k12_h32_l3_gpool-mean_conv-gcn_batch8_factorial_seed42|
+|static-gcn_u500_top100_norm-minmax_h32_l3_gpool-mean_tpool-na_head-na|42,123,2025|0.0958549307121|static_gcn_u500_top100_norm-minmax_k4_h32_l3_gpool-mean_conv-gcn_batch8_factorial_seed42|
+|static-gcn_u500_top100_norm-minmax_h32_l3_gpool-mean_tpool-na_head-na|42,123,2025|0.0950965201524|static_gcn_u500_top100_norm-minmax_k6_h32_l3_gpool-mean_conv-gcn_batch8_factorial_seed42|
+|static-gcn_u500_top100_norm-minmax_h32_l3_gpool-mean_tpool-na_head-na|42,123,2025|0.0962624607815|static_gcn_u500_top100_norm-minmax_k8_h32_l3_gpool-mean_conv-gcn_batch8_factorial_seed42|
 |static-gcn_u500_top100_norm-minmax_h64_l3_gpool-mean_tpool-na_head-na|42,123,2025|0.0974326691031|static_gcn_500u_k12_seed42|
 |static-gcn_u500_top100_norm-minmax_h64_l3_gpool-mean_tpool-na_head-na|42,123,2025|0.0973181975881|static_gcn_500u_k4_seed42|
 |static-gcn_u500_top100_norm-minmax_h64_l3_gpool-mean_tpool-na_head-na|42,123,2025|0.0967647448844|static_gcn_500u_k6_seed42|
@@ -95,10 +107,8 @@ The project progressed from raw-data and graph sanity checks, through 20U-500U s
 |static-gcn_u500_top100_norm-minmax_h32_l2_gpool-mean_tpool-na_head-na|42,123,2025|0.09900861154|static_gcn_500u_seed42_final32|
 |static-gcn_u500_top100_norm-minmax_h32_l2_gpool-mean_tpool-na_head-na|42,123,2025|0.0968826544616|static_gcn_u500_top100_norm-minmax_h32_l2_gpool-mean_conv-gcn_batch8_canonical300_seed42|
 |static-gcn_u500_top500_norm-minmax_h32_l3_gpool-mean_tpool-na_head-na|42|0.0863053236405|static_gcn_top500_final_snapshot_same_split_h32_seed42|
-|static-gcn_u50_top100_norm-minmax_h32_l2_gpool-mean_tpool-na_head-na|123|0.100156472996|static_gcn_50u_seed123_final32|
-|static-gcn_u50_top100_norm-minmax_h32_l2_gpool-mean_tpool-na_head-na|42,2025|0.102567818947|static_gcn_50u_seed42|
-|static-gcn_u50_top100_norm-minmax_h32_l2_gpool-mean_tpool-na_head-na|42,2025|0.114416575059|static_gcn_u50_top100_norm-minmax_h32_l2_gpool-mean_conv-gcn_batch8_canonical300_seed42|
-|static-gcn_u500_top200_norm-minmax_h32_l3_gpool-mean_tpool-na_head-na|42,123,2025|0.0969846097297|static_gcn_500u_top200_h32_seed42|
+
+_Showing 30 of 35 rows._
 
 
 ## 8. EvolveGCN-H Investigations
@@ -118,6 +128,9 @@ The project progressed from raw-data and graph sanity checks, through 20U-500U s
 |evolvegcn-h_u750_top1000_norm-none_h32_l2_gpool-mean_tpool-mean_head-linear|42,123,777,999,2025|0.0558430712689|evolvegcn_h_750u_top1000_h32_seed999_none_linear_head|
 |evolvegcn-h_u750_top1000_norm-none_h32_l2_gpool-mean_tpool-mean_head-mlp|42,123,777,999,2025|0.0614038574681|evolvegcn_h_750u_top1000_h32_seed123_none|
 |evolvegcn-h_u500_top500_norm-minmax_h32_l2_gpool-mean_tpool-mean_head-mlp|42|0.0865369816621|evolvegcn_h_500u_top500_h32_seed42_hybrid_summary_norm|
+|evolvegcn-h_u500_top100_norm-minmax_h32_l2_gpool-mean_tpool-mean_head-mlp|42,123,2025|0.0961808881164|evolvegcn_h_u500_top100_norm-minmax_k12_h32_l2_factorial_seed42|
+|evolvegcn-h_u500_top100_norm-minmax_h32_l2_gpool-mean_tpool-mean_head-mlp|42,123,2025|0.0967075575391|evolvegcn_h_u500_top100_norm-minmax_k4_h32_l2_factorial_seed42|
+|evolvegcn-h_u500_top100_norm-minmax_h32_l2_gpool-mean_tpool-mean_head-mlp|123,2025|0.101385438492|evolvegcn_h_u500_top100_norm-minmax_k6_h32_l2_factorial_seed123|
 |evolvegcn-h_u500_top100_norm-minmax_h64_l2_gpool-mean_tpool-mean_head-mlp|42,123,2025|0.0974526766605|evolvegcn_h_500u_k12_seed42|
 |evolvegcn-h_u500_top100_norm-minmax_h64_l2_gpool-mean_tpool-mean_head-mlp|42,123,2025|0.0977726910843|evolvegcn_h_500u_k4_seed42|
 |evolvegcn-h_u500_top100_norm-minmax_h64_l2_gpool-mean_tpool-mean_head-mlp|42,123,2025|0.0968952407771|evolvegcn_h_500u_k6_seed42|
@@ -142,6 +155,8 @@ The project progressed from raw-data and graph sanity checks, through 20U-500U s
 |evolvegcn-h_u50_top100_norm-minmax_h32_l2_gpool-mean_tpool-mean_head-mlp|123|0.10247249715|evolvegcn_h_50u_seed123_final32|
 |evolvegcn-h_u50_top100_norm-minmax_h32_l2_gpool-mean_tpool-mean_head-mlp|42,2025|0.110449951142|evolvegcn_h_50u_seed42|
 |evolvegcn-h_u50_top100_norm-minmax_h32_l2_gpool-mean_tpool-mean_head-mlp|42,2025|0.110449951142|evolvegcn_h_u50_top100_norm-minmax_h32_l2_gpool-mean_tpool-mean_head-mlp_canonical300_seed42|
+
+_Showing 40 of 41 rows._
 
 
 ## 9. Prediction-Collapse Investigation
@@ -222,10 +237,17 @@ Prediction collapse is captured in the registry by prediction_std_ratio, repeate
 |graph_pooling_ablation|evolvegcn-h_u750_top1000_norm-none_h32_l2_gpool-mean_max_tpool-mean_head-linear|42,123,777,999,2025|0.0809730958916|
 |head_ablation|evolvegcn-h_u750_top1000_norm-none_h32_l2_gpool-mean_tpool-mean_head-linear|42,123,777,999,2025|0.0558430712689|
 |head_ablation|evolvegcn-h_u750_top1000_norm-none_h32_l2_gpool-mean_tpool-mean_head-mlp|42,123,777,999,2025|0.0614038574681|
+|knn_ablation|evolvegcn-h_u500_top100_norm-minmax_h32_l2_gpool-mean_tpool-mean_head-mlp|42,123,2025|0.0961808881164|
+|knn_ablation|evolvegcn-h_u500_top100_norm-minmax_h32_l2_gpool-mean_tpool-mean_head-mlp|42,123,2025|0.0967075575391|
+|knn_ablation|evolvegcn-h_u500_top100_norm-minmax_h32_l2_gpool-mean_tpool-mean_head-mlp|123,2025|0.101385438492|
 |knn_ablation|evolvegcn-h_u500_top100_norm-minmax_h64_l2_gpool-mean_tpool-mean_head-mlp|42,123,2025|0.0974526766605|
 |knn_ablation|evolvegcn-h_u500_top100_norm-minmax_h64_l2_gpool-mean_tpool-mean_head-mlp|42,123,2025|0.0977726910843|
 |knn_ablation|evolvegcn-h_u500_top100_norm-minmax_h64_l2_gpool-mean_tpool-mean_head-mlp|42,123,2025|0.0968952407771|
 |knn_ablation|evolvegcn-h_u500_top100_norm-minmax_h64_l2_gpool-mean_tpool-mean_head-mlp|42,123,2025|0.0965620176991|
+|knn_ablation|static-gcn_u500_top100_norm-minmax_h32_l3_gpool-mean_tpool-na_head-na|42,123,2025|0.0954448503587|
+|knn_ablation|static-gcn_u500_top100_norm-minmax_h32_l3_gpool-mean_tpool-na_head-na|42,123,2025|0.0958549307121|
+|knn_ablation|static-gcn_u500_top100_norm-minmax_h32_l3_gpool-mean_tpool-na_head-na|42,123,2025|0.0950965201524|
+|knn_ablation|static-gcn_u500_top100_norm-minmax_h32_l3_gpool-mean_tpool-na_head-na|42,123,2025|0.0962624607815|
 |knn_ablation|static-gcn_u500_top100_norm-minmax_h64_l3_gpool-mean_tpool-na_head-na|42,123,2025|0.0974326691031|
 |knn_ablation|static-gcn_u500_top100_norm-minmax_h64_l3_gpool-mean_tpool-na_head-na|42,123,2025|0.0973181975881|
 |knn_ablation|static-gcn_u500_top100_norm-minmax_h64_l3_gpool-mean_tpool-na_head-na|42,123,2025|0.0967647448844|
@@ -260,6 +282,7 @@ Prediction collapse is captured in the registry by prediction_std_ratio, repeate
 |universe_scaling|evolvegcn-h_u50_top100_norm-minmax_h32_l2_gpool-mean_tpool-mean_head-mlp|123|0.10247249715|Configs do not save git commit or exact command line.|
 |universe_scaling|evolvegcn-h_u50_top100_norm-minmax_h32_l2_gpool-mean_tpool-mean_head-mlp|42,2025|0.110449951142|Configs do not save git commit or exact command line.|
 |universe_scaling|evolvegcn-h_u50_top100_norm-minmax_h32_l2_gpool-mean_tpool-mean_head-mlp|42,2025|0.110449951142|Configs do not save git commit or exact command line.|
+|universe_scaling|u1000-top1000-sparse-evolve-train700-seed42|42|0.0554427435594|Configs do not save git commit or exact command line.|
 
 
 ## 17. Missing or Incomplete Experiment Families

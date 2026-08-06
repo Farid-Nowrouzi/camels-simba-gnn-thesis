@@ -46,6 +46,48 @@ MASTER_COLUMNS = [
     "likely_duplicate",
     "original_or_reproduction",
     "notes",
+    "matrix_included",
+    "training_universe_count",
+    "master_dataset_path",
+    "dataset_sha256",
+    "metadata_sha256",
+    "completion_marker_sha256",
+    "target_table_sha256",
+    "split_manifest_path",
+    "split_manifest_sha256",
+    "configuration_path",
+    "experiment_directory",
+    "repository_commit",
+    "graph_storage_mode",
+    "snapshot_input_protocol",
+    "planned_timestamp",
+    "launch_timestamp",
+    "completion_timestamp",
+    "validation_timestamp",
+    "failure_reason",
+    "invalid_reason",
+    "checkpoint_path",
+    "metrics_path",
+    "predictions_path",
+    "epochs_executed",
+    "runtime_seconds",
+    "peak_gpu_memory_mib",
+    "validation_result",
+    "test_mae",
+    "test_rmse",
+    "test_mse",
+    "test_r2",
+    "prediction_mean_matrix",
+    "prediction_standard_deviation",
+    "target_standard_deviation",
+    "prediction_sd_ratio_matrix",
+    "repeated_prediction_count_matrix",
+    "repeated_prediction_fraction_matrix",
+    "residual_mean",
+    "residual_standard_deviation",
+    "low_target_bias",
+    "high_target_bias",
+    "collapse_flag",
     "dataset_path",
     "dataset_filename",
     "dataset_format",
@@ -1439,7 +1481,7 @@ def write_csv(path: Path, rows: list[dict[str, Any]], columns: list[str], repo_r
     path.parent.mkdir(parents=True, exist_ok=True)
     tmp = path.with_suffix(path.suffix + ".tmp")
     with tmp.open("w", encoding="utf-8", newline="") as handle:
-        writer = csv.DictWriter(handle, fieldnames=columns, extrasaction="ignore")
+        writer = csv.DictWriter(handle, fieldnames=columns, extrasaction="ignore", lineterminator="\n")
         writer.writeheader()
         for row in rows:
             writer.writerow({column: as_text(row.get(column)) for column in columns})
@@ -1766,6 +1808,7 @@ def print_summary(rows: list[dict[str, Any]], family_rows: list[dict[str, Any]],
 def build_registry(repo_root: Path, experiments_root: Path) -> tuple[list[dict[str, Any]], list[dict[str, Any]], list[dict[str, Any]], list[dict[str, Any]], list[dict[str, Any]], list[str]]:
     rows, errors = build_experiment_rows(repo_root, experiments_root)
     apply_grouping(rows)
+    merge_training_scaling_matrix(repo_root, rows, errors)
     artifact_rows = discover_artifacts(repo_root, [row["experiment_name"] for row in rows])
     stale = audit_stale_outputs(repo_root, rows)
     for artifact in artifact_rows:
@@ -1777,6 +1820,75 @@ def build_registry(repo_root: Path, experiments_root: Path) -> tuple[list[dict[s
     family_rows = build_family_summaries(rows)
     issues = build_issue_rows(rows)
     return rows, family_rows, artifact_rows, issues, stale, errors
+
+
+def merge_training_scaling_matrix(repo_root: Path, rows: list[dict[str, Any]], errors: list[str]) -> None:
+    """Merge the tracked lifecycle source into the canonical registry output.
+
+    Existing experiment rows are augmented by experiment name; planned rows are
+    appended. Historical non-matrix rows and their original schema semantics are
+    otherwise untouched.
+    """
+    source = repo_root / "configs/experiment_registry/u1000_top1000_training_scaling_matrix.json"
+    if not source.is_file():
+        return
+    try:
+        payload = json.loads(source.read_text(encoding="utf-8"))
+        entries = payload["entries"]
+    except Exception as exc:  # noqa: BLE001
+        errors.append(f"{relpath(source, repo_root)}: {exc}")
+        return
+    by_name = {str(row.get("experiment_name")): row for row in rows}
+    matrix_fields = [field for field in MASTER_COLUMNS if field in {
+        "matrix_included", "training_universe_count", "master_dataset_path", "dataset_sha256",
+        "metadata_sha256", "completion_marker_sha256", "target_table_sha256", "split_manifest_path",
+        "split_manifest_sha256", "configuration_path", "experiment_directory", "repository_commit",
+        "graph_storage_mode", "snapshot_input_protocol", "planned_timestamp", "launch_timestamp",
+        "completion_timestamp", "validation_timestamp", "failure_reason", "invalid_reason",
+        "checkpoint_path", "metrics_path", "predictions_path", "epochs_executed", "runtime_seconds",
+        "peak_gpu_memory_mib", "validation_result", "test_mae", "test_rmse", "test_mse", "test_r2",
+        "prediction_standard_deviation", "target_standard_deviation", "residual_mean",
+        "residual_standard_deviation", "low_target_bias", "high_target_bias", "collapse_flag",
+    }]
+    aliases = {
+        "prediction_mean": "prediction_mean_matrix",
+        "prediction_sd_ratio": "prediction_sd_ratio_matrix",
+        "repeated_prediction_count": "repeated_prediction_count_matrix",
+        "repeated_prediction_fraction": "repeated_prediction_fraction_matrix",
+    }
+    for entry in entries:
+        name = str(entry.get("experiment_name", ""))
+        row = by_name.get(name)
+        if row is None:
+            row = {column: "" for column in MASTER_COLUMNS}
+            row.update({
+                "experiment_name": name,
+                "experiment_path": entry.get("experiment_directory", ""),
+                "experiment_type": "planned_training",
+                "experiment_family": "u1000_top1000_training_scaling",
+                "scientific_role": "fixed-holdout training-universe learning curve",
+                "model": entry.get("model", ""),
+                "seed": entry.get("seed", ""),
+                "train_count": entry.get("training_universe_count", ""),
+                "val_count": entry.get("validation_count", ""),
+                "test_count": entry.get("test_count", ""),
+                "dataset_path": entry.get("master_dataset_path", ""),
+                "top_n": entry.get("top_n", ""),
+                "normalization": entry.get("normalization", ""),
+                "k": entry.get("k", ""),
+            })
+            rows.append(row)
+            by_name[name] = row
+        row["canonical_experiment_id"] = entry.get("canonical_experiment_id", "")
+        row["status"] = entry.get("status", row.get("status", ""))
+        for field in matrix_fields:
+            row[field] = entry.get(field, "")
+        for source_field, output_field in aliases.items():
+            row[output_field] = entry.get(source_field, "")
+        row["notes"] = (str(row.get("notes") or "") + " | " if row.get("notes") else "") + (
+            "U1000 training-scaling matrix lifecycle entry"
+            if entry.get("matrix_included") else "invalid attempt preserved and excluded from scientific matrix"
+        )
 
 
 def parse_args() -> argparse.Namespace:
