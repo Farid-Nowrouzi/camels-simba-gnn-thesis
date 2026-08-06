@@ -8,6 +8,7 @@ import csv
 import hashlib
 import json
 import math
+import re
 import statistics
 import subprocess
 import sys
@@ -20,6 +21,7 @@ from typing import Any
 ROOT = Path(__file__).resolve().parents[2]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
+from src.data.source_manifest import sha256_file_streaming, source_manifest_sha256
 from src.training.split_manifest import canonical_manifest_sha256, ordered_id_hash
 
 DATASET = Path("data/processed/temporal_1000u_none_top1500_periodic_knn_sparse/camels_1000u_temporal_logmass_none_top1500_periodic_knn_sparse.pt")
@@ -35,6 +37,9 @@ LEVELS = (20, 50, 100, 200, 450, 700)
 MODELS = ("evolve", "static")
 PENDING = "PENDING_POST_BUILD"
 TARGET_SHA = "9692a97760ee0e3a97cf3293f1b73911ee0a1af028617f03fe85f88f431703c2"
+PILOT = REPORTS / "u1000_top1500_cuda_pilot_result.json"
+PILOT_MANIFEST = SPLITS / "seed42_train700.json"
+SHA256_PATTERN = re.compile(r"^[0-9a-f]{64}$")
 
 
 def now() -> str:
@@ -42,7 +47,7 @@ def now() -> str:
 
 
 def sha(path: Path) -> str:
-    return hashlib.sha256(path.read_bytes()).hexdigest()
+    return sha256_file_streaming(path)
 
 
 def read(path: Path) -> Any:
@@ -58,6 +63,202 @@ def write_json(path: Path, value: Any) -> None:
 def require(condition: bool, message: str) -> None:
     if not condition:
         raise RuntimeError(message)
+
+
+def partition_identity(manifest: dict[str, Any]) -> str:
+    return hashlib.sha256(
+        "".join(part + "\n" + ordered_id_hash(manifest[part + "_ids"])
+                for part in ("train", "val", "test", "unused")).encode()
+    ).hexdigest()
+
+
+def require_bound_hash(value: Any, expected: str, artifact: str, location: str) -> None:
+    require(value != PENDING, f"PENDING HASH: {artifact} at {location}")
+    require(isinstance(value, str) and SHA256_PATTERN.fullmatch(value) is not None,
+            f"INVALID HASH: {artifact} at {location}")
+    require(value == expected, f"ARTIFACT HASH MISMATCH: {artifact} at {location}")
+
+
+def current_artifact_identities(root: Path = ROOT) -> dict[str, str]:
+    dataset = root / DATASET
+    metadata_path = dataset.with_suffix(".metadata.json")
+    marker_path = dataset.with_suffix(".complete")
+    target_path = root / TARGET
+    for label, path in (("dataset", dataset), ("metadata", metadata_path),
+                        ("completion marker", marker_path), ("target source", target_path)):
+        require(path.is_file(), f"missing {label}: {path}")
+    identities = {
+        "dataset_sha256": sha(dataset),
+        "metadata_sha256": sha(metadata_path),
+        "completion_marker_sha256": sha(marker_path),
+        "target_table_sha256": sha(target_path),
+    }
+    metadata = read(metadata_path)
+    marker = read(marker_path)
+    manifest = metadata.get("source_manifest")
+    require(isinstance(manifest, dict), "metadata: raw-source manifest is missing")
+    raw_identity = source_manifest_sha256(manifest)
+    require_bound_hash(manifest.get("manifest_sha256"), raw_identity,
+                       "raw-source manifest", "metadata.source_manifest.manifest_sha256")
+    require_bound_hash(metadata.get("source_manifest_sha256"), raw_identity,
+                       "raw-source manifest", "metadata.source_manifest_sha256")
+    require_bound_hash(metadata.get("target_source_sha256"), identities["target_table_sha256"],
+                       "target source", "metadata.target_source_sha256")
+    require_bound_hash(metadata.get("checksum"), identities["dataset_sha256"],
+                       "dataset", "metadata.checksum")
+    require_bound_hash(marker.get("sha256"), identities["dataset_sha256"],
+                       "dataset", "completion marker.sha256")
+    require(marker.get("dataset") == dataset.name, "completion marker: dataset filename mismatch")
+    require(marker.get("metadata") == metadata_path.name, "completion marker: metadata filename mismatch")
+    require(marker.get("status") == "complete", "completion marker: status is not complete")
+    identities["source_manifest_sha256"] = raw_identity
+    return identities
+
+
+def verify_artifact_bindings(root: Path = ROOT) -> dict[str, str]:
+    identities = current_artifact_identities(root)
+    registry_path = root / REGISTRY
+    registry = read(registry_path)
+    entries = registry.get("entries", [])
+    require(entries, f"registry has no entries: {REGISTRY}")
+    artifact_fields = (
+        ("dataset_sha256", "dataset"), ("metadata_sha256", "metadata"),
+        ("completion_marker_sha256", "completion marker"),
+        ("target_table_sha256", "target source"),
+        ("source_manifest_sha256", "raw-source manifest"),
+    )
+    seen_manifests: set[str] = set()
+    seen_configs: set[str] = set()
+    for index, item in enumerate(entries):
+        location = f"registry {REGISTRY.as_posix()} entries[{index}]"
+        for field, artifact in artifact_fields[:-1]:
+            require_bound_hash(item.get(field), identities[field], artifact, f"{location}.{field}")
+        require(item.get("master_dataset_path") == DATASET.as_posix(),
+                f"dataset path mismatch at {location}.master_dataset_path")
+        manifest_rel = item.get("split_manifest_path")
+        require(isinstance(manifest_rel, str) and manifest_rel != "", f"missing split manifest at {location}")
+        manifest_path = root / manifest_rel
+        require(manifest_path.is_file(), f"missing split manifest: {manifest_rel}")
+        manifest_file_sha = sha(manifest_path)
+        require_bound_hash(item.get("split_manifest_sha256"), manifest_file_sha,
+                           "split manifest", f"{location}.split_manifest_sha256")
+        manifest = read(manifest_path)
+        calculated_partition = partition_identity(manifest)
+        require_bound_hash(item.get("partition_identity"), calculated_partition,
+                           "ordered partition", f"{location}.partition_identity")
+        require_bound_hash(item.get("split_binding_identity"), canonical_manifest_sha256(manifest),
+                           "split binding", f"{location}.split_binding_identity")
+        if manifest_rel not in seen_manifests:
+            seen_manifests.add(manifest_rel)
+            binding_location = f"split binding {manifest_rel}.dataset_binding"
+            binding = manifest.get("dataset_binding")
+            require(isinstance(binding, dict), f"missing dataset binding at {manifest_rel}")
+            for field, artifact in artifact_fields:
+                require_bound_hash(binding.get(field), identities[field], artifact,
+                                   f"{binding_location}.{field}")
+            require_bound_hash(manifest.get("dataset_identity"), identities["dataset_sha256"],
+                               "dataset", f"split binding {manifest_rel}.dataset_identity")
+            expected_paths = {
+                "dataset_path": DATASET.as_posix(),
+                "metadata_path": DATASET.with_suffix(".metadata.json").as_posix(),
+                "completion_marker_path": DATASET.with_suffix(".complete").as_posix(),
+                "target_table_path": TARGET.as_posix(),
+            }
+            for field, expected in expected_paths.items():
+                require(binding.get(field) == expected, f"path mismatch at {binding_location}.{field}")
+            require_bound_hash(manifest.get("partition_identity"), calculated_partition,
+                               "ordered partition", f"split binding {manifest_rel}.partition_identity")
+            require_bound_hash(manifest.get("canonical_manifest_sha256"), canonical_manifest_sha256(manifest),
+                               "split binding", f"split binding {manifest_rel}.canonical_manifest_sha256")
+        config_rel = item.get("configuration_path")
+        require(isinstance(config_rel, str) and config_rel != "", f"missing config path at {location}")
+        if config_rel not in seen_configs:
+            seen_configs.add(config_rel)
+            config_path = root / config_rel
+            require(config_path.is_file(), f"missing model configuration: {config_rel}")
+            config = read(config_path)
+            config_location = f"model configuration {config_rel}"
+            for field, artifact in artifact_fields:
+                require_bound_hash(config.get(field), identities[field], artifact,
+                                   f"{config_location}.{field}")
+            require(config.get("dataset_path") == DATASET.as_posix(),
+                    f"dataset path mismatch at {config_location}.dataset_path")
+            require(config.get("split_manifest_path") == manifest_rel,
+                    f"split manifest path mismatch at {config_location}.split_manifest_path")
+            require_bound_hash(config.get("split_manifest_sha256"), manifest_file_sha,
+                               "split manifest", f"{config_location}.split_manifest_sha256")
+    return identities
+
+
+def verify_cuda_pilot(
+    identities: dict[str, str], root: Path = ROOT, pilot_path: Path | None = None,
+) -> None:
+    path = pilot_path or root / PILOT
+    require(path.is_file(), f"Top1500 CUDA pilot evidence missing: {path}")
+    pilot = read(path)
+    required = {
+        "schema_version", "status", "dataset_path", "dataset_sha256", "metadata_path",
+        "metadata_sha256", "completion_marker_path", "completion_marker_sha256",
+        "raw_source_identity", "target_source_identity", "top_n", "universe_count",
+        "snapshot_count", "feature_dimension", "normalization", "periodic_flag", "k",
+        "box_size", "model_names_tested", "production_batch_sizes", "seed",
+        "train700_seed42_manifest_path", "manifest_sha256", "ordered_partition_identity",
+        "source_git_commit", "execution_timestamp", "cuda_device_identity",
+        "forward_backward_result", "finite_loss_result", "finite_gradient_result",
+        "peak_memory_mib", "results",
+    }
+    missing = sorted(required.difference(pilot))
+    require(not missing, f"CUDA PILOT MISSING REQUIRED FIELDS: {missing}")
+    require(pilot["schema_version"] == "u1000_top1500_cuda_pilot_v2", "unsupported CUDA pilot schema")
+    require(pilot["status"] == "PASS", "Top1500 CUDA pilot status is not PASS")
+    comparisons = (
+        ("dataset_sha256", "dataset SHA", "dataset_sha256"),
+        ("metadata_sha256", "metadata SHA", "metadata_sha256"),
+        ("completion_marker_sha256", "completion-marker SHA", "completion_marker_sha256"),
+        ("raw_source_identity", "raw-source identity", "source_manifest_sha256"),
+        ("target_source_identity", "target-source identity", "target_table_sha256"),
+    )
+    for field, label, identity_field in comparisons:
+        value = pilot[field]
+        require(isinstance(value, str) and SHA256_PATTERN.fullmatch(value) is not None,
+                f"INVALID CUDA PILOT: {label} is malformed")
+        require(value == identities[identity_field],
+                f"STALE CUDA PILOT: {label} does not match current Top1500 dataset")
+    expected_paths = {
+        "dataset_path": DATASET.as_posix(),
+        "metadata_path": DATASET.with_suffix(".metadata.json").as_posix(),
+        "completion_marker_path": DATASET.with_suffix(".complete").as_posix(),
+        "train700_seed42_manifest_path": PILOT_MANIFEST.as_posix(),
+    }
+    for field, expected in expected_paths.items():
+        require(pilot[field] == expected, f"STALE CUDA PILOT: {field} does not match {expected}")
+    manifest_path = root / PILOT_MANIFEST
+    manifest = read(manifest_path)
+    require_bound_hash(pilot["manifest_sha256"], sha(manifest_path), "pilot split manifest",
+                       "CUDA pilot.manifest_sha256")
+    require_bound_hash(pilot["ordered_partition_identity"], partition_identity(manifest),
+                       "pilot ordered partition", "CUDA pilot.ordered_partition_identity")
+    require(pilot["seed"] == 42 and manifest.get("seed") == 42,
+            "STALE CUDA PILOT: pilot is not bound to seed42")
+    require(pilot["top_n"] == 1500 and pilot["universe_count"] == 1000 and
+            pilot["snapshot_count"] == 5 and pilot["feature_dimension"] == 7,
+            "STALE CUDA PILOT: dataset dimensions/protocol mismatch")
+    require(pilot["normalization"] == "none" and pilot["periodic_flag"] is True and
+            pilot["k"] == 8 and float(pilot["box_size"]) == 25.0,
+            "STALE CUDA PILOT: graph protocol mismatch")
+    require(pilot["model_names_tested"] == ["evolve", "static"] and
+            pilot["production_batch_sizes"] == {"evolve": 4, "static": 8},
+            "CUDA pilot did not test both exact production batch sizes")
+    commit = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=root, text=True).strip()
+    require(pilot["source_git_commit"] == commit,
+            "STALE CUDA PILOT: source Git commit does not match current commit")
+    require(isinstance(pilot["execution_timestamp"], str) and pilot["execution_timestamp"],
+            "CUDA pilot execution timestamp is missing")
+    require(isinstance(pilot["cuda_device_identity"], dict) and pilot["cuda_device_identity"],
+            "CUDA pilot device identity is missing")
+    for field in ("forward_backward_result", "finite_loss_result", "finite_gradient_result"):
+        require(pilot[field] == "PASS", f"CUDA pilot {field} is not PASS")
+    require(set(pilot["results"]) == {"evolve", "static"}, "CUDA pilot model results are incomplete")
 
 
 def name(model: str, count: int, seed: int) -> str:
@@ -94,10 +295,7 @@ def create_manifest(source: dict[str, Any], dataset_binding: dict[str, Any] | No
         result["dataset_binding"] = dataset_binding
     result["graph_protocol_summary"]["top_n"] = 1500
     result["partition_source_manifest"] = source.get("canonical_manifest_sha256")
-    result["partition_identity"] = hashlib.sha256(
-        "".join(part + "\n" + ordered_id_hash(source[part + "_ids"])
-                for part in ("train", "val", "test", "unused")).encode()
-    ).hexdigest()
+    result["partition_identity"] = partition_identity(source)
     result["canonical_manifest_sha256"] = canonical_manifest_sha256(result)
     return result
 
@@ -268,10 +466,8 @@ def preflight() -> None:
     if not dataset.is_file():
         print(f"TOP1500 BUILD REQUIRED BEFORE CUDA: missing {DATASET}")
         raise SystemExit(3)
-    require(all(e["dataset_sha256"] != PENDING for e in read(ROOT/REGISTRY)["entries"]),
-            "dataset exists but bindings are pending; run --bind-dataset")
-    pilot = ROOT / REPORTS / "u1000_top1500_cuda_pilot_result.json"
-    require(pilot.is_file() and read(pilot).get("status") == "PASS", "Top1500 CUDA pilots have not passed")
+    identities = verify_artifact_bindings()
+    verify_cuda_pilot(identities)
     print("READY FOR TOP1500 MATRIX")
 
 

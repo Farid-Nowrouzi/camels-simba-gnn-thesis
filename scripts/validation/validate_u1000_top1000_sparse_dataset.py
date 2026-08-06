@@ -8,6 +8,7 @@ import csv
 import hashlib
 import json
 import math
+import re
 import sys
 from pathlib import Path
 from typing import Any, Mapping
@@ -18,7 +19,7 @@ REPOSITORY_ROOT = Path(__file__).resolve().parents[2]
 if str(REPOSITORY_ROOT) not in sys.path:
     sys.path.insert(0, str(REPOSITORY_ROOT))
 
-from src.data.source_manifest import source_manifest_sha256
+from src.data.source_manifest import sha256_file_streaming, source_manifest_sha256
 
 
 EXPECTED_RELATIVE_DATASET = Path(
@@ -35,6 +36,11 @@ EXPECTED_LOGICAL_ID = (
 EXPECTED_SNAPSHOTS = [0.20000, 0.25000, 0.51209, 0.75065, 1.00000]
 EXPECTED_FEATURES = ["log10_Mvir", "X", "Y", "Z", "VX", "VY", "VZ"]
 EXPECTED_TOP_N = 1000
+EXPECTED_BUILDER_MODULE = "src.data.build_temporal_sequences"
+EXPECTED_BUILDER_SOURCE = Path("src/data/build_temporal_sequences.py")
+EXPECTED_TOP1500_LAUNCHER = Path("scripts/production/run_u1000_top1500_sparse_build.sh")
+SHA256_PATTERN = re.compile(r"^[0-9a-f]{64}$")
+GIT_COMMIT_PATTERN = re.compile(r"^[0-9a-f]{40}$")
 
 
 def sha256_file(path: Path, chunk_size: int = 1024 * 1024) -> str:
@@ -84,7 +90,64 @@ def load_targets(path: Path) -> dict[str, float]:
     return targets
 
 
-def check_exact_metadata(metadata: Mapping[str, Any], complete: Mapping[str, Any], checksum: str) -> None:
+def _canonical_repository_path(repo_root: Path, value: Any, label: str) -> Path:
+    require(isinstance(value, str) and value != "", f"{label} is missing")
+    relative = Path(value)
+    require(not relative.is_absolute() and relative.as_posix() == value,
+            f"{label} must be a canonical repository-relative path")
+    resolved = (repo_root / relative).resolve()
+    try:
+        resolved.relative_to(repo_root.resolve())
+    except ValueError as exc:
+        raise ValueError(f"{label} escapes the repository") from exc
+    return resolved
+
+
+def check_builder_provenance(
+    metadata: Mapping[str, Any], repo_root: Path, *, required: bool,
+) -> None:
+    fields = {
+        "builder_provenance_schema_version", "builder_entrypoint", "builder_module",
+        "builder_source_path", "builder_source_sha256", "build_launcher_path",
+        "build_launcher_sha256", "source_git_commit",
+    }
+    present = fields.intersection(metadata)
+    if not required and not present:
+        return
+    missing = sorted(fields.difference(metadata))
+    require(not missing, f"builder metadata/provenance fields missing: {missing}")
+    require(metadata["builder_provenance_schema_version"] == "camels_builder_provenance_v1",
+            "wrong builder-provenance schema")
+    require(metadata["builder_entrypoint"] == EXPECTED_BUILDER_MODULE,
+            "metadata claims a different builder entrypoint")
+    require(metadata["builder_module"] == EXPECTED_BUILDER_MODULE,
+            "metadata claims a different builder module")
+    require(metadata["builder_source_path"] == EXPECTED_BUILDER_SOURCE.as_posix(),
+            "metadata claims a different production builder source")
+    require(metadata["build_launcher_path"] == EXPECTED_TOP1500_LAUNCHER.as_posix(),
+            "metadata claims a different Top1500 build launcher")
+    builder = _canonical_repository_path(repo_root, metadata["builder_source_path"], "builder_source_path")
+    launcher = _canonical_repository_path(repo_root, metadata["build_launcher_path"], "build_launcher_path")
+    require(builder.is_file(), f"builder source is missing: {builder}")
+    require(launcher.is_file(), f"build launcher is missing: {launcher}")
+    for key in ("builder_source_sha256", "build_launcher_sha256"):
+        require(isinstance(metadata[key], str) and SHA256_PATTERN.fullmatch(metadata[key]) is not None,
+                f"{key} is not a valid SHA-256")
+    require(metadata["builder_source_sha256"] == sha256_file_streaming(builder),
+            "builder source SHA-256 does not match current production builder")
+    require(metadata["build_launcher_sha256"] == sha256_file_streaming(launcher),
+            "build launcher SHA-256 does not match current production launcher")
+    require(isinstance(metadata["source_git_commit"], str) and
+            GIT_COMMIT_PATTERN.fullmatch(metadata["source_git_commit"]) is not None,
+            "source_git_commit is not a full Git commit identity")
+    require(metadata.get("git_commit") == metadata["source_git_commit"],
+            "source_git_commit disagrees with git_commit")
+
+
+def check_exact_metadata(
+    metadata: Mapping[str, Any], complete: Mapping[str, Any], checksum: str,
+    repo_root: Path = REPOSITORY_ROOT,
+) -> None:
     required_fields = {
         "dataset_type", "preprocessing_version", "num_universes_requested",
         "num_universes_successful", "num_universes_failed", "allow_partial",
@@ -173,6 +236,7 @@ def check_exact_metadata(metadata: Mapping[str, Any], complete: Mapping[str, Any
     )
     require(logical_id == EXPECTED_LOGICAL_ID, "logical dataset identity is wrong")
     require(len(checksum) == 64, "invalid immutable dataset checksum identity")
+    check_builder_provenance(metadata, repo_root, required=EXPECTED_TOP_N >= 1500)
 
 
 def check_manifest(metadata: Mapping[str, Any], target_path: Path) -> None:
@@ -363,7 +427,7 @@ def validate(repo_root: Path, dataset_path: Path, target_path: Path) -> None:
     checksum = sha256_file(dataset_path)
     metadata = load_json(metadata_path)
     complete = load_json(complete_path)
-    check_exact_metadata(metadata, complete, checksum)
+    check_exact_metadata(metadata, complete, checksum, repo_root)
     check_manifest(metadata, target_path)
     targets = load_targets(target_path)
 

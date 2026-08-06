@@ -9,6 +9,8 @@ readonly OUTPUT_DIR="data/processed/temporal_1000u_none_top1500_periodic_knn_spa
 readonly OUTPUT_FILE="${OUTPUT_DIR}/camels_1000u_temporal_logmass_none_top1500_periodic_knn_sparse.pt"
 readonly MIN_FREE_KIB=$((4 * 1024 * 1024))
 readonly SNAPSHOTS=("0.20000" "0.25000" "0.51209" "0.75065" "1.00000")
+readonly BUILDER_MODULE="src.data.build_temporal_sequences"
+readonly BUILD_LAUNCHER="scripts/production/run_u1000_top1500_sparse_build.sh"
 
 usage() {
   cat <<'EOF'
@@ -42,6 +44,10 @@ count="$(find "$RAW_DIR" -maxdepth 1 -type f -name 'LH_*_hlist_*.list' -printf '
 [[ "$count" -eq 5000 ]] || fail "expected exactly 5,000 catalogues; found ${count}"
 [[ -f reports/experiment_registry/u1000_top1500_raw_halo_count_distribution.csv ]] || fail "raw Top1500 audit missing"
 [[ -x envs/camels-gnn/bin/python ]] || fail "envs/camels-gnn unavailable"
+builder_source="${BUILDER_MODULE//.//}.py"
+[[ -f "$builder_source" && -f "$BUILD_LAUNCHER" ]] || fail "actual builder or launcher source cannot be determined"
+builder_sha="$(sha256sum "$builder_source" | awk '{print $1}')"
+launcher_sha="$(sha256sum "$BUILD_LAUNCHER" | awk '{print $1}')"
 source_identity="$(envs/camels-gnn/bin/python - <<'PY'
 import json
 from src.data.source_manifest import verify_full_source_manifest
@@ -73,13 +79,14 @@ conflicts="$(ps -eo pid=,args= | awk '$0 ~ /python/ && $0 ~ /build_temporal_sequ
 # shellcheck disable=SC1091
 source envs/camels-gnn/bin/activate
 
-command=(python -m src.data.build_temporal_sequences --raw_dir "$RAW_DIR" --output_path "$OUTPUT_FILE"
+command=(python -m "$BUILDER_MODULE" --builder_entrypoint "$BUILDER_MODULE" --build_launcher_path "$BUILD_LAUNCHER"
+  --raw_dir "$RAW_DIR" --output_path "$OUTPUT_FILE"
   --num_universes 1000 --num_snapshots 5 --num_nodes 1500 --normalization none --graph_mode knn
   --k 8 --periodic_boundary --box_size 25.0 --graph_storage sparse_edge_index
   --source_manifest_policy full_sha256 --targets_csv "$TARGET_FILE" --device cpu)
 printf -v command_text '%q ' "${command[@]}"; command_text="${command_text% }"
-printf 'PREFLIGHT PASS\nBranch: %s\nRaw catalogues: %s/5000\nSource manifest: %s\nTarget SHA-256: %s\nFree disk: %s KiB\nExact command: %s\n' \
-  "$branch" "$count" "$source_identity" "$actual_target" "$free_kib" "$command_text"
+printf 'PREFLIGHT PASS\nBranch: %s\nRaw catalogues: %s/5000\nSource manifest: %s\nTarget SHA-256: %s\nBuilder: %s (%s)\nLauncher: %s (%s)\nFree disk: %s KiB\nExact command: %s\n' \
+  "$branch" "$count" "$source_identity" "$actual_target" "$builder_source" "$builder_sha" "$BUILD_LAUNCHER" "$launcher_sha" "$free_kib" "$command_text"
 [[ "$mode" == --preflight-only ]] && { echo 'PREFLIGHT-ONLY COMPLETE: build not started.'; exit 0; }
 
 mkdir -p logs/dataset_builds "$OUTPUT_DIR"

@@ -1,0 +1,94 @@
+{
+  "schema_version": "u1000_top1500_build_readiness_after_integrity_fixes_v1",
+  "audit_date": "2026-08-06",
+  "starting_commit": "461430ba5bd1abbad3b218ce4d828c2e77f55397",
+  "decision": "READY FOR MANUAL TOP1500 BUILD",
+  "blocking_integrity_gaps_remaining": 0,
+  "artifact_preflight": {
+    "streaming_hashing": true,
+    "runs_on_every_preflight_and_resume": true,
+    "dataset_recomputed": true,
+    "metadata_recomputed": true,
+    "completion_marker_recomputed": true,
+    "target_source_recomputed": true,
+    "raw_source_manifest_recomputed_canonically": true,
+    "split_bindings_verified": 18,
+    "model_configurations_verified": 36,
+    "scoped_registry_rows_verified": 36,
+    "pending_rejected": true,
+    "missing_rejected": true,
+    "malformed_rejected": true,
+    "mismatch_rejected": true,
+    "cross_location_inconsistency_rejected": true
+  },
+  "cuda_pilot_gate": {
+    "schema_version": "u1000_top1500_cuda_pilot_v2",
+    "requires_pass": true,
+    "current_artifact_comparison": true,
+    "seed42_train700_manifest_comparison": true,
+    "ordered_partition_comparison": true,
+    "source_commit_comparison": true,
+    "stale_pilot_rejected": true,
+    "wrong_partition_rejected": true,
+    "resume_bypass": false
+  },
+  "builder_provenance": {
+    "schema_version": "camels_builder_provenance_v1",
+    "production_top1500_required": true,
+    "canonical_repository_relative_paths_required": true,
+    "builder_source_hash_verified": true,
+    "launcher_source_hash_verified": true,
+    "source_git_commit_required": true,
+    "historical_top1000_schema_accepted": true
+  },
+  "tests": {
+    "focused_integrity_tests_passed": 8,
+    "focused_integrity_tests_failed": 0,
+    "full_lightweight_tests_passed": 46,
+    "full_lightweight_tests_failed": 0,
+    "fake_bound_hash_rejected": true,
+    "stale_pilot_rejected": true,
+    "wrong_partition_rejected": true,
+    "missing_builder_rejected": true,
+    "wrong_builder_hash_rejected": true,
+    "correct_evidence_passed": true,
+    "top1000_full_validator_passed": true
+  },
+  "build_preflight": {
+    "result": "PASS",
+    "raw_catalogues": 5000,
+    "expected_raw_catalogues": 5000,
+    "raw_source_manifest_sha256": "ba22c3611a70763566ffb38a20f9b5a36fb6c1a27c3ad8030c4a7e189ce87618",
+    "target_sha256": "9692a97760ee0e3a97cf3293f1b73911ee0a1af028617f03fe85f88f431703c2",
+    "builder_and_launcher_identity_determined": true,
+    "build_started": false
+  },
+  "matrix_preflight": {
+    "result": "EXPECTED_MISSING_DATASET_GATE",
+    "exit_code": 3,
+    "trainer_started": false
+  },
+  "matrix_preservation": {
+    "evolve_configurations": 18,
+    "static_configurations": 18,
+    "total_cells": 36,
+    "training_levels": [20, 50, 100, 200, 450, 700],
+    "seeds": [42, 123, 2025],
+    "split_manifests": 18,
+    "planned": 36,
+    "running": 0,
+    "completed": 0,
+    "failed": 0,
+    "duplicate_cells": 0,
+    "ordered_partitions_unchanged": true,
+    "dataset_hashes_pending": true
+  },
+  "forbidden_activity": {
+    "dataset_build_started": false,
+    "cuda_pilot_started": false,
+    "training_started": false,
+    "top1500_experiment_directories_created": 0,
+    "top1500_checkpoints_created": 0,
+    "top1500_predictions_created": 0
+  }
+}

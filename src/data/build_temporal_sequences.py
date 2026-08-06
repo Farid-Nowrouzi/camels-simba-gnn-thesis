@@ -104,6 +104,7 @@ from src.data.source_manifest import (
     SOURCE_MANIFEST_POLICY_FULL,
     SOURCE_MANIFEST_POLICY_LEGACY,
     build_full_source_manifest,
+    sha256_file_streaming,
     verify_full_source_manifest,
 )
 
@@ -597,6 +598,8 @@ def build_temporal_dataset(
     overwrite: bool = False,
     force_unsafe_dense: bool = False,
     source_manifest_policy: Optional[str] = None,
+    builder_entrypoint: Optional[str] = None,
+    build_launcher_path: Optional[str | Path] = None,
 ) -> Dict[str, Any]:
     """
     Build temporal graph sequences from raw CAMELS-SIMBA halo catalogs.
@@ -654,6 +657,27 @@ def build_temporal_dataset(
     raw_dir = Path(raw_dir)
     output_path = Path(output_path)
 
+    repository_root = Path(__file__).resolve().parents[2]
+    actual_builder_path = Path(__file__).resolve()
+    actual_builder_relative = actual_builder_path.relative_to(repository_root).as_posix()
+    actual_builder_module = __spec__.name if __spec__ is not None else "src.data.build_temporal_sequences"
+    if builder_entrypoint is not None and builder_entrypoint != actual_builder_module:
+        raise ValueError(
+            f"builder entrypoint mismatch: launcher={builder_entrypoint} actual={actual_builder_module}"
+        )
+    launcher_relative = None
+    launcher_sha256 = None
+    if build_launcher_path is not None:
+        launcher = Path(build_launcher_path)
+        launcher = (repository_root / launcher).resolve() if not launcher.is_absolute() else launcher.resolve()
+        try:
+            launcher_relative = launcher.relative_to(repository_root).as_posix()
+        except ValueError as exc:
+            raise ValueError("build launcher path must be inside the repository") from exc
+        if not launcher.is_file():
+            raise FileNotFoundError(f"build launcher not found: {launcher}")
+        launcher_sha256 = sha256_file_streaming(launcher)
+
     if not raw_dir.exists():
         raise FileNotFoundError(f"Raw directory not found: {raw_dir}")
 
@@ -677,6 +701,13 @@ def build_temporal_dataset(
             "New sparse builds require source_manifest_policy=full_sha256; "
             "legacy/stat-only provenance is not accepted."
         )
+    if graph_storage == GRAPH_STORAGE_SPARSE and num_nodes >= 1500:
+        if builder_entrypoint is None or launcher_relative is None:
+            raise ValueError(
+                "Top1500 sparse builds require --builder_entrypoint and --build_launcher_path provenance"
+            )
+        if launcher_relative != "scripts/production/run_u1000_top1500_sparse_build.sh":
+            raise ValueError("Top1500 sparse build launcher provenance is not the production launcher")
     if graph_storage == GRAPH_STORAGE_DENSE and num_nodes > 512 and not force_unsafe_dense:
         raise ValueError(
             "Dense graph storage above 512 nodes is blocked by the resource guard; "
@@ -953,6 +984,13 @@ def build_temporal_dataset(
         "pyg_version": None,
         "creation_timestamp_utc": datetime.now(timezone.utc).isoformat(),
         "source_manifest_policy": resolved_manifest_policy,
+        "builder_provenance_schema_version": "camels_builder_provenance_v1",
+        "builder_entrypoint": actual_builder_module,
+        "builder_module": actual_builder_module,
+        "builder_source_path": actual_builder_relative,
+        "builder_source_sha256": sha256_file_streaming(actual_builder_path),
+        "build_launcher_path": launcher_relative,
+        "build_launcher_sha256": launcher_sha256,
     }
 
     config_material = {key: metadata[key] for key in (
@@ -1012,10 +1050,11 @@ def build_temporal_dataset(
     metadata["raw_catalogue_roots"] = [str(raw_dir)]
     try:
         metadata["git_commit"] = subprocess.check_output(
-            ["git", "rev-parse", "HEAD"], text=True, stderr=subprocess.DEVNULL
+            ["git", "rev-parse", "HEAD"], cwd=repository_root, text=True, stderr=subprocess.DEVNULL
         ).strip()
     except (OSError, subprocess.CalledProcessError):
         metadata["git_commit"] = "unknown"
+    metadata["source_git_commit"] = metadata["git_commit"]
 
     node_counts = [int(meta["num_real_nodes"]) for sample in dataset.values() for meta in sample["snapshots"]]
     edge_counts = [
@@ -1096,6 +1135,14 @@ def main() -> None:
         type=str,
         required=True,
         help="Raw CAMELS-SIMBA halo catalog directory.",
+    )
+    parser.add_argument(
+        "--builder_entrypoint", default=None,
+        help="Launcher-declared Python module; verified against the executing builder module.",
+    )
+    parser.add_argument(
+        "--build_launcher_path", default=None,
+        help="Repository-relative production launcher recorded in builder provenance.",
     )
     parser.add_argument(
         "--graph_storage", choices=[GRAPH_STORAGE_DENSE, GRAPH_STORAGE_SPARSE],
@@ -1245,6 +1292,8 @@ def main() -> None:
         overwrite=args.overwrite,
         force_unsafe_dense=args.force_unsafe_dense,
         source_manifest_policy=args.source_manifest_policy,
+        builder_entrypoint=args.builder_entrypoint,
+        build_launcher_path=args.build_launcher_path,
     )
 
 
