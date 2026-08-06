@@ -1,0 +1,3 @@
+model,runtime_seconds,max_host_rss_kib,peak_gpu_memory_mib
+evolve,532,2606464,800.0
+static,129,2379968,610.0

@@ -1,0 +1,3 @@
+model,experiment_name,status,best_epoch,epochs_run,mae,rmse,r2,mse
+evolve,evolvegcn_h_u1000_top1000_sparse_train700_seed42_none_h32_l2_mean_temporal_mean_linear,PASS,30,70,0.055442743559381856,0.06747741308425703,0.689387924407816,0.0045532012765434615
+static,static_gcn_u1000_top1000_sparse_train700_seed42_none_h32_l3_mean_mlp_final,PASS,73,113,0.04318159032816911,0.05444578993305524,0.797777212217105,0.002964344041434379
