@@ -34,6 +34,7 @@ EXPECTED_LOGICAL_ID = (
 )
 EXPECTED_SNAPSHOTS = [0.20000, 0.25000, 0.51209, 0.75065, 1.00000]
 EXPECTED_FEATURES = ["log10_Mvir", "X", "Y", "Z", "VX", "VY", "VZ"]
+EXPECTED_TOP_N = 1000
 
 
 def sha256_file(path: Path, chunk_size: int = 1024 * 1024) -> str:
@@ -115,7 +116,7 @@ def check_exact_metadata(metadata: Mapping[str, Any], complete: Mapping[str, Any
     require(metadata["num_universes_failed"] == 0, "build records failed universes")
     require(metadata["allow_partial"] is False, "partial-build mode was enabled")
     require(metadata["num_snapshots"] == 5, "wrong snapshot count")
-    require(metadata["num_nodes"] == 1000 and metadata["top_n"] == 1000, "wrong Top-N")
+    require(metadata["num_nodes"] == EXPECTED_TOP_N and metadata["top_n"] == EXPECTED_TOP_N, "wrong Top-N")
     require(metadata["normalization"] == "none", "wrong node normalization")
     require(metadata["target_normalization"] == "none", "wrong target normalization")
     require(metadata["graph_mode"] == "knn" and metadata["k"] == 8, "wrong kNN protocol")
@@ -226,12 +227,12 @@ def check_dataset(dataset: Any, metadata: Mapping[str, Any], targets: Mapping[st
         require(not any(str(key).lower() in dense_keys for key in sample),
                 f"{universe_id}: serialized dense-adjacency key found")
         require(not any(torch.is_tensor(value) and value.ndim == 2 and
-                        tuple(value.shape) == (1000, 1000) for value in sample.values()),
+                        tuple(value.shape) == (EXPECTED_TOP_N, EXPECTED_TOP_N) for value in sample.values()),
                 f"{universe_id}: serialized dense-adjacency tensor found")
         require(sample.get("feature_names") == EXPECTED_FEATURES,
                 f"{universe_id}: wrong feature names/order")
         require(sample.get("normalization") == "none", f"{universe_id}: wrong normalization")
-        require(sample.get("num_nodes") == 1000 and sample.get("num_snapshots") == 5,
+        require(sample.get("num_nodes") == EXPECTED_TOP_N and sample.get("num_snapshots") == 5,
                 f"{universe_id}: wrong node or snapshot count")
         require(sample.get("graph_mode") == "knn", f"{universe_id}: wrong graph mode")
         require(sample.get("periodic_boundary") is True, f"{universe_id}: periodic disabled")
@@ -265,19 +266,19 @@ def check_dataset(dataset: Any, metadata: Mapping[str, Any], targets: Mapping[st
             expected_snapshot_name = f"{universe_id}_hlist_{EXPECTED_SNAPSHOTS[snapshot_index]:.5f}.list"
             require(Path(str(snapshot.get("path"))).name == expected_snapshot_name,
                     f"{label}: source filename is wrong")
-            require(torch.is_tensor(features) and tuple(features.shape) == (1000, 7),
-                    f"{label}: node-feature shape is not [1000,7]")
+            require(torch.is_tensor(features) and tuple(features.shape) == (EXPECTED_TOP_N, 7),
+                    f"{label}: node-feature shape is not [{EXPECTED_TOP_N},7]")
             require(features.is_floating_point() and bool(torch.isfinite(features).all()),
                     f"{label}: node features contain NaN/Inf or are not floating point")
-            require(torch.is_tensor(mask) and tuple(mask.shape) == (1000, 1),
-                    f"{label}: mask shape is not [1000,1]")
+            require(torch.is_tensor(mask) and tuple(mask.shape) == (EXPECTED_TOP_N, 1),
+                    f"{label}: mask shape is not [{EXPECTED_TOP_N},1]")
             require(mask.is_floating_point() and bool(torch.isfinite(mask).all()),
                     f"{label}: mask contains NaN/Inf or is not floating point")
             flat_mask = mask.reshape(-1)
             require(bool(((flat_mask == 0) | (flat_mask == 1)).all()),
                     f"{label}: mask is not binary")
             real_nodes = int(flat_mask.sum().item())
-            require(0 < real_nodes <= 1000, f"{label}: invalid real-node count")
+            require(0 < real_nodes <= EXPECTED_TOP_N, f"{label}: invalid real-node count")
             require(bool((flat_mask[:real_nodes] == 1).all()) and
                     bool((flat_mask[real_nodes:] == 0).all()),
                     f"{label}: mask padding is not contiguous")
@@ -285,7 +286,7 @@ def check_dataset(dataset: Any, metadata: Mapping[str, Any], targets: Mapping[st
                     f"{label}: snapshot real-node count disagrees with mask")
             require(snapshot.get("selected_num_halos_before_padding") == real_nodes,
                     f"{label}: selected-node count disagrees with mask")
-            if real_nodes < 1000:
+            if real_nodes < EXPECTED_TOP_N:
                 require(bool((features[real_nodes:] == 0).all()),
                         f"{label}: padded node features are not zero")
             require(snapshot.get("feature_names") == EXPECTED_FEATURES,
@@ -306,9 +307,9 @@ def check_dataset(dataset: Any, metadata: Mapping[str, Any], targets: Mapping[st
             require(int(edge_index.min().item()) >= 0 and int(edge_index.max().item()) < real_nodes,
                     f"{label}: edge index is out of bounds or reaches padding")
             require(bool((edge_index[0] != edge_index[1]).all()), f"{label}: self-loop found")
-            encoded = edge_index[0] * 1000 + edge_index[1]
+            encoded = edge_index[0] * EXPECTED_TOP_N + edge_index[1]
             require(torch.unique(encoded).numel() == encoded.numel(), f"{label}: duplicate edge found")
-            reverse = edge_index[1] * 1000 + edge_index[0]
+            reverse = edge_index[1] * EXPECTED_TOP_N + edge_index[0]
             require(bool(torch.isin(reverse, encoded).all()), f"{label}: asymmetric edge found")
             if edge_weights is not None:
                 weights = edge_weights[snapshot_index]
