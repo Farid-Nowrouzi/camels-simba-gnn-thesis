@@ -1,0 +1,21 @@
+Top1000 safeguard,Top1000 evidence,Required for Top1500,Current Top1500 status,Result
+Raw catalogue completeness and readability,"u1000_top1000_raw_data_completeness.csv; u1000_top1000_halo_count_feasibility.csv; source manifest in Top1000 metadata",yes,"5000/5000 exact catalogues; full source manifest recomputed",PASS
+Authoritative target validation,"u1000_target_table_creation_audit.md; u1000_target_table_production_readiness.md; u1000_target_table_snapshot_consistency.csv; u1000_target_table_statistics.csv",yes,"1000 unique finite Omega_m targets; exact anchor/prediction agreement",PASS
+Universe identity and ordering,"u1000_top1000_population_and_role_plan.csv; Top1000 validator and ordered_universe_ids metadata",yes,"LH_0..LH_999 exact; generated complete inventory",PASS
+Five-snapshot sequence,"u1000_top1000_raw_data_completeness.csv; Top1000 validator; Top1000 serialized snapshots",yes,"0.20000/0.25000/0.51209/0.75065/1.00000 exact for every universe",PASS
+Deterministic Top-N selection,"topn_halo_selection_implementation_audit.md; sparse_u1000_integrity_hardening_audit.md; sparse real-data benchmark",yes,"raw Mvir descending; halo ID ascending; stable row fallback; sampled repeatability",PASS
+Graph and feature sanity,"baseline_validation_audit.md; sparse_u1000_equivalence_test_report.md; sparse_u1000_integrity_regression_report.md",yes,"seven exact features; sampled finite/range/schema checks",PASS
+Periodic-boundary correctness,"sparse_u1000_integrity_hardening_audit.md; sparse_u1000_equivalence_test_report.md; tests/test_sparse_graph_pipeline.py",yes,"minimum image on XYZ; k=8; symmetric unique deterministic edges",PASS
+Sparse-only integrity,"sparse_u1000_schema_specification.md; sparse_u1000_integrity_hardening_audit.md; sparse_u1000_integrity_regression_report.md",yes,"edge_index schema; no reachable dense allocation in sparse path",PASS
+Padding and mask semantics,"u1000_top1000_sparse_realdata_benchmark.csv; Top1000 validator; sparse batching/model tests",yes,"66313 expected padded slots; zero padding; masked edges and pooling",PASS
+Full source and target provenance,"u1000_top1000_source_manifest_policy_review.md; Top1000 metadata source_manifest; postbuild metadata audit",yes,"manifest ba22c361... verified; target SHA 9692a977...",PASS
+Atomic publication and collision protection,"src/data/atomic_dataset.py; sparse_u1000 integrity tests; Top1000 completion marker",yes,"same-directory unique temps; fsync; replace; marker last; overwrite refusal",PASS
+Production launcher and retained log,"run_u1000_top1000_sparse_build.sh; u1000_top1000_sparse_build_20260805T204219Z.log",yes,"Top1500 launcher syntax/preflight pass; distinct retained log path",PASS
+Read-only build monitor,"monitor_u1000_top1000_build.sh",yes,"monitor_u1000_top1500_sparse_build.sh help/syntax pass",PASS
+Metadata schema and completion identity,"Top1000 metadata; .complete marker; postbuild metadata field/consistency audits",yes,"Top1500 metadata is derived from effective config and validator requires Top1500 tensor shape",PASS
+Dataset post-build validator,"validate_u1000_top1000_sparse_dataset.py; u1000_top1000_post_sparse_build_gate_audit.md",yes,"Top1500 wrapper enforces shape/padding/raw-count parity and exact protocol",PASS
+Stale-label separation,"u1000_top1000_postbuild_metadata_consistency_audit.md",yes,"historical v2 label documented as non-operative; new builds use derived v3 label",PASS
+CUDA feasibility gate,"u1000_top1000_cuda_pilot_audit.md; u1000_top1000_cuda_pilot_metrics.csv; u1000_top1000_cuda_pilot_production_readiness.md",yes,"Top1500 pilot requires real dataset and records hashes but matrix preflight trusts status without comparing hashes",FAIL
+Immutable nested split generation,"u1000_top1000_nested_split_manifest_creation_audit.md; split_manifest_inventory.json",yes,"18 Top1500 bindings preserve exact ordered Top1000 partitions",PASS
+Split-manifest validation and seed binding,"u1000_top1000_nested_split_manifest_validation.csv; sparse_u1000_seed_binding_test_report.md",yes,"18/18 exact; disjoint; nested; seed-bound; full population covered",PASS
+Registry binding and matrix preflight,"u1000_top1000_training_scaling_matrix_preparation.md; matrix_preflight.md; registry_status.csv",yes,"36 planned cells and missing-dataset gate pass; non-pending hashes are not verified against artifacts",FAIL

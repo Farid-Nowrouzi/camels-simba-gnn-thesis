@@ -1,0 +1,107 @@
+{
+  "schema_version": "u1000_top1500_cuda_pilot_v2",
+  "status": "PASS",
+  "dataset_path": "data/processed/temporal_1000u_none_top1500_periodic_knn_sparse/camels_1000u_temporal_logmass_none_top1500_periodic_knn_sparse.pt",
+  "dataset_sha256": "ff6f6a89517c0b67a96a8733ce5778dba1524df441cc23c27fbfa4e2f5cdb113",
+  "metadata_path": "data/processed/temporal_1000u_none_top1500_periodic_knn_sparse/camels_1000u_temporal_logmass_none_top1500_periodic_knn_sparse.metadata.json",
+  "metadata_sha256": "b76e1ae9c049ce3cff9a625a8acb6af7b53018b7bf0d02308b5f526148aef0ba",
+  "completion_marker_path": "data/processed/temporal_1000u_none_top1500_periodic_knn_sparse/camels_1000u_temporal_logmass_none_top1500_periodic_knn_sparse.complete",
+  "completion_marker_sha256": "cb8a14789bb84b96ab5274ba659fe58d9db4adb3a92965fc1dce29c2a9cd85a6",
+  "raw_source_identity": "ba22c3611a70763566ffb38a20f9b5a36fb6c1a27c3ad8030c4a7e189ce87618",
+  "target_source_identity": "9692a97760ee0e3a97cf3293f1b73911ee0a1af028617f03fe85f88f431703c2",
+  "top_n": 1500,
+  "universe_count": 1000,
+  "snapshot_count": 5,
+  "feature_dimension": 7,
+  "normalization": "none",
+  "periodic_flag": true,
+  "k": 8,
+  "box_size": 25.0,
+  "model_names_tested": [
+    "evolve",
+    "static"
+  ],
+  "production_batch_sizes": {
+    "evolve": 4,
+    "static": 8
+  },
+  "seed": 42,
+  "train700_seed42_manifest_path": "configs/splits/u1000_top1500_none_k8_sparse/seed42_train700.json",
+  "manifest_sha256": "f5556ec5c193e7cb80f2231705edbdae32d4de206889dec308a819bdde427ab7",
+  "ordered_partition_identity": "15eeb9cfe70afc50f71d521f3babf15542ea0df17bb1d381f9a066e49e3e1c03",
+  "source_git_commit": "eeb4f8cfaba81a6634090fa6064c39d0822a3060",
+  "execution_timestamp": "2026-08-06T11:03:22.823557+00:00",
+  "cuda_device_identity": {
+    "index": 0,
+    "name": "NVIDIA L40",
+    "total_memory_bytes": 47667740672,
+    "compute_capability": "8.9"
+  },
+  "forward_backward_result": "PASS",
+  "finite_loss_result": "PASS",
+  "finite_gradient_result": "PASS",
+  "peak_memory_mib": {
+    "evolve": {
+      "allocated": 282.30224609375,
+      "reserved": 326.0
+    },
+    "static": {
+      "allocated": 103.75927734375,
+      "reserved": 118.0
+    }
+  },
+  "results": {
+    "evolve": {
+      "status": "PASS",
+      "model": "evolve",
+      "batch_size": 4,
+      "snapshots": 5,
+      "prediction_shape": [
+        4,
+        1
+      ],
+      "loss": 2393.28515625,
+      "forward_ms": 332.4436950683594,
+      "backward_ms": 88.29440307617188,
+      "peak_allocated_cuda_mib": 282.30224609375,
+      "peak_reserved_cuda_mib": 326.0,
+      "host_rss_mib": 3008.390625,
+      "sparse_only": true,
+      "gradient_tensors": 14,
+      "nonzero_gradients": true,
+      "forward_backward_result": "PASS",
+      "finite_loss_result": "PASS",
+      "finite_gradient_result": "PASS",
+      "post_cleanup_allocated_cuda_mib": 29.25341796875
+    },
+    "static": {
+      "status": "PASS",
+      "model": "static",
+      "batch_size": 8,
+      "snapshots": 1,
+      "prediction_shape": [
+        8,
+        1
+      ],
+      "loss": 0.08774065971374512,
+      "forward_ms": 3.6750400066375732,
+      "backward_ms": 2.777087926864624,
+      "peak_allocated_cuda_mib": 103.75927734375,
+      "peak_reserved_cuda_mib": 118.0,
+      "host_rss_mib": 3014.890625,
+      "sparse_only": true,
+      "gradient_tensors": 22,
+      "nonzero_gradients": true,
+      "forward_backward_result": "PASS",
+      "finite_loss_result": "PASS",
+      "finite_gradient_result": "PASS",
+      "post_cleanup_allocated_cuda_mib": 16.2763671875
+    }
+  },
+  "safety": {
+    "epoch_loops": 0,
+    "optimizer_steps": 0,
+    "checkpoints": 0,
+    "predictions": 0
+  }
+}

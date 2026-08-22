@@ -1,6 +1,6 @@
 {
   "current_git_branch": "thesis-sparse-integrity-hardening",
-  "current_git_commit": "b4c7ef028e985ad7d558c6c4ab7228584f069c18",
+  "current_git_commit": "c87f65b70b29d56adef82664d2525ea2ec7e194b",
   "current_git_dirty_state": "dirty",
   "errors_count": 0,
   "generated_files": [
@@ -18,7 +18,7 @@
   "number_of_rows_generated": 234,
   "platform": "Linux-6.8.12-18-pve-x86_64-with-glibc2.35",
   "python_version": "3.10.12 (main, Mar  3 2026, 11:56:32) [GCC 11.4.0]",
-  "registry_generation_timestamp": "2026-08-06T00:42:58.778406+00:00",
+  "registry_generation_timestamp": "2026-08-06T02:53:16.450620+00:00",
   "repository_root": "/home/ml/thesis-camels",
   "script": "scripts/build_experiment_registry.py",
   "script_version": "1.0.0",

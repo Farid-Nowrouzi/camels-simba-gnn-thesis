@@ -1,0 +1,7 @@
+training_universes,evolve_MAE_mean_std,static_MAE_mean_std,evolve_RMSE_mean_std,static_RMSE_mean_std,evolve_R2_mean_std,static_R2_mean_std,winner_MAE,winner_RMSE,winner_R2
+Train20,0.5427 ± 0.4938,0.0687 ± 0.0056,0.8120 ± 0.7305,0.0856 ± 0.0058,-76.120 ± 115.452,0.478 ± 0.042,Static GCN,Static GCN,Static GCN
+Train50,0.1767 ± 0.1032,0.0582 ± 0.0058,0.3406 ± 0.2915,0.0720 ± 0.0059,-12.093 ± 19.108,0.626 ± 0.086,Static GCN,Static GCN,Static GCN
+Train100,0.1642 ± 0.1328,0.0506 ± 0.0009,0.2240 ± 0.1881,0.0641 ± 0.0020,-4.593 ± 8.103,0.706 ± 0.024,Static GCN,Static GCN,Static GCN
+Train200,0.0704 ± 0.0009,0.0461 ± 0.0018,0.0919 ± 0.0030,0.0576 ± 0.0018,0.398 ± 0.040,0.764 ± 0.012,Static GCN,Static GCN,Static GCN
+Train450,0.0638 ± 0.0042,0.0421 ± 0.0038,0.0791 ± 0.0051,0.0540 ± 0.0034,0.554 ± 0.030,0.793 ± 0.016,Static GCN,Static GCN,Static GCN
+Train700,0.0580 ± 0.0033,0.0397 ± 0.0031,0.0748 ± 0.0073,0.0510 ± 0.0031,0.595 ± 0.105,0.815 ± 0.016,Static GCN,Static GCN,Static GCN

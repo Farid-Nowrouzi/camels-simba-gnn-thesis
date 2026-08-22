@@ -1,20 +1,29 @@
-# U1000 Top1000 Training Scaling Scientific Interpretation
+# U1000 Top1000 Training Scaling: Presentation and Thesis Interpretation
+
+## Headline findings
+
+- **Static GCN is better overall in this completed matrix.** It has lower seed-matched MAE in 18/18 comparisons and wins the mean MAE, RMSE, and R² comparison at every training-universe count.
+- At Train700, Static GCN achieves MAE 0.0397 ± 0.0031 and R² 0.815 ± 0.016; EvolveGCN-H achieves MAE 0.0580 ± 0.0033 and R² 0.595 ± 0.105.
+- More training universes help both tested architectures overall, but the curves are not perfectly monotonic and gains diminish at the upper end.
+- The conclusion is architecture- and setup-specific: it does not show that temporal information is inherently useless.
 
 ## Validated evidence base
 
-This interpretation uses all 36 completed, validated runs: two models, six training-set sizes, and three seeds per cell. Every run has 201 ordered test predictions whose IDs and targets were checked against its stored split manifest and the authoritative target table. MAE, MSE, RMSE, and R² were independently recomputed from those predictions and matched the reported metrics.
+This interpretation uses only the 36 completed/PASS matrix runs: two models, six training-universe counts (20, 50, 100, 200, 450, and 700), and seeds 42, 123, and 2025. Exactly one earlier invalid run is preserved in the registry but is matrix-excluded and is not analyzed. Every included run has 201 test predictions whose IDs, order, and true Ωm values were checked against its split manifest and authoritative target table. MAE, MSE, RMSE, and R² were independently recomputed and match the stored metrics.
+
+“Training universes” is the number of universes assigned to the training split. Within each seed, validation (99 universes) and test (201 universes) remain fixed across training counts and models according to the reviewed manifests; the additional eligible universes are unused. The split is seed-specific, so different seeds have different 201-universe test sets.
+
+## Reading the true-vs-predicted figures
+
+The x-axis is the actual true Ωm value for each held-out test universe; moving left is not “better.” Accuracy is represented by proximity to the diagonal y=x line. Unequal point coverage toward the upper range can reflect the realized test-target distribution, while predictions that occupy a narrower vertical range than the true targets indicate model compression or regression toward the mean.
 
 ## Learning curves
 
-Static GCN improves substantially as the training set grows: its mean MAE changes from 0.0687 ± 0.0056 at Train20 to 0.0397 ± 0.0031 at Train700. EvolveGCN-H is much less monotonic and remains worse at Train700, where its mean MAE is 0.0580 ± 0.0033. The MSE, RMSE, and R² curves give the same broad ranking while exposing particularly large errors in unstable EvolveGCN-H runs.
+Static GCN improves from mean MAE 0.0687 ± 0.0056 at Train20 to 0.0397 ± 0.0031 at Train700. EvolveGCN-H is less monotonic and remains worse at Train700. MSE, RMSE, and R² give the same overall ranking. From Train450 to Train700, paired MAE changes are -0.0025 ± 0.0010 for Static GCN and -0.0058 ± 0.0075 for EvolveGCN-H (negative means improvement). These final increments are smaller than the full Train20-to-Train700 change, supporting diminishing returns, but only three paired seeds quantify each increment.
 
 ## Static versus Evolve performance and seed stability
 
-Static GCN has lower paired MAE in 18 of 18 model/count/seed comparisons. At Train700, Static GCN MAE is 0.0397 ± 0.0031, compared with 0.0580 ± 0.0033 for EvolveGCN-H. Static GCN is also more stable across seeds at the larger training sizes. The tested Static GCN architecture uses the available representation more effectively than the tested EvolveGCN-H architecture under the controlled protocol.
-
-## Small-training-set Evolve instability
-
-At Train20, EvolveGCN-H has MAE 0.5427 ± 0.4938, R² -76.120 ± 115.452, and prediction-SD ratio 6.914 ± 6.462. The large across-seed dispersion and poor R² indicate unstable generalization in this low-data regime; they do not establish a universal property of evolving graph models.
+Static GCN has lower paired MAE in 18/18 model/count/seed comparisons and is generally more stable at larger training counts. EvolveGCN-H is especially unstable at Train20: MAE 0.5427 ± 0.4938, R² -76.120 ± 115.452, and prediction-SD ratio 6.914 ± 6.462. Sample SD reflects only three seeds, so stability claims should remain descriptive.
 
 ## Prediction spread and residual structure
 
@@ -22,7 +31,11 @@ At Train700, the prediction-SD ratios are 0.855 ± 0.025 for Static GCN and 0.88
 
 ## Train450 versus Train700
 
-The paired Train700-minus-Train450 MAE change is -0.0025 ± 0.0010 for Static GCN and -0.0058 ± 0.0075 for EvolveGCN-H (negative favors Train700). Because each comparison preserves model and seed, this is the cleanest assessment of the final increase in training size, but only three seed pairs support each estimate.
+The paired comparison preserves model, seed, validation set, and test set. It is the cleanest assessment of the final training-size increase, but the three seed pairs do not support fine-grained uncertainty claims.
+
+## Seed-specific prediction-table constraint
+
+The three seeds do not evaluate the same 201 universe IDs (only 12 test IDs occur in all three). Therefore a 201-row table containing three seed predictions and their per-universe mean is not identifiable from the authoritative test predictions. Creating it would require fabricating missing predictions or mixing training/validation predictions into test analysis. The package instead provides 18 exact, 201-row tables—one per training count and seed—with EvolveGCN-H and Static GCN paired on the same held-out universe IDs. Cross-seed means are used only for aggregate metrics, where that operation is scientifically valid.
 
 ## Scope of the temporal conclusion
 

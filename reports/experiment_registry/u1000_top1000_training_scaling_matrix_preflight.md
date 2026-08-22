@@ -1,10 +1,10 @@
 # U1000 Top1000 Training-Scaling Matrix Preflight
 
-Generated: 2026-08-06T00:42:57.538776+00:00
+Generated: 2026-08-06T00:57:43.934266+00:00
 
 - Decision: **READY FOR MANUAL TMUX LAUNCH**
 - Branch: thesis-sparse-integrity-hardening
-- HEAD: b4c7ef028e985ad7d558c6c4ab7228584f069c18
+- HEAD: c87f65b70b29d56adef82664d2525ea2ec7e194b
 - Dataset and target hashes: PASS
 - Dataset validator: PASS
 - Manifests: PASS (18/18)

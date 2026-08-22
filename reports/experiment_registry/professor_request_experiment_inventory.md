@@ -29,7 +29,7 @@ The project progressed from raw-data and graph sanity checks, through 20U-500U s
 |evolvegcn-h_u50_top100_norm-minmax_h32_l2_gpool-mean_tpool-mean_head-mlp|123|0.10247249715|0|partly_controlled|
 |evolvegcn-h_u50_top100_norm-minmax_h32_l2_gpool-mean_tpool-mean_head-mlp|42,2025|0.110449951142|0.0239495607592|partly_controlled|
 |evolvegcn-h_u50_top100_norm-minmax_h32_l2_gpool-mean_tpool-mean_head-mlp|42,2025|0.110449951142|0.0239495607592|partly_controlled|
-|u1000-top1000-sparse-evolve-train700-seed42|42|0.0554427435594|0|partly_controlled|
+|u1000-top1000-sparse-evolve-train100-seed123|42,123,2025|0.17931519587|0.249828261677|partly_controlled|
 
 
 ## 4. Top-N Halo Investigation
@@ -282,7 +282,7 @@ Prediction collapse is captured in the registry by prediction_std_ratio, repeate
 |universe_scaling|evolvegcn-h_u50_top100_norm-minmax_h32_l2_gpool-mean_tpool-mean_head-mlp|123|0.10247249715|Configs do not save git commit or exact command line.|
 |universe_scaling|evolvegcn-h_u50_top100_norm-minmax_h32_l2_gpool-mean_tpool-mean_head-mlp|42,2025|0.110449951142|Configs do not save git commit or exact command line.|
 |universe_scaling|evolvegcn-h_u50_top100_norm-minmax_h32_l2_gpool-mean_tpool-mean_head-mlp|42,2025|0.110449951142|Configs do not save git commit or exact command line.|
-|universe_scaling|u1000-top1000-sparse-evolve-train700-seed42|42|0.0554427435594|Configs do not save git commit or exact command line.|
+|universe_scaling|u1000-top1000-sparse-evolve-train100-seed123|42,123,2025|0.17931519587|Configs do not save git commit or exact command line.|
 
 
 ## 17. Missing or Incomplete Experiment Families

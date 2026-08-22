@@ -4,8 +4,8 @@ Canonical lifecycle source: `configs/experiment_registry/u1000_top1000_training_
 Canonical repository registry: `reports/experiment_registry/master_experiment_registry.csv`.
 
 - Valid matrix cells: 36
-- Completed: 2
-- Planned: 34
+- Completed: 36
+- Planned: 0
 - Running: 0
 - Failed: 0
 - Invalid/excluded preserved attempts: 1
