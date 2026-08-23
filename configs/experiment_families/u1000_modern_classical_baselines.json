@@ -1,0 +1,79 @@
+{
+  "schema_version": "1.0",
+  "family_id": "u1000_modern_classical_baselines",
+  "scientific_question": "Do final-snapshot engineered halo summaries predict Omega_m without explicit graph modeling?",
+  "training_module": "src.evaluation.run_modern_summary_baselines",
+  "output_root": "experiments",
+  "representation": "engineered_summary",
+  "snapshot_protocol": "final",
+  "final_scale_factor": 1.0,
+  "summary_definition_version": "u1000_final_summary20_v1",
+  "feature_count": 20,
+  "target": "Omega_m",
+  "target_normalization": "none",
+  "top_n": [500, 1000, 1500, 2000],
+  "seeds": [42, 123, 2025],
+  "models": ["ridge", "random_forest", "gradient_boosting"],
+  "expected_job_counts": {
+    "mean_artifacts": 3,
+    "ridge_fits": 12,
+    "random_forest_fits": 12,
+    "gradient_boosting_fits": 12,
+    "sklearn_fits": 36,
+    "total_artifacts": 39
+  },
+  "mean_baseline": {
+    "canonical_dataset_top_n": 1000,
+    "scientifically_unique_by": "seed",
+    "aliases": {
+      "500": "mean_baseline_u1000_train700_seed{seed}_targetmean",
+      "1000": "mean_baseline_u1000_train700_seed{seed}_targetmean",
+      "1500": "mean_baseline_u1000_train700_seed{seed}_targetmean",
+      "2000": "mean_baseline_u1000_train700_seed{seed}_targetmean"
+    },
+    "note": "Top-N comparisons reference the same seed-level artifact; validation/test targets never determine the prediction."
+  },
+  "datasets": {
+    "500": {
+      "path": "data/processed/temporal_1000u_none_top500_periodic_knn_sparse/camels_1000u_temporal_logmass_none_top500_periodic_knn_sparse.pt",
+      "sha256": "8672e3f7897507185578a138021e9eaea096219cf33a2e8934f913b12c50a214",
+      "split_manifests": {
+        "42": {"path": "configs/splits/u1000_top500_none_k8_sparse/seed42_train700.json", "sha256": "e726dba3e1926b1dcb109a2510121a8756f7c3412288e7572930cafee9b9525e"},
+        "123": {"path": "configs/splits/u1000_top500_none_k8_sparse/seed123_train700.json", "sha256": "fea06870c87ef0ac97899105d13572027fa8f6480c20f48d0999bfefc1ac39b0"},
+        "2025": {"path": "configs/splits/u1000_top500_none_k8_sparse/seed2025_train700.json", "sha256": "308e9f590862e47e423b59b941e828a6877a8aa7bbe6aee972a5a308a831a8d0"}
+      }
+    },
+    "1000": {
+      "path": "data/processed/temporal_1000u_none_top1000_periodic_knn_sparse/camels_1000u_temporal_logmass_none_top1000_periodic_knn_sparse.pt",
+      "sha256": "6a794c38216175212ec969283fdbd214bcdc64caecde78d24b81545e681a332a",
+      "split_manifests": {
+        "42": {"path": "configs/splits/u1000_top1000_none_k8_sparse/seed42_train700.json", "sha256": "b56f35e4cbf1307344beaaf5b26cf181004d23d04fd719b678f1edb9e9924571"},
+        "123": {"path": "configs/splits/u1000_top1000_none_k8_sparse/seed123_train700.json", "sha256": "2e2d1043dd2c0517ab0084a0d31f09f3af7875a8bcb341c4a7362c6c419e04c4"},
+        "2025": {"path": "configs/splits/u1000_top1000_none_k8_sparse/seed2025_train700.json", "sha256": "e80a9ce994257b2ce818c10e452d4d4a0ba3ec7cacc80cc199480677e38f4c72"}
+      }
+    },
+    "1500": {
+      "path": "data/processed/temporal_1000u_none_top1500_periodic_knn_sparse/camels_1000u_temporal_logmass_none_top1500_periodic_knn_sparse.pt",
+      "sha256": "ff6f6a89517c0b67a96a8733ce5778dba1524df441cc23c27fbfa4e2f5cdb113",
+      "split_manifests": {
+        "42": {"path": "configs/splits/u1000_top1500_none_k8_sparse/seed42_train700.json", "sha256": "f5556ec5c193e7cb80f2231705edbdae32d4de206889dec308a819bdde427ab7"},
+        "123": {"path": "configs/splits/u1000_top1500_none_k8_sparse/seed123_train700.json", "sha256": "18a295106ec844848053f3040d2be3cdf73a443010be31e6e2cd962362982471"},
+        "2025": {"path": "configs/splits/u1000_top1500_none_k8_sparse/seed2025_train700.json", "sha256": "c233c0631b1a24d963ffccc7c6389054fddf135a7aabc4dc4ab7bf5976fab3a9"}
+      }
+    },
+    "2000": {
+      "path": "data/processed/temporal_1000u_none_top2000_periodic_knn_sparse/camels_1000u_temporal_logmass_none_top2000_periodic_knn_sparse.pt",
+      "sha256": "b4258f4c95b15c4626609e1de4b1784d8120fe36bfd43dfe51f7b186b263a4e7",
+      "split_manifests": {
+        "42": {"path": "configs/splits/u1000_top2000_none_k8_sparse/seed42_train700.json", "sha256": "8d39af96bd7565e422b18fb56d3757f5f3b4b612ce4a68cc10ff8fd1ec789a9c"},
+        "123": {"path": "configs/splits/u1000_top2000_none_k8_sparse/seed123_train700.json", "sha256": "017daa16f28d8c25315a87624880241a1b2bbe5d985e06ac879d4f9471030893"},
+        "2025": {"path": "configs/splits/u1000_top2000_none_k8_sparse/seed2025_train700.json", "sha256": "7738403ff37b18cd82897bcfd4b4c3d3b20941f29bb5446b642e378f1ee5a68c"}
+      }
+    }
+  },
+  "scientific_context": {
+    "future_core_comparator": "final-snapshot DeepSets",
+    "existing_core_comparator": "final-snapshot Static GCN",
+    "context_only_reference": "five-snapshot EvolveGCN-H"
+  }
+}
