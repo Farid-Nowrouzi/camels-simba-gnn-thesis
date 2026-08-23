@@ -64,7 +64,7 @@
       "num_universes_successful": 1000,
       "num_universes_failed": 0,
       "num_snapshots": 5,
-      "snapshot_ids": [0.2, 0.25, 0.51209, 0.50065, 1.0],
+      "snapshot_ids": [0.2, 0.25, 0.51209, 0.75065, 1.0],
       "num_nodes": 500,
       "normalization": "none",
       "target_normalization": "none",
