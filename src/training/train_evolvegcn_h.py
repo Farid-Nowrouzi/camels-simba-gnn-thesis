@@ -74,9 +74,10 @@ python -m src.training.train_evolvegcn_h \
 import argparse
 import csv
 import json
+import math
 import random
 from pathlib import Path
-from typing import Any, Dict, List, Tuple
+from typing import Any, Dict, List, Sequence, Tuple
 
 import numpy as np
 import torch
@@ -113,6 +114,170 @@ def set_seed(seed: int) -> None:
 # ============================================================
 # Dataset wrapper
 # ============================================================
+
+TEMPORAL_PROTOCOL_NESTED_SUFFIX = "nested_suffix_context_v1"
+TEMPORAL_LIST_FIELDS = (
+    "Nodes_list",
+    "edge_index_list",
+    "mask_list",
+    "snapshots",
+    "edge_weight_list",
+    "A_list",
+)
+
+
+def snapshot_value(snapshot: Any) -> float:
+    """Return a scale factor from repository snapshot metadata."""
+    value = snapshot.get("snapshot_value") if isinstance(snapshot, dict) else snapshot
+    try:
+        result = float(value)
+    except (TypeError, ValueError) as exc:
+        raise ValueError(f"Snapshot metadata has no numeric snapshot_value: {snapshot!r}") from exc
+    if not math.isfinite(result):
+        raise ValueError(f"Snapshot value must be finite, got {result!r}.")
+    return result
+
+
+def validate_snapshot_indices(indices: Sequence[int], snapshot_count: int) -> List[int]:
+    """Validate an explicit, authoritative temporal selection."""
+    selected = list(indices)
+    if not selected:
+        raise ValueError("selected_snapshot_indices must not be empty.")
+    if any(isinstance(index, bool) or not isinstance(index, int) for index in selected):
+        raise ValueError("selected_snapshot_indices must contain only integers.")
+    if len(set(selected)) != len(selected):
+        raise ValueError("selected_snapshot_indices contains duplicate indices.")
+    if selected != sorted(selected):
+        raise ValueError("selected_snapshot_indices must be sorted in stored order.")
+    invalid = [index for index in selected if index < 0 or index >= snapshot_count]
+    if invalid:
+        raise ValueError(
+            "selected_snapshot_indices contains negative or out-of-range indices: "
+            f"{invalid}; valid range is [0, {snapshot_count - 1}]."
+        )
+    if selected[-1] != snapshot_count - 1:
+        raise ValueError(
+            "The selected final snapshot must be the last stored snapshot "
+            f"(index {snapshot_count - 1}), got {selected[-1]}."
+        )
+    return selected
+
+
+def select_temporal_snapshots(
+    sample: Dict[str, Any],
+    selected_snapshot_indices: Sequence[int] | None = None,
+    selected_snapshot_values: Sequence[float] | None = None,
+    *,
+    sample_label: str = "temporal sample",
+) -> Dict[str, Any]:
+    """Validate one sample and return a shallow explicit temporal view.
+
+    With no selection, the original dictionary is returned after validation. This
+    preserves the historical five-snapshot path without copying or changing any
+    stored tensor/list. Explicit selections reuse tensors and copy only the outer
+    sample dictionary and temporal lists.
+    """
+    if "snapshots" not in sample:
+        raise KeyError(f"{sample_label}: missing temporal field 'snapshots'.")
+    snapshots = sample["snapshots"]
+    if not isinstance(snapshots, (list, tuple)) or not snapshots:
+        raise ValueError(f"{sample_label}: snapshots must be a non-empty sequence.")
+    snapshot_count = len(snapshots)
+
+    required = ["Nodes_list", "mask_list"]
+    required.append("edge_index_list" if "edge_index_list" in sample else "A_list")
+    for field in required:
+        if field not in sample:
+            raise KeyError(f"{sample_label}: missing temporal field {field!r}.")
+
+    for field in TEMPORAL_LIST_FIELDS:
+        value = sample.get(field)
+        if value is None:
+            continue
+        if not isinstance(value, (list, tuple)):
+            raise ValueError(f"{sample_label}: {field} must be a sequence or None.")
+        if len(value) != snapshot_count:
+            raise ValueError(
+                f"{sample_label}: temporal field-length mismatch: {field} has "
+                f"{len(value)} entries but snapshots has {snapshot_count}."
+            )
+
+    master_values = [snapshot_value(item) for item in snapshots]
+    if selected_snapshot_indices is None:
+        if selected_snapshot_values is not None:
+            raise ValueError(
+                "selected_snapshot_values requires selected_snapshot_indices."
+            )
+        selected = list(range(snapshot_count))
+    else:
+        selected = validate_snapshot_indices(selected_snapshot_indices, snapshot_count)
+
+    values = [master_values[index] for index in selected]
+    if any(left >= right for left, right in zip(values, values[1:])):
+        raise ValueError(
+            f"{sample_label}: selected snapshot values must be strictly increasing; "
+            f"got {values}."
+        )
+    if not math.isclose(values[-1], 1.0, rel_tol=0.0, abs_tol=1e-8):
+        raise ValueError(
+            f"{sample_label}: selected final snapshot must be 1.00000, got {values[-1]:.8g}."
+        )
+
+    if selected_snapshot_values is not None:
+        expected = [float(value) for value in selected_snapshot_values]
+        if len(expected) != len(selected):
+            raise ValueError(
+                "selected_snapshot_values length must match selected_snapshot_indices: "
+                f"{len(expected)} != {len(selected)}."
+            )
+        mismatches = [
+            (position, actual, wanted)
+            for position, (actual, wanted) in enumerate(zip(values, expected))
+            if not math.isclose(actual, wanted, rel_tol=0.0, abs_tol=1e-8)
+        ]
+        if mismatches:
+            raise ValueError(
+                f"{sample_label}: configured snapshot values do not match dataset "
+                f"values at selected indices: {mismatches}."
+            )
+
+    if selected_snapshot_indices is None:
+        return sample
+
+    view = dict(sample)
+    for field in TEMPORAL_LIST_FIELDS:
+        value = sample.get(field)
+        if value is not None:
+            view[field] = [value[index] for index in selected]
+    if "num_snapshots" in view:
+        view["num_snapshots"] = len(selected)
+    return view
+
+
+def select_temporal_dataset(
+    data: Dict[str, Dict[str, Any]],
+    selected_snapshot_indices: Sequence[int] | None = None,
+    selected_snapshot_values: Sequence[float] | None = None,
+) -> Dict[str, Dict[str, Any]]:
+    """Validate every universe and construct an in-memory temporal dataset view."""
+    selected_data: Dict[str, Dict[str, Any]] = {}
+    reference_master_values: List[float] | None = None
+    for universe_id, sample in data.items():
+        master_values = [snapshot_value(item) for item in sample.get("snapshots", [])]
+        if reference_master_values is None:
+            reference_master_values = master_values
+        elif master_values != reference_master_values:
+            raise ValueError(
+                f"{universe_id}: stored snapshot values {master_values} do not match "
+                f"the dataset reference {reference_master_values}."
+            )
+        selected_data[universe_id] = select_temporal_snapshots(
+            sample,
+            selected_snapshot_indices,
+            selected_snapshot_values,
+            sample_label=universe_id,
+        )
+    return data if selected_snapshot_indices is None else selected_data
 
 class CamelsTemporalDataset(Dataset):
     """
@@ -1000,6 +1165,10 @@ def train_evolvegcn_h(
     normalize_target: bool = False,
     split_manifest_path: str | Path | None = None,
     dataset_identity: str | None = None,
+    selected_snapshot_indices: Sequence[int] | None = None,
+    selected_snapshot_values: Sequence[float] | None = None,
+    temporal_protocol: str | None = None,
+    experiment_type: str | None = None,
     device_name: str = "auto",
 ) -> Dict[str, Any]:
     """
@@ -1053,9 +1222,27 @@ def train_evolvegcn_h(
     print(f"Summary features:   {use_summary_features}")
     print(f"Normalize target:   {normalize_target}")
     print(f"Split manifest:     {split_manifest_path}")
+    print(f"Snapshot indices:   {selected_snapshot_indices}")
+    print(f"Snapshot values:    {selected_snapshot_values}")
+    print(f"Temporal protocol:  {temporal_protocol}")
     print("=" * 90)
 
     data = load_temporal_dataset(dataset_path)
+    first_sample = data[next(iter(data))]
+    master_snapshot_values = [snapshot_value(item) for item in first_sample["snapshots"]]
+    data = select_temporal_dataset(
+        data,
+        selected_snapshot_indices=selected_snapshot_indices,
+        selected_snapshot_values=selected_snapshot_values,
+    )
+    effective_snapshot_indices = (
+        list(range(len(master_snapshot_values)))
+        if selected_snapshot_indices is None
+        else list(selected_snapshot_indices)
+    )
+    effective_snapshot_values = [
+        master_snapshot_values[index] for index in effective_snapshot_indices
+    ]
 
     summary_feature_scaler_eps = 1e-6
 
@@ -1241,6 +1428,12 @@ def train_evolvegcn_h(
         "num_val_universes": len(val_ids),
         "num_test_universes": len(test_ids),
         "num_snapshots": num_snapshots,
+        "experiment_type": experiment_type,
+        "temporal_protocol": temporal_protocol,
+        "num_selected_snapshots": num_snapshots,
+        "selected_snapshot_indices": effective_snapshot_indices,
+        "selected_snapshot_values": effective_snapshot_values,
+        "master_snapshot_values": master_snapshot_values,
         "num_nodes": num_nodes,
         "node_features": node_features,
         "train_ids": train_ids,
@@ -1435,6 +1628,20 @@ def main() -> None:
                         help="Dataset checksum/identity required by --split_manifest_path.")
     parser.add_argument("--experiment_name", type=str, required=True)
     parser.add_argument("--output_root", type=str, default="experiments")
+    parser.add_argument(
+        "--selected_snapshot_indices",
+        type=lambda text: [int(value) for value in text.split(",")],
+        default=None,
+        help="Explicit comma-separated stored snapshot indices, e.g. 2,3,4.",
+    )
+    parser.add_argument(
+        "--selected_snapshot_values",
+        type=lambda text: [float(value) for value in text.split(",")],
+        default=None,
+        help="Expected comma-separated scale factors paired with selected indices.",
+    )
+    parser.add_argument("--temporal_protocol", type=str, default=None)
+    parser.add_argument("--experiment_type", type=str, default=None)
 
     parser.add_argument("--seed", type=int, default=123)
     parser.add_argument("--batch_size", type=int, default=4)
@@ -1545,6 +1752,10 @@ def main() -> None:
         normalize_target=args.normalize_target,
         split_manifest_path=args.split_manifest_path,
         dataset_identity=args.dataset_identity,
+        selected_snapshot_indices=args.selected_snapshot_indices,
+        selected_snapshot_values=args.selected_snapshot_values,
+        temporal_protocol=args.temporal_protocol,
+        experiment_type=args.experiment_type,
         device_name=args.device,
     )
 
