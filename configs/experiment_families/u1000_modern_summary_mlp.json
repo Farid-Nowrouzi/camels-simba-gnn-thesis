@@ -1,0 +1,42 @@
+{
+  "schema_version": "1.0",
+  "family_id": "u1000_modern_summary_mlp",
+  "scientific_question": "How well does a neural network predict Omega_m from the exact validated final-snapshot engineered summaries?",
+  "training_module": "src.evaluation.run_modern_summary_mlp",
+  "output_root": "experiments",
+  "model_family": "summary_mlp",
+  "representation": "engineered_summary",
+  "snapshot_protocol": "final",
+  "final_scale_factor": 1.0,
+  "summary_definition_version": "u1000_final_summary20_v1",
+  "feature_count": 20,
+  "target": "Omega_m",
+  "target_normalization": "none",
+  "top_n": [500, 1000, 1500, 2000],
+  "seeds": [42, 123, 2025],
+  "expected_jobs": 12,
+  "dataset_source_family": "configs/experiment_families/u1000_modern_classical_baselines.json",
+  "fixed_configuration": {
+    "feature_scaling": "training_rows_zscore_ddof0_zero_scale_to_one",
+    "architecture": "20-64-64-1",
+    "activation": "ReLU",
+    "dropout": 0.2,
+    "optimizer": "AdamW",
+    "learning_rate": 0.001,
+    "weight_decay": 0.00001,
+    "loss": "MSELoss",
+    "batch_size": 32,
+    "max_epochs": 300,
+    "patience": 40,
+    "checkpoint_criterion": "minimum_validation_mse",
+    "scheduler": "none",
+    "gradient_clipping": "none",
+    "num_workers": 0
+  },
+  "exclusions": {
+    "top750": true,
+    "deepsets": true,
+    "static_gcn": true,
+    "evolvegcn_h": true
+  }
+}
