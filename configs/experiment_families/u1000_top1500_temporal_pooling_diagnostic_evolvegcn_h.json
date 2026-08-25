@@ -1,0 +1,273 @@
+{
+  "schema_version": "1.0",
+  "family_id": "u1000_top1500_temporal_pooling_diagnostic_evolvegcn_h",
+  "family_title": "U1000 Top1500 EvolveGCN-H T2/T5 temporal-pooling diagnostic",
+  "scientific_question": "Does replacing equal temporal mean pooling with final-state temporal readout change EvolveGCN-H performance differently for short recent context (T2) and full five-snapshot context (T5)?",
+  "experiment_type": "targeted_temporal_pooling_diagnostic",
+  "temporal_protocol": "nested_suffix_context_v1",
+  "model_name": "EvolveGCN-H",
+  "training_module": "src.training.train_evolvegcn_h",
+  "output_root": "experiments",
+  "conceptual_cell_count": 12,
+  "reused_mean_cell_count": 6,
+  "new_last_cell_count": 6,
+  "master_dataset": {
+    "path": "data/processed/temporal_1000u_none_top1500_periodic_knn_sparse/camels_1000u_temporal_logmass_none_top1500_periodic_knn_sparse.pt",
+    "sha256": "ff6f6a89517c0b67a96a8733ce5778dba1524df441cc23c27fbfa4e2f5cdb113",
+    "snapshot_values": [0.2, 0.25, 0.51209, 0.75065, 1.0]
+  },
+  "temporal_subsets": {
+    "2": {"selected_snapshot_indices": [3, 4], "selected_snapshot_values": [0.75065, 1.0]},
+    "5": {"selected_snapshot_indices": [0, 1, 2, 3, 4], "selected_snapshot_values": [0.2, 0.25, 0.51209, 0.75065, 1.0]}
+  },
+  "predeclared_interpretations": {
+    "A": "T5-last substantially and consistently improves: equal averaging is supported as a plausible contributor, not the sole cause.",
+    "B": "T5-last is similar to T5-mean: little evidence that mean pooling alone explains degradation.",
+    "C": "T5-last is worse: mean pooling is beneficial relative to last readout at full context; degradation likely arises elsewhere.",
+    "D": "T2-last also strongly improves: last readout may be generally better rather than specifically a deep-context remedy.",
+    "E": "T2-mean remains better while T5-last improves: readout effect depends on context depth.",
+    "F": "Strong seed inconsistency: pooling effect is not robust across three matched seeds; no significance claim."
+  },
+  "primary_comparisons": {
+    "delta_pool": "MAE_last(T) - MAE_mean(T); negative favors last",
+    "descriptive_interaction": "Delta_pool(T5) - Delta_pool(T2); descriptive only"
+  },
+  "expected_artifacts": [
+    "config.json",
+    "metrics.json",
+    "train_log.csv",
+    "predictions/train_predictions.csv",
+    "predictions/val_predictions.csv",
+    "predictions/test_predictions.csv",
+    "checkpoints/best_model.pt"
+  ],
+  "fixed_scientific_settings": {
+    "config": {
+      "model": "EvolveGCNHRegressor",
+      "dataset_identity": "ff6f6a89517c0b67a96a8733ce5778dba1524df441cc23c27fbfa4e2f5cdb113",
+      "batch_size": 4,
+      "epochs": 300,
+      "patience": 40,
+      "learning_rate": 0.001,
+      "weight_decay": 0.00001,
+      "hidden_dim": 32,
+      "num_layers": 2,
+      "dropout": 0.2,
+      "activation": "relu",
+      "graph_pooling": "mean",
+      "head_type": "linear",
+      "add_self_loops": true,
+      "train_ratio": 0.7,
+      "val_ratio": 0.099,
+      "test_ratio": 0.201,
+      "grad_clip_norm": 1.0,
+      "optimizer": "AdamW",
+      "loss": "MSELoss",
+      "scheduler": {"name": "ReduceLROnPlateau", "mode": "min", "factor": 0.5, "patience": 10, "min_lr": 0.000001},
+      "checkpoint_criterion": "minimum_validation_mse",
+      "normalize_target": false,
+      "use_summary_features": false,
+      "num_total_universes": 1000,
+      "num_train_universes": 700,
+      "num_val_universes": 99,
+      "num_test_universes": 201,
+      "num_nodes": 1500,
+      "node_features": 7,
+      "trainable_parameters": 3408097
+    },
+    "legacy_config_defaults": {
+      "experiment_type": "targeted_temporal_pooling_diagnostic",
+      "temporal_protocol": "nested_suffix_context_v1",
+      "num_selected_snapshots": 5,
+      "selected_snapshot_indices": [0, 1, 2, 3, 4],
+      "selected_snapshot_values": [0.2, 0.25, 0.51209, 0.75065, 1.0],
+      "master_snapshot_values": [0.2, 0.25, 0.51209, 0.75065, 1.0]
+    },
+    "dataset_metadata": {
+      "dataset_type": "temporal_graph_sequences",
+      "dataset_schema_version": "camels_temporal_sparse_v1",
+      "checksum": "ff6f6a89517c0b67a96a8733ce5778dba1524df441cc23c27fbfa4e2f5cdb113",
+      "num_universes_successful": 1000,
+      "num_snapshots": 5,
+      "snapshot_ids": [0.2, 0.25, 0.51209, 0.75065, 1.0],
+      "num_nodes": 1500,
+      "normalization": "none",
+      "graph_mode": "knn",
+      "graph_storage": "sparse_edge_index",
+      "k": 8,
+      "periodic_boundary": true,
+      "box_size": 25,
+      "feature_names": ["log10_Mvir", "X", "Y", "Z", "VX", "VY", "VZ"]
+    }
+  },
+  "allowed_varying_fields": [
+    "seed", "experiment_name", "experiment_path", "temporal_pooling", "num_snapshots",
+    "experiment_type", "temporal_protocol", "num_selected_snapshots", "selected_snapshot_indices",
+    "selected_snapshot_values", "master_snapshot_values", "split_source", "split_manifest_sha256",
+    "split_manifest_seed", "ordered_split_hashes", "train_ids", "val_ids", "test_ids",
+    "training_git_commit", "trainer_invocation_seed", "device"
+  ],
+  "required_seeds": [42, 123, 2025],
+  "grouping_field": "diagnostic_cell",
+  "grouping_values": ["T2_mean", "T2_last", "T5_mean", "T5_last"],
+  "aggregation_metrics": ["test_mae", "test_rmse", "test_r2", "test_pearson"],
+  "prediction_file": "predictions/test_predictions.csv",
+  "target_column_aliases": ["true_omega_m", "target", "y_true"],
+  "prediction_column_aliases": ["pred_omega_m", "prediction", "y_pred"],
+  "id_column_aliases": ["universe_id"],
+  "metric_tolerance": 0.000001,
+  "runner": {
+    "log_directory": "logs/u1000_top1500_temporal_pooling_diagnostic_evolvegcn_h",
+    "argument_order": [
+      {"name": "split_manifest_path", "flag": "--split_manifest_path"},
+      {"name": "dataset_identity", "flag": "--dataset_identity", "value": "ff6f6a89517c0b67a96a8733ce5778dba1524df441cc23c27fbfa4e2f5cdb113"},
+      {"name": "selected_snapshot_indices", "flag": "--selected_snapshot_indices"},
+      {"name": "selected_snapshot_values", "flag": "--selected_snapshot_values"},
+      {"name": "temporal_protocol", "flag": "--temporal_protocol", "value": "nested_suffix_context_v1"},
+      {"name": "experiment_type", "flag": "--experiment_type", "value": "targeted_temporal_pooling_diagnostic"},
+      {"name": "batch_size", "flag": "--batch_size", "value": "4"},
+      {"name": "epochs", "flag": "--epochs", "value": "300"},
+      {"name": "patience", "flag": "--patience", "value": "40"},
+      {"name": "learning_rate", "flag": "--learning_rate", "value": "0.001"},
+      {"name": "weight_decay", "flag": "--weight_decay", "value": "0.00001"},
+      {"name": "hidden_dim", "flag": "--hidden_dim", "value": "32"},
+      {"name": "num_layers", "flag": "--num_layers", "value": "2"},
+      {"name": "dropout", "flag": "--dropout", "value": "0.2"},
+      {"name": "activation", "flag": "--activation", "value": "relu"},
+      {"name": "temporal_pooling", "flag": "--temporal_pooling"},
+      {"name": "graph_pooling", "flag": "--graph_pooling", "value": "mean"},
+      {"name": "head_type", "flag": "--head_type", "value": "linear"},
+      {"name": "add_self_loops", "flag": "--add_self_loops", "flag_only": true},
+      {"name": "train_ratio", "flag": "--train_ratio", "value": "0.70"},
+      {"name": "val_ratio", "flag": "--val_ratio", "value": "0.099"},
+      {"name": "test_ratio", "flag": "--test_ratio", "value": "0.201"},
+      {"name": "grad_clip_norm", "flag": "--grad_clip_norm", "value": "1.0"},
+      {"name": "device", "flag": "--device", "value": "cuda"}
+    ]
+  },
+  "runs": [
+    {
+      "group_value": "T2_mean", "T": 2, "pooling": "mean", "seed": 42,
+      "selected_snapshot_indices": [3, 4], "selected_snapshot_values": [0.75065, 1.0],
+      "temporal_protocol": "nested_suffix_context_v1",
+      "dataset_path": "data/processed/temporal_1000u_none_top1500_periodic_knn_sparse/camels_1000u_temporal_logmass_none_top1500_periodic_knn_sparse.pt",
+      "dataset_sha256": "ff6f6a89517c0b67a96a8733ce5778dba1524df441cc23c27fbfa4e2f5cdb113",
+      "split_manifest_path": "configs/splits/u1000_top1500_none_k8_sparse/seed42_train700.json", "split_manifest_sha256": "f5556ec5c193e7cb80f2231705edbdae32d4de206889dec308a819bdde427ab7",
+      "experiment_name": "evolvegcn_h_u1000_top1500_t2_ctxsuffix_sparse_train700_seed42_none_h32_l2_gmean_tmean_linear",
+      "experiment_path": "experiments/evolvegcn_h_u1000_top1500_t2_ctxsuffix_sparse_train700_seed42_none_h32_l2_gmean_tmean_linear",
+      "origin": "reusable_existing", "action": "reuse", "reuse_provenance": "completed temporal-context T2 mean cell",
+      "argument_overrides": {"split_manifest_path": "configs/splits/u1000_top1500_none_k8_sparse/seed42_train700.json", "selected_snapshot_indices": "3,4", "selected_snapshot_values": "0.75065,1", "temporal_pooling": "mean"},
+      "expected_config_overrides": {"temporal_pooling": "mean", "split_source": "configs/splits/u1000_top1500_none_k8_sparse/seed42_train700.json", "split_manifest_sha256": "f5556ec5c193e7cb80f2231705edbdae32d4de206889dec308a819bdde427ab7", "experiment_type": "temporal_context_depth_ablation", "temporal_protocol": "nested_suffix_context_v1", "num_snapshots": 2, "num_selected_snapshots": 2, "selected_snapshot_indices": [3, 4], "selected_snapshot_values": [0.75065, 1.0], "master_snapshot_values": [0.2, 0.25, 0.51209, 0.75065, 1.0]}
+    },
+    {
+      "group_value": "T2_mean", "T": 2, "pooling": "mean", "seed": 123,
+      "selected_snapshot_indices": [3, 4], "selected_snapshot_values": [0.75065, 1.0], "temporal_protocol": "nested_suffix_context_v1",
+      "dataset_path": "data/processed/temporal_1000u_none_top1500_periodic_knn_sparse/camels_1000u_temporal_logmass_none_top1500_periodic_knn_sparse.pt", "dataset_sha256": "ff6f6a89517c0b67a96a8733ce5778dba1524df441cc23c27fbfa4e2f5cdb113",
+      "split_manifest_path": "configs/splits/u1000_top1500_none_k8_sparse/seed123_train700.json", "split_manifest_sha256": "18a295106ec844848053f3040d2be3cdf73a443010be31e6e2cd962362982471",
+      "experiment_name": "evolvegcn_h_u1000_top1500_t2_ctxsuffix_sparse_train700_seed123_none_h32_l2_gmean_tmean_linear", "experiment_path": "experiments/evolvegcn_h_u1000_top1500_t2_ctxsuffix_sparse_train700_seed123_none_h32_l2_gmean_tmean_linear",
+      "origin": "reusable_existing", "action": "reuse", "reuse_provenance": "completed temporal-context T2 mean cell",
+      "argument_overrides": {"split_manifest_path": "configs/splits/u1000_top1500_none_k8_sparse/seed123_train700.json", "selected_snapshot_indices": "3,4", "selected_snapshot_values": "0.75065,1", "temporal_pooling": "mean"},
+      "expected_config_overrides": {"temporal_pooling": "mean", "split_source": "configs/splits/u1000_top1500_none_k8_sparse/seed123_train700.json", "split_manifest_sha256": "18a295106ec844848053f3040d2be3cdf73a443010be31e6e2cd962362982471", "experiment_type": "temporal_context_depth_ablation", "temporal_protocol": "nested_suffix_context_v1", "num_snapshots": 2, "num_selected_snapshots": 2, "selected_snapshot_indices": [3, 4], "selected_snapshot_values": [0.75065, 1.0], "master_snapshot_values": [0.2, 0.25, 0.51209, 0.75065, 1.0]}
+    },
+    {
+      "group_value": "T2_mean", "T": 2, "pooling": "mean", "seed": 2025,
+      "selected_snapshot_indices": [3, 4], "selected_snapshot_values": [0.75065, 1.0], "temporal_protocol": "nested_suffix_context_v1",
+      "dataset_path": "data/processed/temporal_1000u_none_top1500_periodic_knn_sparse/camels_1000u_temporal_logmass_none_top1500_periodic_knn_sparse.pt", "dataset_sha256": "ff6f6a89517c0b67a96a8733ce5778dba1524df441cc23c27fbfa4e2f5cdb113",
+      "split_manifest_path": "configs/splits/u1000_top1500_none_k8_sparse/seed2025_train700.json", "split_manifest_sha256": "c233c0631b1a24d963ffccc7c6389054fddf135a7aabc4dc4ab7bf5976fab3a9",
+      "experiment_name": "evolvegcn_h_u1000_top1500_t2_ctxsuffix_sparse_train700_seed2025_none_h32_l2_gmean_tmean_linear", "experiment_path": "experiments/evolvegcn_h_u1000_top1500_t2_ctxsuffix_sparse_train700_seed2025_none_h32_l2_gmean_tmean_linear",
+      "origin": "reusable_existing", "action": "reuse", "reuse_provenance": "completed temporal-context T2 mean cell",
+      "argument_overrides": {"split_manifest_path": "configs/splits/u1000_top1500_none_k8_sparse/seed2025_train700.json", "selected_snapshot_indices": "3,4", "selected_snapshot_values": "0.75065,1", "temporal_pooling": "mean"},
+      "expected_config_overrides": {"temporal_pooling": "mean", "split_source": "configs/splits/u1000_top1500_none_k8_sparse/seed2025_train700.json", "split_manifest_sha256": "c233c0631b1a24d963ffccc7c6389054fddf135a7aabc4dc4ab7bf5976fab3a9", "experiment_type": "temporal_context_depth_ablation", "temporal_protocol": "nested_suffix_context_v1", "num_snapshots": 2, "num_selected_snapshots": 2, "selected_snapshot_indices": [3, 4], "selected_snapshot_values": [0.75065, 1.0], "master_snapshot_values": [0.2, 0.25, 0.51209, 0.75065, 1.0]}
+    },
+    {
+      "group_value": "T2_last", "T": 2, "pooling": "last", "seed": 42,
+      "selected_snapshot_indices": [3, 4], "selected_snapshot_values": [0.75065, 1.0], "temporal_protocol": "nested_suffix_context_v1",
+      "dataset_path": "data/processed/temporal_1000u_none_top1500_periodic_knn_sparse/camels_1000u_temporal_logmass_none_top1500_periodic_knn_sparse.pt", "dataset_sha256": "ff6f6a89517c0b67a96a8733ce5778dba1524df441cc23c27fbfa4e2f5cdb113",
+      "split_manifest_path": "configs/splits/u1000_top1500_none_k8_sparse/seed42_train700.json", "split_manifest_sha256": "f5556ec5c193e7cb80f2231705edbdae32d4de206889dec308a819bdde427ab7",
+      "experiment_name": "evolvegcn_h_u1000_top1500_t2_ctxsuffix_sparse_train700_seed42_none_h32_l2_gmean_tlast_linear", "experiment_path": "experiments/evolvegcn_h_u1000_top1500_t2_ctxsuffix_sparse_train700_seed42_none_h32_l2_gmean_tlast_linear",
+      "origin": "planned_new", "action": "run_if_missing",
+      "argument_overrides": {"split_manifest_path": "configs/splits/u1000_top1500_none_k8_sparse/seed42_train700.json", "selected_snapshot_indices": "3,4", "selected_snapshot_values": "0.75065,1", "temporal_pooling": "last"},
+      "expected_config_overrides": {"temporal_pooling": "last", "split_source": "configs/splits/u1000_top1500_none_k8_sparse/seed42_train700.json", "split_manifest_sha256": "f5556ec5c193e7cb80f2231705edbdae32d4de206889dec308a819bdde427ab7", "experiment_type": "targeted_temporal_pooling_diagnostic", "temporal_protocol": "nested_suffix_context_v1", "num_snapshots": 2, "num_selected_snapshots": 2, "selected_snapshot_indices": [3, 4], "selected_snapshot_values": [0.75065, 1.0], "master_snapshot_values": [0.2, 0.25, 0.51209, 0.75065, 1.0]}
+    },
+    {
+      "group_value": "T2_last", "T": 2, "pooling": "last", "seed": 123,
+      "selected_snapshot_indices": [3, 4], "selected_snapshot_values": [0.75065, 1.0], "temporal_protocol": "nested_suffix_context_v1",
+      "dataset_path": "data/processed/temporal_1000u_none_top1500_periodic_knn_sparse/camels_1000u_temporal_logmass_none_top1500_periodic_knn_sparse.pt", "dataset_sha256": "ff6f6a89517c0b67a96a8733ce5778dba1524df441cc23c27fbfa4e2f5cdb113",
+      "split_manifest_path": "configs/splits/u1000_top1500_none_k8_sparse/seed123_train700.json", "split_manifest_sha256": "18a295106ec844848053f3040d2be3cdf73a443010be31e6e2cd962362982471",
+      "experiment_name": "evolvegcn_h_u1000_top1500_t2_ctxsuffix_sparse_train700_seed123_none_h32_l2_gmean_tlast_linear", "experiment_path": "experiments/evolvegcn_h_u1000_top1500_t2_ctxsuffix_sparse_train700_seed123_none_h32_l2_gmean_tlast_linear",
+      "origin": "planned_new", "action": "run_if_missing",
+      "argument_overrides": {"split_manifest_path": "configs/splits/u1000_top1500_none_k8_sparse/seed123_train700.json", "selected_snapshot_indices": "3,4", "selected_snapshot_values": "0.75065,1", "temporal_pooling": "last"},
+      "expected_config_overrides": {"temporal_pooling": "last", "split_source": "configs/splits/u1000_top1500_none_k8_sparse/seed123_train700.json", "split_manifest_sha256": "18a295106ec844848053f3040d2be3cdf73a443010be31e6e2cd962362982471", "experiment_type": "targeted_temporal_pooling_diagnostic", "temporal_protocol": "nested_suffix_context_v1", "num_snapshots": 2, "num_selected_snapshots": 2, "selected_snapshot_indices": [3, 4], "selected_snapshot_values": [0.75065, 1.0], "master_snapshot_values": [0.2, 0.25, 0.51209, 0.75065, 1.0]}
+    },
+    {
+      "group_value": "T2_last", "T": 2, "pooling": "last", "seed": 2025,
+      "selected_snapshot_indices": [3, 4], "selected_snapshot_values": [0.75065, 1.0], "temporal_protocol": "nested_suffix_context_v1",
+      "dataset_path": "data/processed/temporal_1000u_none_top1500_periodic_knn_sparse/camels_1000u_temporal_logmass_none_top1500_periodic_knn_sparse.pt", "dataset_sha256": "ff6f6a89517c0b67a96a8733ce5778dba1524df441cc23c27fbfa4e2f5cdb113",
+      "split_manifest_path": "configs/splits/u1000_top1500_none_k8_sparse/seed2025_train700.json", "split_manifest_sha256": "c233c0631b1a24d963ffccc7c6389054fddf135a7aabc4dc4ab7bf5976fab3a9",
+      "experiment_name": "evolvegcn_h_u1000_top1500_t2_ctxsuffix_sparse_train700_seed2025_none_h32_l2_gmean_tlast_linear", "experiment_path": "experiments/evolvegcn_h_u1000_top1500_t2_ctxsuffix_sparse_train700_seed2025_none_h32_l2_gmean_tlast_linear",
+      "origin": "planned_new", "action": "run_if_missing",
+      "argument_overrides": {"split_manifest_path": "configs/splits/u1000_top1500_none_k8_sparse/seed2025_train700.json", "selected_snapshot_indices": "3,4", "selected_snapshot_values": "0.75065,1", "temporal_pooling": "last"},
+      "expected_config_overrides": {"temporal_pooling": "last", "split_source": "configs/splits/u1000_top1500_none_k8_sparse/seed2025_train700.json", "split_manifest_sha256": "c233c0631b1a24d963ffccc7c6389054fddf135a7aabc4dc4ab7bf5976fab3a9", "experiment_type": "targeted_temporal_pooling_diagnostic", "temporal_protocol": "nested_suffix_context_v1", "num_snapshots": 2, "num_selected_snapshots": 2, "selected_snapshot_indices": [3, 4], "selected_snapshot_values": [0.75065, 1.0], "master_snapshot_values": [0.2, 0.25, 0.51209, 0.75065, 1.0]}
+    },
+    {
+      "group_value": "T5_mean", "T": 5, "pooling": "mean", "seed": 42,
+      "selected_snapshot_indices": [0, 1, 2, 3, 4], "selected_snapshot_values": [0.2, 0.25, 0.51209, 0.75065, 1.0], "temporal_protocol": "nested_suffix_context_v1",
+      "dataset_path": "data/processed/temporal_1000u_none_top1500_periodic_knn_sparse/camels_1000u_temporal_logmass_none_top1500_periodic_knn_sparse.pt", "dataset_sha256": "ff6f6a89517c0b67a96a8733ce5778dba1524df441cc23c27fbfa4e2f5cdb113",
+      "split_manifest_path": "configs/splits/u1000_top1500_none_k8_sparse/seed42_train700.json", "split_manifest_sha256": "f5556ec5c193e7cb80f2231705edbdae32d4de206889dec308a819bdde427ab7",
+      "experiment_name": "evolvegcn_h_u1000_top1500_sparse_train700_seed42_none_h32_l2_mean_temporal_mean_linear", "experiment_path": "experiments/evolvegcn_h_u1000_top1500_sparse_train700_seed42_none_h32_l2_mean_temporal_mean_linear",
+      "origin": "reusable_existing", "action": "reuse", "reuse_provenance": "completed historical full-sequence mean cell; absent explicit subset fields are normalized as full T5",
+      "argument_overrides": {"split_manifest_path": "configs/splits/u1000_top1500_none_k8_sparse/seed42_train700.json", "selected_snapshot_indices": "0,1,2,3,4", "selected_snapshot_values": "0.2,0.25,0.51209,0.75065,1", "temporal_pooling": "mean"},
+      "expected_config_overrides": {"temporal_pooling": "mean", "split_source": "configs/splits/u1000_top1500_none_k8_sparse/seed42_train700.json", "split_manifest_sha256": "f5556ec5c193e7cb80f2231705edbdae32d4de206889dec308a819bdde427ab7", "experiment_type": "targeted_temporal_pooling_diagnostic", "temporal_protocol": "nested_suffix_context_v1", "num_snapshots": 5, "num_selected_snapshots": 5, "selected_snapshot_indices": [0, 1, 2, 3, 4], "selected_snapshot_values": [0.2, 0.25, 0.51209, 0.75065, 1.0], "master_snapshot_values": [0.2, 0.25, 0.51209, 0.75065, 1.0]}
+    },
+    {
+      "group_value": "T5_mean", "T": 5, "pooling": "mean", "seed": 123,
+      "selected_snapshot_indices": [0, 1, 2, 3, 4], "selected_snapshot_values": [0.2, 0.25, 0.51209, 0.75065, 1.0], "temporal_protocol": "nested_suffix_context_v1",
+      "dataset_path": "data/processed/temporal_1000u_none_top1500_periodic_knn_sparse/camels_1000u_temporal_logmass_none_top1500_periodic_knn_sparse.pt", "dataset_sha256": "ff6f6a89517c0b67a96a8733ce5778dba1524df441cc23c27fbfa4e2f5cdb113",
+      "split_manifest_path": "configs/splits/u1000_top1500_none_k8_sparse/seed123_train700.json", "split_manifest_sha256": "18a295106ec844848053f3040d2be3cdf73a443010be31e6e2cd962362982471",
+      "experiment_name": "evolvegcn_h_u1000_top1500_sparse_train700_seed123_none_h32_l2_mean_temporal_mean_linear", "experiment_path": "experiments/evolvegcn_h_u1000_top1500_sparse_train700_seed123_none_h32_l2_mean_temporal_mean_linear",
+      "origin": "reusable_existing", "action": "reuse", "reuse_provenance": "completed historical full-sequence mean cell; absent explicit subset fields are normalized as full T5",
+      "argument_overrides": {"split_manifest_path": "configs/splits/u1000_top1500_none_k8_sparse/seed123_train700.json", "selected_snapshot_indices": "0,1,2,3,4", "selected_snapshot_values": "0.2,0.25,0.51209,0.75065,1", "temporal_pooling": "mean"},
+      "expected_config_overrides": {"temporal_pooling": "mean", "split_source": "configs/splits/u1000_top1500_none_k8_sparse/seed123_train700.json", "split_manifest_sha256": "18a295106ec844848053f3040d2be3cdf73a443010be31e6e2cd962362982471", "experiment_type": "targeted_temporal_pooling_diagnostic", "temporal_protocol": "nested_suffix_context_v1", "num_snapshots": 5, "num_selected_snapshots": 5, "selected_snapshot_indices": [0, 1, 2, 3, 4], "selected_snapshot_values": [0.2, 0.25, 0.51209, 0.75065, 1.0], "master_snapshot_values": [0.2, 0.25, 0.51209, 0.75065, 1.0]}
+    },
+    {
+      "group_value": "T5_mean", "T": 5, "pooling": "mean", "seed": 2025,
+      "selected_snapshot_indices": [0, 1, 2, 3, 4], "selected_snapshot_values": [0.2, 0.25, 0.51209, 0.75065, 1.0], "temporal_protocol": "nested_suffix_context_v1",
+      "dataset_path": "data/processed/temporal_1000u_none_top1500_periodic_knn_sparse/camels_1000u_temporal_logmass_none_top1500_periodic_knn_sparse.pt", "dataset_sha256": "ff6f6a89517c0b67a96a8733ce5778dba1524df441cc23c27fbfa4e2f5cdb113",
+      "split_manifest_path": "configs/splits/u1000_top1500_none_k8_sparse/seed2025_train700.json", "split_manifest_sha256": "c233c0631b1a24d963ffccc7c6389054fddf135a7aabc4dc4ab7bf5976fab3a9",
+      "experiment_name": "evolvegcn_h_u1000_top1500_sparse_train700_seed2025_none_h32_l2_mean_temporal_mean_linear", "experiment_path": "experiments/evolvegcn_h_u1000_top1500_sparse_train700_seed2025_none_h32_l2_mean_temporal_mean_linear",
+      "origin": "reusable_existing", "action": "reuse", "reuse_provenance": "completed historical full-sequence mean cell; absent explicit subset fields are normalized as full T5",
+      "argument_overrides": {"split_manifest_path": "configs/splits/u1000_top1500_none_k8_sparse/seed2025_train700.json", "selected_snapshot_indices": "0,1,2,3,4", "selected_snapshot_values": "0.2,0.25,0.51209,0.75065,1", "temporal_pooling": "mean"},
+      "expected_config_overrides": {"temporal_pooling": "mean", "split_source": "configs/splits/u1000_top1500_none_k8_sparse/seed2025_train700.json", "split_manifest_sha256": "c233c0631b1a24d963ffccc7c6389054fddf135a7aabc4dc4ab7bf5976fab3a9", "experiment_type": "targeted_temporal_pooling_diagnostic", "temporal_protocol": "nested_suffix_context_v1", "num_snapshots": 5, "num_selected_snapshots": 5, "selected_snapshot_indices": [0, 1, 2, 3, 4], "selected_snapshot_values": [0.2, 0.25, 0.51209, 0.75065, 1.0], "master_snapshot_values": [0.2, 0.25, 0.51209, 0.75065, 1.0]}
+    },
+    {
+      "group_value": "T5_last", "T": 5, "pooling": "last", "seed": 42,
+      "selected_snapshot_indices": [0, 1, 2, 3, 4], "selected_snapshot_values": [0.2, 0.25, 0.51209, 0.75065, 1.0], "temporal_protocol": "nested_suffix_context_v1",
+      "dataset_path": "data/processed/temporal_1000u_none_top1500_periodic_knn_sparse/camels_1000u_temporal_logmass_none_top1500_periodic_knn_sparse.pt", "dataset_sha256": "ff6f6a89517c0b67a96a8733ce5778dba1524df441cc23c27fbfa4e2f5cdb113",
+      "split_manifest_path": "configs/splits/u1000_top1500_none_k8_sparse/seed42_train700.json", "split_manifest_sha256": "f5556ec5c193e7cb80f2231705edbdae32d4de206889dec308a819bdde427ab7",
+      "experiment_name": "evolvegcn_h_u1000_top1500_t5_ctxsuffix_sparse_train700_seed42_none_h32_l2_gmean_tlast_linear", "experiment_path": "experiments/evolvegcn_h_u1000_top1500_t5_ctxsuffix_sparse_train700_seed42_none_h32_l2_gmean_tlast_linear",
+      "origin": "planned_new", "action": "run_if_missing",
+      "argument_overrides": {"split_manifest_path": "configs/splits/u1000_top1500_none_k8_sparse/seed42_train700.json", "selected_snapshot_indices": "0,1,2,3,4", "selected_snapshot_values": "0.2,0.25,0.51209,0.75065,1", "temporal_pooling": "last"},
+      "expected_config_overrides": {"temporal_pooling": "last", "split_source": "configs/splits/u1000_top1500_none_k8_sparse/seed42_train700.json", "split_manifest_sha256": "f5556ec5c193e7cb80f2231705edbdae32d4de206889dec308a819bdde427ab7", "experiment_type": "targeted_temporal_pooling_diagnostic", "temporal_protocol": "nested_suffix_context_v1", "num_snapshots": 5, "num_selected_snapshots": 5, "selected_snapshot_indices": [0, 1, 2, 3, 4], "selected_snapshot_values": [0.2, 0.25, 0.51209, 0.75065, 1.0], "master_snapshot_values": [0.2, 0.25, 0.51209, 0.75065, 1.0]}
+    },
+    {
+      "group_value": "T5_last", "T": 5, "pooling": "last", "seed": 123,
+      "selected_snapshot_indices": [0, 1, 2, 3, 4], "selected_snapshot_values": [0.2, 0.25, 0.51209, 0.75065, 1.0], "temporal_protocol": "nested_suffix_context_v1",
+      "dataset_path": "data/processed/temporal_1000u_none_top1500_periodic_knn_sparse/camels_1000u_temporal_logmass_none_top1500_periodic_knn_sparse.pt", "dataset_sha256": "ff6f6a89517c0b67a96a8733ce5778dba1524df441cc23c27fbfa4e2f5cdb113",
+      "split_manifest_path": "configs/splits/u1000_top1500_none_k8_sparse/seed123_train700.json", "split_manifest_sha256": "18a295106ec844848053f3040d2be3cdf73a443010be31e6e2cd962362982471",
+      "experiment_name": "evolvegcn_h_u1000_top1500_t5_ctxsuffix_sparse_train700_seed123_none_h32_l2_gmean_tlast_linear", "experiment_path": "experiments/evolvegcn_h_u1000_top1500_t5_ctxsuffix_sparse_train700_seed123_none_h32_l2_gmean_tlast_linear",
+      "origin": "planned_new", "action": "run_if_missing",
+      "argument_overrides": {"split_manifest_path": "configs/splits/u1000_top1500_none_k8_sparse/seed123_train700.json", "selected_snapshot_indices": "0,1,2,3,4", "selected_snapshot_values": "0.2,0.25,0.51209,0.75065,1", "temporal_pooling": "last"},
+      "expected_config_overrides": {"temporal_pooling": "last", "split_source": "configs/splits/u1000_top1500_none_k8_sparse/seed123_train700.json", "split_manifest_sha256": "18a295106ec844848053f3040d2be3cdf73a443010be31e6e2cd962362982471", "experiment_type": "targeted_temporal_pooling_diagnostic", "temporal_protocol": "nested_suffix_context_v1", "num_snapshots": 5, "num_selected_snapshots": 5, "selected_snapshot_indices": [0, 1, 2, 3, 4], "selected_snapshot_values": [0.2, 0.25, 0.51209, 0.75065, 1.0], "master_snapshot_values": [0.2, 0.25, 0.51209, 0.75065, 1.0]}
+    },
+    {
+      "group_value": "T5_last", "T": 5, "pooling": "last", "seed": 2025,
+      "selected_snapshot_indices": [0, 1, 2, 3, 4], "selected_snapshot_values": [0.2, 0.25, 0.51209, 0.75065, 1.0], "temporal_protocol": "nested_suffix_context_v1",
+      "dataset_path": "data/processed/temporal_1000u_none_top1500_periodic_knn_sparse/camels_1000u_temporal_logmass_none_top1500_periodic_knn_sparse.pt", "dataset_sha256": "ff6f6a89517c0b67a96a8733ce5778dba1524df441cc23c27fbfa4e2f5cdb113",
+      "split_manifest_path": "configs/splits/u1000_top1500_none_k8_sparse/seed2025_train700.json", "split_manifest_sha256": "c233c0631b1a24d963ffccc7c6389054fddf135a7aabc4dc4ab7bf5976fab3a9",
+      "experiment_name": "evolvegcn_h_u1000_top1500_t5_ctxsuffix_sparse_train700_seed2025_none_h32_l2_gmean_tlast_linear", "experiment_path": "experiments/evolvegcn_h_u1000_top1500_t5_ctxsuffix_sparse_train700_seed2025_none_h32_l2_gmean_tlast_linear",
+      "origin": "planned_new", "action": "run_if_missing",
+      "argument_overrides": {"split_manifest_path": "configs/splits/u1000_top1500_none_k8_sparse/seed2025_train700.json", "selected_snapshot_indices": "0,1,2,3,4", "selected_snapshot_values": "0.2,0.25,0.51209,0.75065,1", "temporal_pooling": "last"},
+      "expected_config_overrides": {"temporal_pooling": "last", "split_source": "configs/splits/u1000_top1500_none_k8_sparse/seed2025_train700.json", "split_manifest_sha256": "c233c0631b1a24d963ffccc7c6389054fddf135a7aabc4dc4ab7bf5976fab3a9", "experiment_type": "targeted_temporal_pooling_diagnostic", "temporal_protocol": "nested_suffix_context_v1", "num_snapshots": 5, "num_selected_snapshots": 5, "selected_snapshot_indices": [0, 1, 2, 3, 4], "selected_snapshot_values": [0.2, 0.25, 0.51209, 0.75065, 1.0], "master_snapshot_values": [0.2, 0.25, 0.51209, 0.75065, 1.0]}
+    }
+  ]
+}
