@@ -24,6 +24,7 @@ AUDIT = Path("reports/experiment_registry/u1000_top1500_raw_halo_count_distribut
 def configure() -> None:
     validator.EXPECTED_RELATIVE_DATASET = DATASET
     validator.EXPECTED_TOP_N = 1500
+    validator.EXPECTED_K = 8
     validator.EXPECTED_LOGICAL_ID = (
         "camels_simba_u1000_top1500_temporal5_none_periodic_knn_k8_box25_sparse_v1"
     )

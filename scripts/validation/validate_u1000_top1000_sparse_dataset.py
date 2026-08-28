@@ -9,6 +9,7 @@ import hashlib
 import json
 import math
 import re
+import subprocess
 import sys
 from pathlib import Path
 from typing import Any, Mapping
@@ -36,8 +37,10 @@ EXPECTED_LOGICAL_ID = (
 EXPECTED_SNAPSHOTS = [0.20000, 0.25000, 0.51209, 0.75065, 1.00000]
 EXPECTED_FEATURES = ["log10_Mvir", "X", "Y", "Z", "VX", "VY", "VZ"]
 EXPECTED_TOP_N = 1000
+EXPECTED_K = 8
 EXPECTED_BUILDER_MODULE = "src.data.build_temporal_sequences"
 EXPECTED_BUILDER_SOURCE = Path("src/data/build_temporal_sequences.py")
+EXPECTED_GRAPH_SOURCE = Path("src/data/camels_graph_utils.py")
 EXPECTED_TOP1500_LAUNCHER = Path("scripts/production/run_u1000_top1500_sparse_build.sh")
 SHA256_PATTERN = re.compile(r"^[0-9a-f]{64}$")
 GIT_COMMIT_PATTERN = re.compile(r"^[0-9a-f]{40}$")
@@ -103,6 +106,18 @@ def _canonical_repository_path(repo_root: Path, value: Any, label: str) -> Path:
     return resolved
 
 
+def _git_blob_sha256(repo_root: Path, commit: str, relative_path: Path) -> str:
+    """Hash the exact source blob recorded by an artifact's immutable Git commit."""
+    object_name = f"{commit}:{relative_path.as_posix()}"
+    try:
+        content = subprocess.check_output(
+            ["git", "show", object_name], cwd=repo_root, stderr=subprocess.PIPE,
+        )
+    except (OSError, subprocess.CalledProcessError) as exc:
+        raise ValueError(f"recorded provenance blob is unavailable: {object_name}") from exc
+    return hashlib.sha256(content).hexdigest()
+
+
 def check_builder_provenance(
     metadata: Mapping[str, Any], repo_root: Path, *, required: bool,
 ) -> None:
@@ -133,15 +148,20 @@ def check_builder_provenance(
     for key in ("builder_source_sha256", "build_launcher_sha256"):
         require(isinstance(metadata[key], str) and SHA256_PATTERN.fullmatch(metadata[key]) is not None,
                 f"{key} is not a valid SHA-256")
-    require(metadata["builder_source_sha256"] == sha256_file_streaming(builder),
-            "builder source SHA-256 does not match current production builder")
-    require(metadata["build_launcher_sha256"] == sha256_file_streaming(launcher),
-            "build launcher SHA-256 does not match current production launcher")
     require(isinstance(metadata["source_git_commit"], str) and
             GIT_COMMIT_PATTERN.fullmatch(metadata["source_git_commit"]) is not None,
             "source_git_commit is not a full Git commit identity")
     require(metadata.get("git_commit") == metadata["source_git_commit"],
             "source_git_commit disagrees with git_commit")
+    commit = metadata["source_git_commit"]
+    require(
+        metadata["builder_source_sha256"] == _git_blob_sha256(repo_root, commit, EXPECTED_BUILDER_SOURCE),
+        "builder source SHA-256 does not match the recorded Git commit blob",
+    )
+    require(
+        metadata["build_launcher_sha256"] == _git_blob_sha256(repo_root, commit, EXPECTED_TOP1500_LAUNCHER),
+        "build launcher SHA-256 does not match the recorded Git commit blob",
+    )
 
 
 def check_exact_metadata(
@@ -182,12 +202,17 @@ def check_exact_metadata(
     require(metadata["num_nodes"] == EXPECTED_TOP_N and metadata["top_n"] == EXPECTED_TOP_N, "wrong Top-N")
     require(metadata["normalization"] == "none", "wrong node normalization")
     require(metadata["target_normalization"] == "none", "wrong target normalization")
-    require(metadata["graph_mode"] == "knn" and metadata["k"] == 8, "wrong kNN protocol")
+    require(metadata["graph_mode"] == "knn" and metadata["k"] == EXPECTED_K, "wrong kNN protocol")
     require(metadata["radius"] is None, "radius must be unset for kNN")
     require(metadata["periodic_boundary"] is True, "periodic boundary is not enabled")
     require(metadata["periodic_boundary_knn"] is True, "periodic kNN is not enabled")
     require(float(metadata["box_size"]) == 25.0, "wrong box size")
     require(metadata["feature_names"] == EXPECTED_FEATURES, "wrong feature names/order")
+    expected_preprocessing_version = (
+        f"v3_logmass_none_top{EXPECTED_TOP_N}_periodic_knn_k{EXPECTED_K}_box25_sparse_edge_index"
+    )
+    require(metadata["preprocessing_version"] == expected_preprocessing_version,
+            "wrong k-dependent preprocessing version")
     require(metadata["mass_feature"] == "log10_Mvir", "wrong mass feature")
     require(metadata["node_selection"] == "top_num_nodes_by_raw_Mvir_descending",
             "wrong node-selection rule")
@@ -356,7 +381,7 @@ def check_dataset(dataset: Any, metadata: Mapping[str, Any], targets: Mapping[st
             require(snapshot.get("feature_names") == EXPECTED_FEATURES,
                     f"{label}: snapshot feature names/order are wrong")
             require(snapshot.get("normalization") == "none", f"{label}: wrong normalization")
-            require(snapshot.get("graph_mode") == "knn" and snapshot.get("k") == 8,
+            require(snapshot.get("graph_mode") == "knn" and snapshot.get("k") == EXPECTED_K,
                     f"{label}: wrong kNN settings")
             require(snapshot.get("periodic_boundary") is True and
                     snapshot.get("periodic_boundary_knn") is True,
