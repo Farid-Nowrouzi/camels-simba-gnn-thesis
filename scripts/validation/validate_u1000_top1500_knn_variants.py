@@ -20,6 +20,7 @@ from src.data.camels_graph_utils import (
     build_sparse_knn_edge_index,
     preprocessing_version_for_config,
 )
+from src.data.source_manifest import verify_full_source_manifest
 
 
 SUPPORTED_K = (4, 6, 12)
@@ -30,6 +31,19 @@ K8_RELATIVE = Path(
 K8_DATASET_SHA256 = "ff6f6a89517c0b67a96a8733ce5778dba1524df441cc23c27fbfa4e2f5cdb113"
 K8_METADATA_SHA256 = "b76e1ae9c049ce3cff9a625a8acb6af7b53018b7bf0d02308b5f526148aef0ba"
 K8_GRAPH_SOURCE_SHA256 = "209a3b15ba49d57d1bbbf5d8cf46a22ad985c9301b556970c4313d73fc94c533"
+SOURCE_MANIFEST_IDENTITY_FIELDS = (
+    "schema_version",
+    "source_manifest_policy",
+    "hash_algorithm",
+    "hash_chunk_size_bytes",
+    "sorting_key",
+    "entry_count",
+    "catalogue_count",
+    "target_source_count",
+    "source_root_identity",
+    "entries",
+    "manifest_sha256",
+)
 
 
 def require(condition: bool, message: str) -> None:
@@ -80,6 +94,46 @@ def require_same_snapshot_path(candidate: Any, control: Any, *, label: str) -> N
     require(isinstance(candidate, str) and isinstance(control, str),
             f"{label}: stored source paths must be strings")
     require(candidate == control, f"{label}: stored source catalogue path changed")
+
+
+def require_matching_source_manifests(
+    variant_manifest: Any,
+    k8_manifest: Any,
+) -> None:
+    """Require portable source identity while verifying each recorded checkout root."""
+    require(isinstance(variant_manifest, Mapping) and isinstance(k8_manifest, Mapping),
+            "source manifests must be objects")
+    require(set(variant_manifest) == set(k8_manifest), "source manifest field set changed")
+    missing = set(SOURCE_MANIFEST_IDENTITY_FIELDS).difference(k8_manifest)
+    require(not missing, f"source manifest identity fields missing: {sorted(missing)}")
+
+    for field in sorted(set(k8_manifest).difference({"source_roots"})):
+        require(
+            variant_manifest.get(field) == k8_manifest.get(field),
+            f"source manifest scientific identity changed: {field}",
+        )
+
+    variant_roots = variant_manifest.get("source_roots")
+    k8_roots = k8_manifest.get("source_roots")
+    require(isinstance(variant_roots, Mapping) and isinstance(k8_roots, Mapping),
+            "source manifest roots must be objects")
+    require(set(variant_roots) == set(k8_roots), "source manifest root roles changed")
+
+    for label, manifest, roots in (
+        ("authoritative k8", k8_manifest, k8_roots),
+        ("variant", variant_manifest, variant_roots),
+    ):
+        try:
+            verify_full_source_manifest(manifest, source_roots=roots)
+        except Exception as exc:
+            raise ValueError(f"{label} recorded source roots failed verification: {exc}") from exc
+
+    for role in sorted(k8_roots):
+        if k8_roots[role] != variant_roots[role]:
+            print(
+                "Operational source root differs but independently verified: "
+                f"role={role} k8={k8_roots[role]} variant={variant_roots[role]}"
+            )
 
 
 def require_matching_graph_source(
@@ -189,6 +243,11 @@ def check_matched_data(
     }
     require(set(variant_metadata) == set(k8_metadata), "variant metadata field set changed")
     for field in set(k8_metadata).difference(allowed_metadata_differences):
+        if field == "source_manifest":
+            require_matching_source_manifests(
+                variant_metadata.get(field), k8_metadata.get(field),
+            )
+            continue
         require(variant_metadata.get(field) == k8_metadata.get(field),
                 f"metadata scientific control changed: {field}")
 

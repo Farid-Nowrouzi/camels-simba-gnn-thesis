@@ -6,6 +6,7 @@ import subprocess
 import tempfile
 import unittest
 import uuid
+from copy import deepcopy
 from pathlib import Path
 from unittest.mock import patch
 
@@ -14,7 +15,11 @@ import torch
 from scripts.validation import manage_u1000_top1500_training_scaling_matrix as manager
 from scripts.validation import validate_u1000_top1000_sparse_dataset as validator
 from scripts.validation import validate_u1000_top1500_knn_variants as variant_validator
-from src.data.source_manifest import sha256_file_streaming, source_manifest_sha256
+from src.data.source_manifest import (
+    build_full_source_manifest,
+    sha256_file_streaming,
+    source_manifest_sha256,
+)
 from src.training.split_manifest import canonical_manifest_sha256
 
 
@@ -26,6 +31,20 @@ ESTABLISHED_PYTHON = "/home/ml/thesis-camels/envs/camels-gnn/bin/python"
 def write_json(path: Path, value: dict) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(value, indent=2) + "\n", encoding="utf-8")
+
+
+def make_source_manifest_fixture(root: Path) -> dict:
+    raw_root = root / "raw"
+    target_root = root / "outputs"
+    raw_root.mkdir(parents=True)
+    target_root.mkdir(parents=True)
+    catalogue = raw_root / "LH_0_hlist_1.00000.list"
+    target = target_root / "target_inspection_1000u.csv"
+    catalogue.write_text("# fixture catalogue\n1 2 3\n", encoding="utf-8")
+    target.write_text("universe_id,omega_m\nLH_0,0.3\n", encoding="utf-8")
+    return build_full_source_manifest(
+        [catalogue], raw_root=raw_root, target_path=target, target_root=target_root,
+    )
 
 
 def make_bound_fixture(root: Path) -> tuple[dict[str, str], Path]:
@@ -351,6 +370,79 @@ class Top1500IntegrityGateTests(unittest.TestCase):
             variant_validator.require_same_snapshot_path(
                 "data/raw/B/snapshot.txt", "data/raw/A/snapshot.txt", label="fixture",
             )
+
+    def test_source_manifest_same_content_different_verified_roots_passes(self) -> None:
+        k8 = make_source_manifest_fixture(self.root / "checkout_A")
+        variant = make_source_manifest_fixture(self.root / "checkout_B")
+        self.assertNotEqual(k8["source_roots"], variant["source_roots"])
+        variant_validator.require_matching_source_manifests(variant, k8)
+
+    def test_source_manifest_different_entry_checksum_fails(self) -> None:
+        k8 = make_source_manifest_fixture(self.root / "checkout_A")
+        variant = deepcopy(k8)
+        variant["entries"][0]["sha256"] = "0" * 64
+        variant["manifest_sha256"] = source_manifest_sha256(variant)
+        with self.assertRaisesRegex(ValueError, "scientific identity changed: entries"):
+            variant_validator.require_matching_source_manifests(variant, k8)
+
+    def test_source_manifest_different_relative_path_fails(self) -> None:
+        k8 = make_source_manifest_fixture(self.root / "checkout_A")
+        variant = deepcopy(k8)
+        variant["entries"][0]["relative_path"] = "renamed_catalogue.list"
+        variant["manifest_sha256"] = source_manifest_sha256(variant)
+        with self.assertRaisesRegex(ValueError, "scientific identity changed: entries"):
+            variant_validator.require_matching_source_manifests(variant, k8)
+
+    def test_source_manifest_different_target_structure_fails(self) -> None:
+        k8 = make_source_manifest_fixture(self.root / "checkout_A")
+        variant = deepcopy(k8)
+        target = next(entry for entry in variant["entries"]
+                      if entry["source_role"] == "target_table")
+        target["target_column"] = "different_target"
+        variant["manifest_sha256"] = source_manifest_sha256(variant)
+        with self.assertRaisesRegex(ValueError, "scientific identity changed: entries"):
+            variant_validator.require_matching_source_manifests(variant, k8)
+
+    def test_source_manifest_different_entry_count_fails(self) -> None:
+        k8 = make_source_manifest_fixture(self.root / "checkout_A")
+        variant = deepcopy(k8)
+        variant["entry_count"] += 1
+        with self.assertRaisesRegex(ValueError, "scientific identity changed: entry_count"):
+            variant_validator.require_matching_source_manifests(variant, k8)
+
+    def test_source_manifest_different_manifest_sha_fails(self) -> None:
+        k8 = make_source_manifest_fixture(self.root / "checkout_A")
+        variant = deepcopy(k8)
+        variant["manifest_sha256"] = "f" * 64
+        with self.assertRaisesRegex(ValueError, "scientific identity changed: manifest_sha256"):
+            variant_validator.require_matching_source_manifests(variant, k8)
+
+    def test_source_manifest_schema_policy_and_hash_algorithm_are_fail_closed(self) -> None:
+        mutations = {
+            "schema_version": "future_schema",
+            "source_manifest_policy": "legacy_stat_only",
+            "hash_algorithm": "sha1",
+        }
+        for field, value in mutations.items():
+            with self.subTest(field=field):
+                k8 = make_source_manifest_fixture(self.root / field / "checkout_A")
+                variant = deepcopy(k8)
+                variant[field] = value
+                with self.assertRaisesRegex(ValueError, f"scientific identity changed: {field}"):
+                    variant_validator.require_matching_source_manifests(variant, k8)
+
+    def test_source_manifest_different_root_with_failed_own_verification_fails(self) -> None:
+        k8 = make_source_manifest_fixture(self.root / "checkout_A")
+        variant = make_source_manifest_fixture(self.root / "checkout_B")
+        variant_target = Path(variant["source_roots"]["target_table"]) / \
+            "target_inspection_1000u.csv"
+        variant_target.write_text("universe_id,omega_m\nLH_0,0.9\n", encoding="utf-8")
+        with self.assertRaisesRegex(ValueError, "variant recorded source roots failed verification"):
+            variant_validator.require_matching_source_manifests(variant, k8)
+
+    def test_source_manifest_identical_roots_preserve_historical_behavior(self) -> None:
+        k8 = make_source_manifest_fixture(self.root / "checkout_A")
+        variant_validator.require_matching_source_manifests(deepcopy(k8), k8)
 
     def test_launcher_k_resolution_is_distinct_and_backward_compatible(self) -> None:
         default_result = launcher_resolution()
