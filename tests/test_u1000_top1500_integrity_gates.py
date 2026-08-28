@@ -5,6 +5,7 @@ import os
 import subprocess
 import tempfile
 import unittest
+import uuid
 from pathlib import Path
 from unittest.mock import patch
 
@@ -412,16 +413,52 @@ class Top1500IntegrityGateTests(unittest.TestCase):
         self.assertEqual(local.returncode, 0, local.stderr)
         self.assertEqual(parse_resolution(local.stdout)["PYTHON"], str(local_python))
 
-        k4_directory = PROJECT_ROOT / "data/processed/temporal_1000u_none_top1500_periodic_knn_k4_sparse"
+        subprocess.run(["git", "init", "-q"], cwd=self.root, check=True)
+        subprocess.run(["git", "config", "user.email", "fixture@example.invalid"],
+                       cwd=self.root, check=True)
+        subprocess.run(["git", "config", "user.name", "Fixture"], cwd=self.root, check=True)
+        subprocess.run(["git", "add", "scripts/production/run_u1000_top1500_sparse_build.sh",
+                        "envs/camels-gnn/bin/python"], cwd=self.root, check=True)
+        subprocess.run(["git", "commit", "-qm", "clean launcher fixture"],
+                       cwd=self.root, check=True)
+        self.assertEqual(
+            subprocess.check_output(
+                ["git", "status", "--porcelain", "--untracked-files=all"],
+                cwd=self.root, text=True,
+            ),
+            "",
+        )
+
+        k4_directory = self.root / "data/processed/temporal_1000u_none_top1500_periodic_knn_k4_sparse"
         self.assertFalse(k4_directory.exists())
         environment = os.environ.copy()
-        environment["CAMELS_PYTHON"] = ESTABLISHED_PYTHON
-        refused = subprocess.run(
-            ["bash", str(TOP1500_LAUNCHER), "4"], cwd=PROJECT_ROOT,
-            text=True, capture_output=True, check=False, env=environment,
+        environment.pop("CAMELS_PYTHON", None)
+        sentinel = self.root / f".dirty-worktree-sentinel-{uuid.uuid4().hex}"
+        self.assertFalse(sentinel.exists())
+        sentinel.write_text("test-owned dirty-worktree sentinel\n", encoding="utf-8")
+        try:
+            status = subprocess.check_output(
+                ["git", "status", "--porcelain", "--untracked-files=all"],
+                cwd=self.root, text=True,
+            )
+            self.assertIn(sentinel.name, status)
+            refused = subprocess.run(
+                ["bash", str(fixture_launcher), "4"], cwd=self.root,
+                text=True, capture_output=True, check=False, env=environment,
+            )
+            self.assertNotEqual(refused.returncode, 0)
+            self.assertIn("production builds require a clean, reviewed Git worktree", refused.stderr)
+            self.assertFalse(k4_directory.exists())
+        finally:
+            sentinel.unlink()
+        self.assertFalse(sentinel.exists())
+        self.assertEqual(
+            subprocess.check_output(
+                ["git", "status", "--porcelain", "--untracked-files=all"],
+                cwd=self.root, text=True,
+            ),
+            "",
         )
-        self.assertNotEqual(refused.returncode, 0)
-        self.assertIn("production builds require a clean, reviewed Git worktree", refused.stderr)
         self.assertFalse(k4_directory.exists())
 
     def test_variant_validator_names_and_supported_k_are_closed(self) -> None:
