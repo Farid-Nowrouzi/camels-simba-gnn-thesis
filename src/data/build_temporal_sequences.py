@@ -74,6 +74,7 @@ python -m src.data.build_temporal_sequences \\
 import argparse
 import hashlib
 import json
+import math
 import platform
 import shutil
 import subprocess
@@ -501,6 +502,13 @@ def validate_temporal_sequence_tensors(
                 raise ValueError(f"{universe_key}, snapshot {snapshot_index}: asymmetric sparse edges")
             if graph.numel() and (int(graph.min()) < 0 or int(graph.max()) >= real_nodes):
                 raise ValueError(f"{universe_key}, snapshot {snapshot_index}: edge reaches padding")
+            if graph.shape[1] > 1:
+                encoded = graph[0] * num_nodes + graph[1]
+                if not bool((encoded[1:] > encoded[:-1]).all()):
+                    raise ValueError(
+                        f"{universe_key}, snapshot {snapshot_index}: sparse edges are not "
+                        "strictly lexicographically ordered"
+                    )
         else:
             symmetry_error = float(torch.abs(graph.float() - graph.float().T).sum().item())
             if symmetry_error != 0.0:
@@ -706,7 +714,11 @@ def build_temporal_dataset(
             raise ValueError(
                 "Top1500 sparse builds require --builder_entrypoint and --build_launcher_path provenance"
             )
-        if launcher_relative != "scripts/production/run_u1000_top1500_sparse_build.sh":
+        allowed_launchers = {
+            "knn": "scripts/production/run_u1000_top1500_sparse_build.sh",
+            "radius": "scripts/production/run_u1000_top1500_radius_sparse_build.sh",
+        }
+        if launcher_relative != allowed_launchers.get(graph_mode):
             raise ValueError("Top1500 sparse build launcher provenance is not the production launcher")
     if graph_storage == GRAPH_STORAGE_DENSE and num_nodes > 512 and not force_unsafe_dense:
         raise ValueError(
@@ -721,8 +733,10 @@ def build_temporal_dataset(
     if graph_mode == "knn" and k <= 0:
         raise ValueError("k must be positive when graph_mode='knn'.")
 
-    if graph_mode == "radius" and radius is None:
-        raise ValueError("radius must be provided when graph_mode='radius'.")
+    if graph_mode == "radius" and (
+        radius is None or not math.isfinite(radius) or radius <= 0
+    ):
+        raise ValueError("radius must be finite and positive when graph_mode='radius'.")
 
     if periodic_boundary and (box_size is None or box_size <= 0):
         raise ValueError("box_size must be positive when periodic_boundary=True.")
@@ -929,6 +943,19 @@ def build_temporal_dataset(
         for sample in dataset.values()
     ]
 
+    graph_utility_path = repository_root / "src/data/camels_graph_utils.py"
+    radius_token = None if radius is None else f"r{float(radius):.6f}".rstrip("0").rstrip(".").replace(".", "p")
+    logical_graph = f"knn_k{k}" if graph_mode == "knn" else f"radius_{radius_token}"
+    logical_dataset_id = (
+        f"camels_simba_u{len(dataset)}_top{num_nodes}_temporal{num_snapshots}_"
+        f"{normalization}_{'periodic' if periodic_boundary else 'nonperiodic'}_"
+        f"{logical_graph}_box{float(box_size):g}_sparse_v1"
+    )
+    edge_policy = (
+        "directed_k_choices_symmetrized_unique_no_builder_self_loops"
+        if graph_mode == "knn" else
+        "minimum_image_euclidean_distance_lte_radius_symmetric_directed_unique_lexicographic"
+    )
     metadata = {
         "dataset_type": "temporal_graph_sequences",
         "preprocessing_version": preprocessing_version,
@@ -944,6 +971,8 @@ def build_temporal_dataset(
         "graph_mode": graph_mode,
         "k": k,
         "radius": radius,
+        "radius_units": "h^-1 Mpc" if graph_mode == "radius" else None,
+        "threshold_rule": "distance <= radius" if graph_mode == "radius" else None,
         "periodic_boundary": periodic_boundary,
         "periodic_boundary_knn": bool(periodic_boundary and graph_mode.lower() == "knn"),
         "box_size": box_size,
@@ -975,10 +1004,16 @@ def build_temporal_dataset(
         "ordered_universe_ids_hash": hashlib.sha256("".join(f"{key}\n" for key in dataset).encode()).hexdigest(),
         "snapshot_ids": [item["snapshot_value"] for item in next(iter(dataset.values()))["snapshots"]],
         "top_n": num_nodes,
+        "logical_dataset_id": logical_dataset_id,
         "selection_method": "raw_Mvir_desc_stable_then_tie_key_asc",
         "tie_breaking_policy": "authoritative_halo_id_ascending_else_original_row_index",
         "target_normalization": "none",
-        "edge_policy": "directed_k_choices_symmetrized_unique_no_builder_self_loops",
+        "edge_policy": edge_policy,
+        "self_loop_policy": "excluded_in_builder_model_may_add_self_loops",
+        "symmetric_directed_policy": "store_both_directions_for_each_unordered_pair",
+        "duplicate_policy": "no_duplicate_directed_edges",
+        "edge_ordering_policy": "lexicographic_source_then_target",
+        "masking_padding_policy": "mask_gt_0_real_nodes_only_padding_excluded",
         "python_version": platform.python_version(),
         "pytorch_version": torch.__version__,
         "pyg_version": None,
@@ -989,6 +1024,8 @@ def build_temporal_dataset(
         "builder_module": actual_builder_module,
         "builder_source_path": actual_builder_relative,
         "builder_source_sha256": sha256_file_streaming(actual_builder_path),
+        "graph_utility_path": graph_utility_path.relative_to(repository_root).as_posix(),
+        "graph_utility_sha256": sha256_file_streaming(graph_utility_path),
         "build_launcher_path": launcher_relative,
         "build_launcher_sha256": launcher_sha256,
     }
@@ -1066,7 +1103,10 @@ def build_temporal_dataset(
         "padded_total": sum(num_nodes - count for count in node_counts),
     }
     metadata["edge_statistics"] = (
-        {"directed_min": min(edge_counts), "directed_max": max(edge_counts), "directed_mean": sum(edge_counts) / len(edge_counts)}
+        {"directed_min": min(edge_counts), "directed_max": max(edge_counts),
+         "directed_mean": sum(edge_counts) / len(edge_counts),
+         "directed_total": sum(edge_counts), "unordered_total": sum(edge_counts) // 2,
+         "snapshot_graph_count": len(edge_counts)}
         if edge_counts else {"representation": "dense_adjacency"}
     )
 
