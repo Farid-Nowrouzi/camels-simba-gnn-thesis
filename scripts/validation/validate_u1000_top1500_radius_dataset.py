@@ -20,6 +20,9 @@ if str(ROOT) not in sys.path:
 
 from src.data.camels_graph_utils import build_sparse_radius_edge_index
 from src.data.source_manifest import sha256_file_streaming
+from scripts.validation.validate_u1000_top1500_knn_variants import (
+    require_matching_source_manifests,
+)
 
 FREEZE = Path("reports/experiment_registry/u1000_top1500_radius_selection_freeze.json")
 CONTROL = Path(
@@ -160,6 +163,9 @@ def validate(root: Path, dataset_path: Path, control_path: Path, freeze_path: Pa
     control_metadata = load_json(control_path.with_suffix(".metadata.json"))
     for key in ("source_manifest_sha256", "source_manifest", "target_source_sha256",
                 "ordered_universe_ids", "snapshot_ids", "selected_halo_hash"):
+        if key == "source_manifest":
+            require_matching_source_manifests(metadata.get(key), control_metadata.get(key))
+            continue
         require(metadata.get(key) == control_metadata.get(key), f"control provenance differs: {key}")
     commit = metadata.get("source_git_commit")
     require(isinstance(commit, str) and len(commit) == 40, "source Git commit missing")

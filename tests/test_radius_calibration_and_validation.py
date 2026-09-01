@@ -15,8 +15,12 @@ from scripts.validation.calibrate_u1000_top1500_radius import (
     select_float32_radius,
 )
 from scripts.validation.validate_u1000_top1500_radius_dataset import compare_dataset_pair
+from scripts.validation.validate_u1000_top1500_radius_dataset import (
+    require_matching_source_manifests,
+)
 from src.data.camels_graph_utils import build_sparse_radius_edge_index
 from src.data.build_temporal_sequences import build_temporal_dataset
+from src.data.source_manifest import build_full_source_manifest
 
 
 def sample(graph_mode: str, radius: float = 1.0) -> dict:
@@ -61,6 +65,26 @@ def sample(graph_mode: str, radius: float = 1.0) -> dict:
     }
 
 
+def source_manifest_pair(root: Path, *, radius_target: float = 0.3) -> tuple[dict, dict]:
+    raw_root = root / "raw"
+    raw_root.mkdir()
+    catalogue = raw_root / "LH_0_hlist_1.00000.list"
+    catalogue.write_text("# fixture catalogue\n1 2 3\n", encoding="utf-8")
+
+    manifests = []
+    for checkout, target_value in (("checkout_A", 0.3), ("checkout_B", radius_target)):
+        target_root = root / checkout / "outputs"
+        target_root.mkdir(parents=True)
+        target = target_root / "target_inspection_1000u.csv"
+        target.write_text(
+            f"universe_id,omega_m\nLH_0,{target_value}\n", encoding="utf-8",
+        )
+        manifests.append(build_full_source_manifest(
+            [catalogue], raw_root=raw_root, target_path=target, target_root=target_root,
+        ))
+    return manifests[0], manifests[1]
+
+
 class RadiusCalibrationTests(unittest.TestCase):
     def test_exact_count_uses_periodic_float32_contract(self) -> None:
         positions = np.array([[0.1, 0, 0], [24.9, 0, 0], [4, 0, 0]], dtype=np.float32)
@@ -79,6 +103,21 @@ class RadiusCalibrationTests(unittest.TestCase):
 
 
 class RadiusValidatorFixtureTests(unittest.TestCase):
+    def test_source_manifest_same_content_different_target_roots_passes(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            k8, radius = source_manifest_pair(Path(directory))
+            self.assertEqual(k8["source_roots"]["halo_catalogue"],
+                             radius["source_roots"]["halo_catalogue"])
+            self.assertNotEqual(k8["source_roots"]["target_table"],
+                                radius["source_roots"]["target_table"])
+            require_matching_source_manifests(radius, k8)
+
+    def test_source_manifest_real_target_content_mismatch_fails(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            k8, radius = source_manifest_pair(Path(directory), radius_target=0.9)
+            with self.assertRaisesRegex(ValueError, "scientific identity changed: entries"):
+                require_matching_source_manifests(radius, k8)
+
     def test_exact_pair_and_reconstruction_pass(self) -> None:
         compare_dataset_pair({"LH_0": sample("knn")}, {"LH_0": sample("radius")}, 1.0)
 
