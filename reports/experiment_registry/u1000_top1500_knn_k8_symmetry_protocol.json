@@ -1,0 +1,640 @@
+{
+  "checkpoints": {
+    "123": {
+      "checkpoint_path": "/home/ml/thesis-camels/experiments/static_gcn_u1000_top1500_sparse_train700_seed123_none_h32_l3_mean_mlp_final/checkpoints/best_model.pt",
+      "checkpoint_sha256": "dce2c8cac85ab8a3f8c3e6ae3247fcaa3cf818c9ae6364b3adf5598bd3ef50eb",
+      "config_path": "/home/ml/thesis-camels/experiments/static_gcn_u1000_top1500_sparse_train700_seed123_none_h32_l3_mean_mlp_final/config.json",
+      "split_manifest_path": "/home/ml/thesis-camels-notebook15/configs/splits/u1000_top1500_none_k8_sparse/seed123_train700.json",
+      "split_manifest_sha256": "18a295106ec844848053f3040d2be3cdf73a443010be31e6e2cd962362982471"
+    },
+    "2025": {
+      "checkpoint_path": "/home/ml/thesis-camels/experiments/static_gcn_u1000_top1500_sparse_train700_seed2025_none_h32_l3_mean_mlp_final/checkpoints/best_model.pt",
+      "checkpoint_sha256": "8be14a8dc8e7bb9a6ffb2f20ab5afe9df80e98740dc9db12584426d656b3809f",
+      "config_path": "/home/ml/thesis-camels/experiments/static_gcn_u1000_top1500_sparse_train700_seed2025_none_h32_l3_mean_mlp_final/config.json",
+      "split_manifest_path": "/home/ml/thesis-camels-notebook15/configs/splits/u1000_top1500_none_k8_sparse/seed2025_train700.json",
+      "split_manifest_sha256": "c233c0631b1a24d963ffccc7c6389054fddf135a7aabc4dc4ab7bf5976fab3a9"
+    },
+    "42": {
+      "checkpoint_path": "/home/ml/thesis-camels/experiments/static_gcn_u1000_top1500_sparse_train700_seed42_none_h32_l3_mean_mlp_final/checkpoints/best_model.pt",
+      "checkpoint_sha256": "49ea8189bec30852bfa0879012144df8b7982291892b976368970c2c0926a487",
+      "config_path": "/home/ml/thesis-camels/experiments/static_gcn_u1000_top1500_sparse_train700_seed42_none_h32_l3_mean_mlp_final/config.json",
+      "split_manifest_path": "/home/ml/thesis-camels-notebook15/configs/splits/u1000_top1500_none_k8_sparse/seed42_train700.json",
+      "split_manifest_sha256": "f5556ec5c193e7cb80f2231705edbdae32d4de206889dec308a819bdde427ab7"
+    }
+  },
+  "conditions_per_universe": {
+    "baseline": 1,
+    "rotations": 24,
+    "total": 29,
+    "translations": 4
+  },
+  "controls": {
+    "checkpoint_sha256_before_and_after": true,
+    "minimum_repeated_original_inferences": 5,
+    "stop_if_identity_materially_exceeds_tolerance": true
+  },
+  "dataset": {
+    "path": "/home/ml/thesis-camels/data/processed/temporal_1000u_none_top1500_periodic_knn_sparse/camels_1000u_temporal_logmass_none_top1500_periodic_knn_sparse.pt",
+    "sha256": "ff6f6a89517c0b67a96a8733ce5778dba1524df441cc23c27fbfa4e2f5cdb113"
+  },
+  "features": {
+    "dimension": 7,
+    "normalization": "none",
+    "order": [
+      "log10_Mvir",
+      "X",
+      "Y",
+      "Z",
+      "VX",
+      "VY",
+      "VZ"
+    ]
+  },
+  "full": {
+    "core_forwards": 17487,
+    "seeds": [
+      42,
+      123,
+      2025
+    ],
+    "test_universes_per_seed": 201
+  },
+  "graph_representation": {
+    "box_size_h_inverse_mpc": 25.0,
+    "family": "periodic_sparse_knn",
+    "k": 8,
+    "pilot_rebuild_exact_equality_required": true,
+    "reuse_edges_for_inference": true
+  },
+  "metrics": [
+    "N",
+    "mean_signed_delta",
+    "mean_absolute_delta",
+    "rms_delta",
+    "median_absolute_delta",
+    "p95_absolute_delta",
+    "maximum_absolute_delta",
+    "tolerance_failure_count",
+    "tolerance_failure_fraction"
+  ],
+  "model": {
+    "activation": "ReLU",
+    "class": "StaticGCNRegressor",
+    "dropout": 0.2,
+    "head": [
+      32,
+      32,
+      16,
+      1
+    ],
+    "hidden_dim": 32,
+    "layer_norm": true,
+    "model_side_self_loops": true,
+    "num_layers": 3,
+    "pooling": "mean",
+    "residual": true
+  },
+  "pilot": {
+    "selection": "lexicographically smallest SHA-256('symmetry-pilot-v1:<universe_id>')",
+    "size_per_seed": 32,
+    "target_independent": true
+  },
+  "prohibitions": [
+    "training",
+    "gradient_updates",
+    "optimizer_creation",
+    "model_selection",
+    "hyperparameter_tuning",
+    "checkpoint_writes",
+    "dataset_rebuild"
+  ],
+  "rotations": [
+    {
+      "id": "R00",
+      "matrix": [
+        [
+          -1,
+          0,
+          0
+        ],
+        [
+          0,
+          -1,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ]
+    },
+    {
+      "id": "R01",
+      "matrix": [
+        [
+          -1,
+          0,
+          0
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          0,
+          0,
+          -1
+        ]
+      ]
+    },
+    {
+      "id": "R02",
+      "matrix": [
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          -1,
+          0
+        ],
+        [
+          0,
+          0,
+          -1
+        ]
+      ]
+    },
+    {
+      "id": "R03",
+      "matrix": [
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ]
+    },
+    {
+      "id": "R04",
+      "matrix": [
+        [
+          -1,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          -1
+        ],
+        [
+          0,
+          -1,
+          0
+        ]
+      ]
+    },
+    {
+      "id": "R05",
+      "matrix": [
+        [
+          -1,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ],
+        [
+          0,
+          1,
+          0
+        ]
+      ]
+    },
+    {
+      "id": "R06",
+      "matrix": [
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          -1
+        ],
+        [
+          0,
+          1,
+          0
+        ]
+      ]
+    },
+    {
+      "id": "R07",
+      "matrix": [
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ],
+        [
+          0,
+          -1,
+          0
+        ]
+      ]
+    },
+    {
+      "id": "R08",
+      "matrix": [
+        [
+          0,
+          -1,
+          0
+        ],
+        [
+          -1,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          -1
+        ]
+      ]
+    },
+    {
+      "id": "R09",
+      "matrix": [
+        [
+          0,
+          -1,
+          0
+        ],
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ]
+    },
+    {
+      "id": "R10",
+      "matrix": [
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          -1,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ]
+    },
+    {
+      "id": "R11",
+      "matrix": [
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          -1
+        ]
+      ]
+    },
+    {
+      "id": "R12",
+      "matrix": [
+        [
+          0,
+          -1,
+          0
+        ],
+        [
+          0,
+          0,
+          -1
+        ],
+        [
+          1,
+          0,
+          0
+        ]
+      ]
+    },
+    {
+      "id": "R13",
+      "matrix": [
+        [
+          0,
+          -1,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ],
+        [
+          -1,
+          0,
+          0
+        ]
+      ]
+    },
+    {
+      "id": "R14",
+      "matrix": [
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          0,
+          0,
+          -1
+        ],
+        [
+          -1,
+          0,
+          0
+        ]
+      ]
+    },
+    {
+      "id": "R15",
+      "matrix": [
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ],
+        [
+          1,
+          0,
+          0
+        ]
+      ]
+    },
+    {
+      "id": "R16",
+      "matrix": [
+        [
+          0,
+          0,
+          -1
+        ],
+        [
+          -1,
+          0,
+          0
+        ],
+        [
+          0,
+          1,
+          0
+        ]
+      ]
+    },
+    {
+      "id": "R17",
+      "matrix": [
+        [
+          0,
+          0,
+          -1
+        ],
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          -1,
+          0
+        ]
+      ]
+    },
+    {
+      "id": "R18",
+      "matrix": [
+        [
+          0,
+          0,
+          1
+        ],
+        [
+          -1,
+          0,
+          0
+        ],
+        [
+          0,
+          -1,
+          0
+        ]
+      ]
+    },
+    {
+      "id": "R19",
+      "matrix": [
+        [
+          0,
+          0,
+          1
+        ],
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          1,
+          0
+        ]
+      ]
+    },
+    {
+      "id": "R20",
+      "matrix": [
+        [
+          0,
+          0,
+          -1
+        ],
+        [
+          0,
+          -1,
+          0
+        ],
+        [
+          -1,
+          0,
+          0
+        ]
+      ]
+    },
+    {
+      "id": "R21",
+      "matrix": [
+        [
+          0,
+          0,
+          -1
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          1,
+          0,
+          0
+        ]
+      ]
+    },
+    {
+      "id": "R22",
+      "matrix": [
+        [
+          0,
+          0,
+          1
+        ],
+        [
+          0,
+          -1,
+          0
+        ],
+        [
+          1,
+          0,
+          0
+        ]
+      ]
+    },
+    {
+      "id": "R23",
+      "matrix": [
+        [
+          0,
+          0,
+          1
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          -1,
+          0,
+          0
+        ]
+      ]
+    }
+  ],
+  "row_vector_convention": {
+    "position": "(p @ R.T) mod L",
+    "velocity": "v @ R.T"
+  },
+  "schema_version": "camels_knn_symmetry_protocol_v1",
+  "source_starting_commit": "d6094a2c26479256572c9724475b46d1fafa3039",
+  "status": "FROZEN_BEFORE_PILOT",
+  "tolerance": {
+    "atol": 1e-06,
+    "failure": "abs(transformed-baseline) > atol + rtol*abs(baseline)",
+    "relative_epsilon_reporting_only": 1e-12,
+    "rtol": 1e-05
+  },
+  "translations": [
+    {
+      "delta": [
+        12.5,
+        0.0,
+        0.0
+      ],
+      "id": "T1"
+    },
+    {
+      "delta": [
+        0.0,
+        12.5,
+        0.0
+      ],
+      "id": "T2"
+    },
+    {
+      "delta": [
+        0.0,
+        0.0,
+        12.5
+      ],
+      "id": "T3"
+    },
+    {
+      "delta": [
+        6.25,
+        12.5,
+        18.75
+      ],
+      "id": "T4"
+    }
+  ]
+}
