@@ -1,0 +1,87 @@
+{
+  "schema_version": "u1000_top1500_graph_representation_selection_freeze_v1",
+  "experiment_id": "static_gcn_u1000_top1500_graph_representation_comparison",
+  "created_at_utc": "2026-09-02T13:39:25Z",
+  "pre_freeze_head": "2e18f23a42a1d47c1b36f299abc931735cdd054c",
+  "selection_source": "validation_only",
+  "test_metrics_used_for_selection": false,
+  "test_predictions_parsed_before_freeze": false,
+  "saved_test_summary_exposed_before_freeze": true,
+  "saved_test_summary_exposure_note": "The requested training-log tail audit exposed saved test-summary fields before this freeze. No test prediction values were parsed, no test metric was used in the calculations or rationale below, and the decision is reproducible from the recorded validation results alone.",
+  "representations_compared": [
+    {
+      "id": "knn_k8",
+      "label": "periodic sparse kNN(k=8)",
+      "k": 8,
+      "dataset_path": "data/processed/temporal_1000u_none_top1500_periodic_knn_sparse/camels_1000u_temporal_logmass_none_top1500_periodic_knn_sparse.pt",
+      "dataset_sha256": "ff6f6a89517c0b67a96a8733ce5778dba1524df441cc23c27fbfa4e2f5cdb113"
+    },
+    {
+      "id": "radius_r1p962822",
+      "label": "periodic sparse radius(r*)",
+      "radius_h_inv_mpc": 1.9628219604492188,
+      "canonical_token": "r1p962822",
+      "dataset_path": "data/processed/temporal_1000u_none_top1500_periodic_radius_r1p962822_sparse/camels_1000u_temporal_logmass_none_top1500_periodic_radius_r1p962822_sparse.pt",
+      "dataset_sha256": "b719eed2b09de1e91e132a357c39100cae835489042639ccffb51aa91250db42",
+      "metadata_sha256": "3c3d978e29ed7f86cdffaf39cb502896692eaa40c6f0e6dd44de87c2dc046891",
+      "completion_marker_sha256": "05bda9e9cf9cfde7cd3619c4d696848064b24c4f63c0be7ebde43063ef18999b",
+      "canonical_validator": "PASS"
+    }
+  ],
+  "seeds": [42, 123, 2025],
+  "validation_metric_definition": {
+    "rows_per_run": 99,
+    "standard_deviation": "sample",
+    "bias": "mean(prediction - target)",
+    "calibration": "prediction = intercept + slope * target",
+    "r2": "1 - sum((prediction-target)^2) / sum((target-mean(target))^2)",
+    "sd_ratio": "sample_sd(prediction) / sample_sd(target)"
+  },
+  "validation_metrics": [
+    {"representation": "knn_k8", "seed": 42, "mae": 0.03655207608685349, "rmse": 0.0497031334127659, "r2": 0.8046685844554917, "prediction_mean": 0.309071274718853, "target_mean": 0.31193333367506665, "prediction_sample_sd": 0.1005656085407105, "target_sample_sd": 0.1130322257245349, "sd_ratio": 0.8897074077422296, "bias": -0.002862058956213672, "calibration_slope": 0.79844776883682, "calibration_intercept": 0.06000880042016474, "pearson": 0.8974273585773608},
+    {"representation": "radius_r1p962822", "seed": 42, "mae": 0.050745419480583885, "rmse": 0.06746261148268617, "r2": 0.6401422521699587, "prediction_mean": 0.3070241747179417, "target_mean": 0.31193333367506665, "prediction_sample_sd": 0.09044033831314455, "target_sample_sd": 0.1130322257245349, "sd_ratio": 0.8001287927705866, "bias": -0.00490915895712496, "calibration_slope": 0.6411269400864813, "calibration_intercept": 0.10703531098787086, "pearson": 0.8012796763211915},
+    {"representation": "knn_k8", "seed": 123, "mae": 0.0412676798725369, "rmse": 0.04983017309371394, "r2": 0.8167076754783472, "prediction_mean": 0.3081436843583078, "target_mean": 0.3029838381241066, "prediction_sample_sd": 0.09813643093899584, "target_sample_sd": 0.11698355520786094, "sd_ratio": 0.8388908232838641, "bias": 0.005159846234201181, "calibration_slope": 0.7612054038299572, "calibration_intercept": 0.07751074950509684, "pearson": 0.9073950777649409},
+    {"representation": "radius_r1p962822", "seed": 123, "mae": 0.050813150601555605, "rmse": 0.0657128502799564, "r2": 0.6812427308425208, "prediction_mean": 0.2952416349541057, "target_mean": 0.3029838381241066, "prediction_sample_sd": 0.09775467943911122, "target_sample_sd": 0.11698355520786094, "sd_ratio": 0.8356275312834944, "bias": -0.007742203170000904, "calibration_slope": 0.6919704253151753, "calibration_intercept": 0.08558577962374345, "pearson": 0.8280847619421217},
+    {"representation": "knn_k8", "seed": 2025, "mae": 0.036247752155318405, "rmse": 0.045682047574410994, "r2": 0.8513691925486767, "prediction_mean": 0.30815547478921484, "target_mean": 0.30342424239474114, "prediction_sample_sd": 0.10613849153824777, "target_sample_sd": 0.11909559613585158, "sd_ratio": 0.8912041669213048, "bias": 0.004731232394473721, "calibration_slope": 0.8236041729218236, "calibration_intercept": 0.058254002587263126, "pearson": 0.9241475786261104},
+    {"representation": "radius_r1p962822", "seed": 2025, "mae": 0.054298990453132474, "rmse": 0.06805613622957452, "r2": 0.6701228058474599, "prediction_mean": 0.29366274862879455, "target_mean": 0.30342424239474114, "prediction_sample_sd": 0.08822420067933573, "target_sample_sd": 0.11909559613585158, "sd_ratio": 0.74078474386827, "bias": -0.00976149376594659, "calibration_slope": 0.6128357058538066, "calibration_intercept": 0.10771353886765683, "pearson": 0.8272790590336242}
+  ],
+  "seed_matched_radius_minus_knn": [
+    {"seed": 42, "mae": 0.014193343393730393, "rmse": 0.017759478069920273, "r2": -0.16452633228553304, "sd_ratio": -0.08957861497164299, "calibration_slope": -0.1573208287503387},
+    {"seed": 123, "mae": 0.009545470729018707, "rmse": 0.015882677186242457, "r2": -0.13546494463582637, "sd_ratio": -0.0032632920003696775, "calibration_slope": -0.06923497851478189},
+    {"seed": 2025, "mae": 0.01805123829781407, "rmse": 0.02237408865516352, "r2": -0.18124638670121684, "sd_ratio": -0.1504194230530348, "calibration_slope": -0.210768467068017}
+  ],
+  "validation_summary": [
+    {"representation": "knn_k8", "mae_mean": 0.038022502704902934, "mae_sample_sd": 0.002814522055487548, "mae_range": [0.036247752155318405, 0.0412676798725369], "rmse_mean": 0.048405118026963616, "rmse_sample_sd": 0.0023591034922842364, "rmse_range": [0.045682047574410994, 0.04983017309371394], "r2_mean": 0.8242484841608385, "r2_sample_sd": 0.024246330562742197, "r2_range": [0.8046685844554917, 0.8513691925486767], "sd_ratio_mean": 0.8732674659824662, "sd_ratio_range": [0.8388908232838641, 0.8912041669213048], "calibration_slope_mean": 0.7944191151962002, "calibration_slope_range": [0.7612054038299572, 0.8236041729218236]},
+    {"representation": "radius_r1p962822", "mae_mean": 0.05195252017842399, "mae_sample_sd": 0.0020323850370328233, "mae_range": [0.050745419480583885, 0.054298990453132474], "rmse_mean": 0.06707719933073902, "rmse_sample_sd": 0.0012182586570883961, "rmse_range": [0.0657128502799564, 0.06805613622957452], "r2_mean": 0.6638359296199798, "r2_sample_sd": 0.021259255544425232, "r2_range": [0.6401422521699587, 0.6812427308425208], "sd_ratio_mean": 0.792180355974117, "sd_ratio_range": [0.74078474386827, 0.8356275312834944], "calibration_slope_mean": 0.6486443570851543, "calibration_slope_range": [0.6128357058538066, 0.6919704253151753]}
+  ],
+  "classification": "ROBUST DEGRADATION",
+  "selected_representation": "knn_k8",
+  "selection_rationale": "Validation MAE and RMSE are worse and R2 is lower for radius in every seed-matched comparison. The radius penalties are larger than either representation's across-seed MAE sample SD. Radius also has lower prediction-dispersion ratios and calibration slopes in every seed, so it does not remedy range compression. Retain periodic sparse kNN(k=8) on validation evidence, with continuity and absence of isolated nodes as secondary advantages.",
+  "split_identities": {
+    "policy": "Within each seed, ordered train, validation, test, and unused partitions are exactly equal between representations; membership mismatches, ordering mismatches, duplicates, and overlaps are all zero.",
+    "counts": {"train": 700, "val": 99, "test": 201, "unused": 0},
+    "seed_42": {"train": "2d984737c655efa5000c00f9f9185176bb394943c65970e4ba2fa057047c125b", "val": "b3504d7eda165cd7523a3d206100f99fb03944f0bbf63b102cd02945b9a9c880", "test": "bb0ebc3a94dc385121094b1ef3372b09095f417eb56df4e0320bd94328511405", "unused": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"},
+    "seed_123": {"train": "81d841097ce264cd3f0da32040968ae21434585beaba6ba4720ac6be5ca3990c", "val": "2e73c457617b7b3830e90af7e1a4b3ddd0807abebb6626b6d761ed6fd6001961", "test": "1c9a2a141e3250b81595a9dc275f1eb5877f23506e13158e4b7296758231f0bf", "unused": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"},
+    "seed_2025": {"train": "77e0812c10cf8b91401fe75d8e22ac513f41df62d50b157192997f3b5c61270d", "val": "0b147c27abbcc8eb8e8dbf1dae075f8216a82a914f4ac3903219acc8d763dddd", "test": "ff6a0b1b9c04ac59477a0d9a2721186c6fba8b8fcbe303a45b088eb56314b0dd", "unused": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"}
+  },
+  "run_identities": [
+    {"representation": "knn_k8", "seed": 42, "name": "static_gcn_u1000_top1500_sparse_train700_seed42_none_h32_l3_mean_mlp_final", "split_manifest": "configs/splits/u1000_top1500_none_k8_sparse/seed42_train700.json", "split_manifest_sha256": "f5556ec5c193e7cb80f2231705edbdae32d4de206889dec308a819bdde427ab7"},
+    {"representation": "radius_r1p962822", "seed": 42, "name": "static_gcn_u1000_top1500_radius_r1p962822_sparse_train700_seed42_none_h32_l3_mean_mlp_final", "split_manifest": "configs/splits/u1000_top1500_none_radius_r1p962822_sparse/seed42_train700.json", "split_manifest_sha256": "45832c25904f3b05d69e636fdf2f1a9a99f88f78f68568551d9c676ac3ca8ca5", "checkpoint_sha256": "6f5f7bc499379dc98d17bed6d1309e359e0a8de50ac827656e2fd51c0aabe9a7"},
+    {"representation": "knn_k8", "seed": 123, "name": "static_gcn_u1000_top1500_sparse_train700_seed123_none_h32_l3_mean_mlp_final", "split_manifest": "configs/splits/u1000_top1500_none_k8_sparse/seed123_train700.json", "split_manifest_sha256": "18a295106ec844848053f3040d2be3cdf73a443010be31e6e2cd962362982471"},
+    {"representation": "radius_r1p962822", "seed": 123, "name": "static_gcn_u1000_top1500_radius_r1p962822_sparse_train700_seed123_none_h32_l3_mean_mlp_final", "split_manifest": "configs/splits/u1000_top1500_none_radius_r1p962822_sparse/seed123_train700.json", "split_manifest_sha256": "6ed6964db8fafba6091ea00e32b2f9719451fbadcf356ac6b9e2de1bcb569475", "checkpoint_sha256": "916df70624c615c22f21584dc086199a53a7bf410a0b125a311abdb00a06bf0a"},
+    {"representation": "knn_k8", "seed": 2025, "name": "static_gcn_u1000_top1500_sparse_train700_seed2025_none_h32_l3_mean_mlp_final", "split_manifest": "configs/splits/u1000_top1500_none_k8_sparse/seed2025_train700.json", "split_manifest_sha256": "c233c0631b1a24d963ffccc7c6389054fddf135a7aabc4dc4ab7bf5976fab3a9"},
+    {"representation": "radius_r1p962822", "seed": 2025, "name": "static_gcn_u1000_top1500_radius_r1p962822_sparse_train700_seed2025_none_h32_l3_mean_mlp_final", "split_manifest": "configs/splits/u1000_top1500_none_radius_r1p962822_sparse/seed2025_train700.json", "split_manifest_sha256": "2e169cccca87e3d16e8ce0d35be4050453a18f33d255fc4566837fb777b77ed4", "checkpoint_sha256": "80dd70c430d76ddac35e38efae117bc80ed11c2ae64cc13b37220bbbe33bf4ca"}
+  ],
+  "config_fairness": {
+    "unexpected_scientific_differences": 0,
+    "allowed_difference_categories": ["dataset path and identity", "dataset provenance", "split manifest path and checksum", "experiment name", "training code provenance associated with radius support"],
+    "all_model_and_training_parameters_equal": true
+  },
+  "limitations": [
+    "Only three seeds were evaluated, so uncertainty estimates are descriptive.",
+    "The radius was calibrated to an aggregate training-geometry edge budget; local degree distributions and isolated-node behavior still differ from kNN.",
+    "The result applies to this frozen Static GCN, raw7, U1000, Top1500, final-snapshot, no-normalization regime.",
+    "A saved test summary was inadvertently visible during the mandated log-tail audit before freeze; it was excluded from selection, and test prediction values were not parsed before freeze."
+  ],
+  "next_planned_experiment": "Read-only preparation followed by a separate symmetry diagnostic using the frozen kNN(k=8) trained representation; no PNA experiment yet."
+}
