@@ -25,6 +25,7 @@ from src.training.split_manifest import load_split_manifest
 from src.training.train_evolvegcn_h import CamelsTemporalDataset, collate_fn, load_temporal_dataset
 from src.training.train_evolvegcn_o import FROZEN_O_VALUES, build_model
 from src.training.temporal_architecture_common import load_and_validate_config
+from src.training.temporal_architecture_common import validate_finalizable_run
 
 
 DATASET = Path("data/processed/temporal_1000u_none_top1500_periodic_knn_sparse/camels_1000u_temporal_logmass_none_top1500_periodic_knn_sparse.pt")
@@ -122,7 +123,8 @@ def audit_h_match(config: dict[str, Any], manifest: dict[str, Any]) -> None:
 
 
 def audit_configs_splits_and_smoke(
-    data: dict[str, Any], metadata: dict[str, Any], configs: list[tuple[Path, dict[str, Any]]]
+    data: dict[str, Any], metadata: dict[str, Any], configs: list[tuple[Path, dict[str, Any]]],
+    *, enforce_clear_run_directories: bool = True,
 ) -> list[dict[str, Any]]:
     dataset_ids = list(data)
     require(dataset_ids == metadata["ordered_universe_ids"], "dataset order differs from metadata")
@@ -145,7 +147,8 @@ def audit_configs_splits_and_smoke(
         require(set.union(*sets) == set(dataset_ids), f"{path.name}: incomplete split coverage")
         audit_h_match(config, manifest)
         run_dir = ROOT / config["output_root"] / config["experiment_name"]
-        require(not run_dir.exists(), f"run-directory collision: {run_dir}")
+        if enforce_clear_run_directories:
+            require(not run_dir.exists(), f"run-directory collision: {run_dir}")
 
         tiny = CamelsTemporalDataset(data, manifest["train_ids"][:2])
         batch = next(iter(DataLoader(tiny, batch_size=2, shuffle=False, collate_fn=collate_fn)))
@@ -172,6 +175,9 @@ def audit_configs_splits_and_smoke(
 
 def validate_run(config_path: Path) -> None:
     config = load_and_validate_config(config_path, "EvolveGCNORegressor", FROZEN_O_VALUES)
+    validate_finalizable_run(
+        config_path, "EvolveGCNORegressor", build_model, frozen_values=FROZEN_O_VALUES
+    )
     run = ROOT / config["output_root"] / config["experiment_name"]
     required = ("config.json", "metrics.json", "train_log.csv", "run_metadata.json",
                 "checkpoints/best_model.pt", "predictions/val_predictions.csv",
@@ -190,13 +196,72 @@ def validate_run(config_path: Path) -> None:
     print("PASS: EvolveGCN-O completed-run artifacts verified")
 
 
+def recovery_preflight() -> None:
+    audit_repository()
+    metadata = audit_metadata()
+    configs = load_configs()
+    data = load_temporal_dataset(ROOT / DATASET)
+    smoke = audit_configs_splits_and_smoke(
+        data, metadata, configs, enforce_clear_run_directories=False
+    )
+    by_seed = {config["seed"]: (path, config) for path, config in configs}
+    validate_run(by_seed[42][0])
+
+    seed123_path, seed123 = by_seed[123]
+    evidence = validate_finalizable_run(
+        seed123_path, "EvolveGCNORegressor", build_model, frozen_values=FROZEN_O_VALUES
+    )
+    seed123_run = ROOT / seed123["output_root"] / seed123["experiment_name"]
+    require(
+        not (seed123_run / "metrics.json").exists()
+        and not (seed123_run / "predictions/val_predictions.csv").exists()
+        and not (seed123_run / "predictions/test_predictions.csv").exists(),
+        "seed123 is not in the forensically approved finalization-missing state",
+    )
+    seed2025 = by_seed[2025][1]
+    seed2025_run = ROOT / seed2025["output_root"] / seed2025["experiment_name"]
+    require(not seed2025_run.exists(), f"seed2025 canonical collision: {seed2025_run}")
+    print(json.dumps({
+        "status": "READY_FOR_RECOVERY",
+        "seed42": "complete_and_validated",
+        "seed123": {
+            "status": "TRAINING_COMPLETE_FINALIZATION_MISSING",
+            "train_log_rows": evidence["train_log_rows"],
+            "last_epoch": evidence["last_epoch"],
+            "best_epoch": evidence["best_epoch"],
+            "termination": evidence["termination"],
+            "checkpoint_sha256": evidence["checkpoint_sha256"],
+        },
+        "seed2025": "not_started",
+        "real_data_cpu_smoke": smoke,
+        "production_training_performed": False,
+        "test_metrics_used_for_selection": False,
+    }, indent=2))
+    print("READY — HUMAN MAY RECOVER EVOLVEGCN-O SEEDS 123 AND 2025")
+
+
+def validate_all() -> None:
+    for path, _ in load_configs():
+        validate_run(path)
+    print("PASS: all three EvolveGCN-O production runs are complete")
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--validate-run", type=Path)
+    mode = parser.add_mutually_exclusive_group()
+    mode.add_argument("--validate-run", type=Path)
+    mode.add_argument("--validate-all", action="store_true")
+    mode.add_argument("--recovery-preflight", action="store_true")
     args = parser.parse_args()
     try:
         if args.validate_run:
             validate_run(args.validate_run)
+            return 0
+        if args.validate_all:
+            validate_all()
+            return 0
+        if args.recovery_preflight:
+            recovery_preflight()
             return 0
         audit_repository()
         metadata = audit_metadata()

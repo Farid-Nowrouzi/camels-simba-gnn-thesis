@@ -3,7 +3,7 @@
 import argparse
 
 from src.models.evolvegcn_o import EvolveGCNORegressor
-from src.training.temporal_architecture_common import train_from_config
+from src.training.temporal_architecture_common import finalize_existing_run, train_from_config
 
 
 FROZEN_O_VALUES = {
@@ -53,7 +53,22 @@ def build_model(config):
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--config", required=True)
+    parser.add_argument("--finalize-existing-run", action="store_true")
+    parser.add_argument("--expected-checkpoint-sha256")
     args = parser.parse_args()
+    if args.finalize_existing_run:
+        if not args.expected_checkpoint_sha256:
+            parser.error("--finalize-existing-run requires --expected-checkpoint-sha256")
+        finalize_existing_run(
+            args.config,
+            "EvolveGCNORegressor",
+            build_model,
+            expected_checkpoint_sha256=args.expected_checkpoint_sha256,
+            frozen_values=FROZEN_O_VALUES,
+        )
+        return
+    if args.expected_checkpoint_sha256:
+        parser.error("--expected-checkpoint-sha256 is only valid with --finalize-existing-run")
     train_from_config(
         args.config,
         "EvolveGCNORegressor",

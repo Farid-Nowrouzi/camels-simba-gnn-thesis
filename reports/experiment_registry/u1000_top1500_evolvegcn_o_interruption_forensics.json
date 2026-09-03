@@ -1,0 +1,207 @@
+{
+  "schema_version": "u1000_top1500_evolvegcn_o_interruption_forensics_v1",
+  "worktree": "/home/ml/thesis-camels-notebook16",
+  "branch": "thesis-notebook16-temporal-architectures",
+  "starting_head": "9fa5e499fc21d4471b278ed3a87a09c5f381362b",
+  "frozen_protocol_sha256": "45a21cc4500199a87116f72c707967a721cf9ead832cb04cde6f2dedf112cb2e",
+  "scientific_results_or_rankings_inspected": false,
+  "production_training_performed_during_forensics": false,
+  "seed42": {
+    "status": "COMPLETE",
+    "action": "PRESERVE",
+    "official_auditor": "PASS",
+    "modified_during_forensics": false,
+    "artifacts": {
+      "config.json": {
+        "sha256": "606fec27172cd4cd4b6a3d499d0e7e3a97adfee834031a8fb4bba9c48fabd66e",
+        "size_bytes": 16907,
+        "mtime_utc": "2026-09-03T08:19:32.864739349Z"
+      },
+      "metrics.json": {
+        "sha256": "e34cd4ef877620772f4d5f7a510cc164fd5febbe2f2526f3bde0e819dfd04717",
+        "size_bytes": 602,
+        "mtime_utc": "2026-09-03T08:35:54.626980587Z"
+      },
+      "train_log.csv": {
+        "sha256": "8d98ee52a20dfb332b0142b535329dfe015624b0293303e3390f9ca62172197c",
+        "size_bytes": 10515,
+        "mtime_utc": "2026-09-03T08:35:48.120992954Z"
+      },
+      "run_metadata.json": {
+        "sha256": "e4960550e1f548acab8764a0c7b00fcc2ca0401e75abd8b107651562c1c69449",
+        "size_bytes": 380,
+        "mtime_utc": "2026-09-03T08:19:32.864739349Z"
+      },
+      "checkpoints/best_model.pt": {
+        "sha256": "04dc60e5c70465e4d52b4f9806ea315afc6658ef5a2e1e302719082925762454",
+        "size_bytes": 187362,
+        "mtime_utc": "2026-09-03T08:30:48.211563042Z"
+      },
+      "predictions/val_predictions.csv": {
+        "sha256": "8c4deae4d8d039ede925777f80e7c74112f2751241459a8d95316eac4bb0472d",
+        "size_bytes": 4664,
+        "mtime_utc": "2026-09-03T08:35:54.624980591Z"
+      },
+      "predictions/test_predictions.csv": {
+        "sha256": "85d6b1b399f5e5eb92efe3d6b32231e1f0ce8ff66fa05c3015a6910045fa5f96",
+        "size_bytes": 9468,
+        "mtime_utc": "2026-09-03T08:35:54.625980589Z"
+      }
+    }
+  },
+  "seed123": {
+    "status": "TRAINING_COMPLETE_FINALIZATION_MISSING",
+    "action": "FINALIZE_EXISTING_SEED123_CHECKPOINT",
+    "canonical_path_preserved": true,
+    "archive_required": false,
+    "train_log": {
+      "rows": 203,
+      "last_epoch": 203,
+      "best_epoch": 163,
+      "stale_epochs_at_end": 40,
+      "configured_patience": 40,
+      "epochs_contiguous": true,
+      "final_row_complete": true,
+      "all_lifecycle_values_finite": true,
+      "normal_termination": "early_stopping"
+    },
+    "checkpoint": {
+      "loadable": true,
+      "strict_architecture_load": true,
+      "checkpoint_epoch_matches_final_logged_best_epoch": true,
+      "config_seed_matches": true,
+      "config_experiment_name_matches": true,
+      "state_tensor_count": 24,
+      "all_state_tensors_finite": true,
+      "optimizer_state_present_but_not_used_for_finalization": true
+    },
+    "missing_artifacts": [
+      "metrics.json",
+      "predictions/train_predictions.csv",
+      "predictions/val_predictions.csv",
+      "predictions/test_predictions.csv"
+    ],
+    "artifacts": {
+      "config.json": {
+        "sha256": "d4d5579d0ad10508a5a85b16f73d592d2c20c4dea56096f0dfad454831cf6ff6",
+        "size_bytes": 16911,
+        "mtime_utc": "2026-09-03T08:36:05.185960516Z"
+      },
+      "train_log.csv": {
+        "sha256": "41d42d3c3696e0ae28cba49373d95d7cba1183e61ede5ab87ded1ee901fe6e5b",
+        "size_bytes": 16580,
+        "mtime_utc": "2026-09-03T09:01:36.686172207Z"
+      },
+      "run_metadata.json": {
+        "sha256": "6cffded25cb2d4557d5702d8aa25d2ce81fe4a5d50dd9ed5312dff4642c08c48",
+        "size_bytes": 381,
+        "mtime_utc": "2026-09-03T08:36:05.185960516Z"
+      },
+      "checkpoints/best_model.pt": {
+        "sha256": "14b0e22641b0e58ad744338311fea93632f2d973e6db113184f2cc3779814210",
+        "size_bytes": 187362,
+        "mtime_utc": "2026-09-03T08:56:27.822720662Z"
+      }
+    }
+  },
+  "seed2025": {
+    "status": "NOT_STARTED",
+    "canonical_path_clear": true,
+    "action": "TRAIN_FROM_SCRATCH_AFTER_SEED123_VALIDATION_PASS"
+  },
+  "failure_evidence": {
+    "production_log": {
+      "path": "logs/evolvegcn_o/evolvegcn_o_3seed_20260903T081925Z.log",
+      "size_bytes": 377,
+      "mtime_utc": "2026-09-03T08:35:57.619974898Z",
+      "last_line": "STARTING EVOLVEGCN-O SEED 123",
+      "traceback_or_error_recorded": false
+    },
+    "session_accounting": "tmux pseudo-terminal login ran 2026-09-03T08:19Z through 09:01Z; its end coincides to the minute with seed123 train_log publication",
+    "exact_bounded_failure_stage": "after the complete train_log.csv was closed and before the first prediction CSV was published; the original code performs best-checkpoint reload and train/validation/test inference inside this interval",
+    "process_still_running_at_forensic_preflight": false,
+    "filesystem": "87 GiB available; filesystem 55 percent used",
+    "memory_at_forensic_preflight": "approximately 60 GiB available; no swap configured",
+    "cuda_at_forensic_preflight": "unavailable; this does not establish its state at interruption time",
+    "kernel_oom_evidence": "unavailable: user-visible journal had no entries and dmesg access was denied",
+    "retained_shell_history": "no command terminating this EvolveGCN-O session was retained"
+  },
+  "root_cause": {
+    "classification": "INDETERMINATE",
+    "supporting_evidence": [
+      "the tmux login ended in the same minute that the complete train log was published",
+      "no Python traceback, assertion, shell error, serialization error, or auditor failure was captured",
+      "the same trainer lifecycle completed seed42 immediately beforehand"
+    ],
+    "evidence_against_confirmed_software_or_runner_bug": [
+      "seed42 completed the identical lifecycle",
+      "seed123 checkpoint reload and strict architecture load succeed during forensic inspection",
+      "synthetic seed42-style and seed123-style lifecycles complete after the reliability patch"
+    ],
+    "evidence_against_confirmed_resource_failure": [
+      "disk was not full at inspection",
+      "host memory was not pressured at inspection",
+      "no retained CUDA OOM or host OOM message exists"
+    ],
+    "why_external_interruption_is_not_confirmed": "session termination without a traceback is consistent with an external signal but does not prove who or what issued it"
+  },
+  "recovery_scientific_safety": {
+    "decision": "FINALIZE EXISTING SEED123 CHECKPOINT",
+    "additional_optimization_allowed": false,
+    "optimizer_scheduler_early_stop_or_rng_resume_used": false,
+    "checkpoint_selection_already_final": true,
+    "test_data_influences_selection": false,
+    "checkpoint_sha_must_remain_unchanged": true,
+    "train_log_must_remain_unchanged": true,
+    "row_identities_must_match_frozen_manifests": true
+  },
+  "fix": {
+    "summary": "added proof-gated inference-only finalization, atomic fail-closed artifact publication, checkpoint and training-evidence hash preservation, recovery-specific auditor modes, and a seed123-to-seed2025 runner with stage/error/signal logging",
+    "scientific_settings_changed": false,
+    "files": [
+      "src/training/temporal_architecture_common.py",
+      "src/training/train_evolvegcn_o.py",
+      "scripts/validation/prepare_u1000_top1500_evolvegcn_o.py",
+      "scripts/production/run_u1000_top1500_evolvegcn_o_recovery_123_2025.sh",
+      "tests/test_evolvegcn_o_recovery.py"
+    ]
+  },
+  "tests": {
+    "focused_recovery": {"passed": 7, "failed": 0, "skipped": 0},
+    "targeted_temporal_and_sparse": {
+      "passed": 61,
+      "failed_or_errored_relevant": 0,
+      "unrelated_errors": 1,
+      "unrelated_error_reason": "absent historical EvolveGCN-H T2 experiment artifact"
+    },
+    "broader_unittest_discovery": {
+      "passed": 189,
+      "failed_or_errored_relevant": 0,
+      "unrelated_errors": 5,
+      "skipped": 2,
+      "unrelated_reasons": [
+        "three tests require absent future Top2000 split manifests",
+        "one test requires an absent historical EvolveGCN-H T2 experiment artifact",
+        "one test module requires the unavailable pytest package",
+        "two CUDA-only tests skipped because CUDA is unavailable"
+      ]
+    },
+    "failure_injection": "post-training inference exception propagated and created no prediction or metrics artifacts",
+    "zero_optimizer_finalization": true,
+    "checkpoint_sha_unchanged_test": true,
+    "runner_seed42_exclusion_test": true,
+    "runner_validation_gate_order_test": true
+  },
+  "scientific_protocol_reaudit": {
+    "unexpected_scientific_differences": 0,
+    "dataset_sha256": "ff6f6a89517c0b67a96a8733ce5778dba1524df441cc23c27fbfa4e2f5cdb113",
+    "split_manifest_sha256": {
+      "42": "f5556ec5c193e7cb80f2231705edbdae32d4de206889dec308a819bdde427ab7",
+      "123": "18a295106ec844848053f3040d2be3cdf73a443010be31e6e2cd962362982471",
+      "2025": "c233c0631b1a24d963ffccc7c6389054fddf135a7aabc4dc4ab7bf5976fab3a9"
+    },
+    "real_data_cpu_smoke_seeds": [42, 123, 2025],
+    "preflight_verdict": "READY — HUMAN MAY RECOVER EVOLVEGCN-O SEEDS 123 AND 2025"
+  },
+  "recovery_runner": "scripts/production/run_u1000_top1500_evolvegcn_o_recovery_123_2025.sh"
+}
