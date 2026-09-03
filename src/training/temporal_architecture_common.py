@@ -44,12 +44,16 @@ def sha256_file(path: Path) -> str:
     return digest.hexdigest()
 
 
-def load_and_validate_config(path: str | Path, expected_model: str) -> dict[str, Any]:
+def load_and_validate_config(
+    path: str | Path,
+    expected_model: str,
+    frozen_values: dict[str, Any] | None = None,
+) -> dict[str, Any]:
     config_path = Path(path)
     config = json.loads(config_path.read_text(encoding="utf-8"))
     if config.get("model") != expected_model:
         raise ValueError(f"Expected model {expected_model}, got {config.get('model')!r}")
-    for key, expected in FROZEN_VALUES.items():
+    for key, expected in (FROZEN_VALUES if frozen_values is None else frozen_values).items():
         if config.get(key) != expected:
             raise ValueError(f"Frozen config mismatch for {key}: {config.get(key)!r} != {expected!r}")
     if config.get("seed") not in {42, 123, 2025}:
@@ -107,9 +111,10 @@ def train_from_config(
     config_path: str | Path,
     expected_model: str,
     model_factory: Callable[[dict[str, Any]], nn.Module],
+    frozen_values: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     """Execute one explicitly configured production run; never overwrite a run."""
-    config = load_and_validate_config(config_path, expected_model)
+    config = load_and_validate_config(config_path, expected_model, frozen_values)
     experiment_dir = Path(config["output_root"]) / config["experiment_name"]
     if experiment_dir.exists():
         raise FileExistsError(f"Refusing to overwrite existing run: {experiment_dir}")

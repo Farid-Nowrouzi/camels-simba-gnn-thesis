@@ -1,0 +1,21 @@
+{
+  "schema_version": "camels_temporal_comparison_plan_v2",
+  "status": "read_only_plan_waiting_for_evolvegcn_o_training",
+  "models": ["Static GCN", "EvolveGCN-H", "EvolveGCN-O", "GCN-GRU", "GCN-Transformer"],
+  "matched_seeds": [42, 123, 2025],
+  "primary_architecture_selection_metric": "validation MAE",
+  "supporting_validation_metrics": ["RMSE", "R2", "bias", "prediction sample SD", "target sample SD", "prediction SD / target SD", "calibration slope", "calibration intercept", "Pearson r"],
+  "questions": [
+    "Does temporal information improve over Static GCN?",
+    "Does EvolveGCN-O improve over EvolveGCN-H?",
+    "Do graph-level GRU/Transformer approaches outperform EvolveGCN?",
+    "Is recurrence or self-attention more effective?",
+    "Which architecture is most seed-stable?",
+    "Does any temporal model reduce prediction-range compression?"
+  ],
+  "comparison_scope": "Broad architecture benchmark; the five models are neither parameter-matched nor structurally identical.",
+  "future_order": ["audit three O runs", "independently recompute validation metrics", "matched-seed comparison", "mean plus sample SD", "classify results", "freeze validation-only conclusion", "commit freeze", "inspect held-out test", "post-freeze test comparison", "close study", "create Notebook 16"],
+  "comparison_performed": false,
+  "model_ranking_performed": false,
+  "test_used_for_architecture_selection": false
+}

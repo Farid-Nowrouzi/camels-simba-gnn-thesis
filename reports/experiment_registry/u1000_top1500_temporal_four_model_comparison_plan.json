@@ -1,6 +1,7 @@
 {
   "schema_version": "camels_temporal_comparison_plan_v1",
-  "status": "read_only_plan_untrained_treatments",
+  "status": "superseded_read_only_plan",
+  "superseded_by": "reports/experiment_registry/u1000_top1500_temporal_five_model_comparison_plan.json",
   "models": ["Static GCN", "EvolveGCN-H", "GCN-GRU", "GCN-Temporal-Transformer"],
   "matched_seeds": [42, 123, 2025],
   "primary_selection_criterion": "validation MAE",
