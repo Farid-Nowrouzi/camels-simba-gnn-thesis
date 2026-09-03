@@ -42,7 +42,7 @@ Thumbs.db
 
 # Local environments and data
 envs/
-data/
+/data
 logs/
 outputs/
 
