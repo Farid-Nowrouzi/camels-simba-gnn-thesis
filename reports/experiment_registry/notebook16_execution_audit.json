@@ -1,0 +1,23 @@
+{
+  "schema_version": "camels_notebook_execution_audit_v1",
+  "notebook": "notebooks/visualization/16_u1000_temporal_architecture_study.ipynb",
+  "title": "Temporal Graph Neural Network Architecture Study",
+  "executed_utc_date": "2026-09-03",
+  "execution_method": "jupyter nbconvert --to notebook --execute --inplace",
+  "fresh_kernel": true,
+  "total_cells": 51,
+  "markdown_cells": 31,
+  "code_cells": 20,
+  "unexecuted_code_cells": 0,
+  "execution_errors": 0,
+  "main_figures": 12,
+  "core_tables": 8,
+  "supplementary_figures": 10,
+  "training_performed": false,
+  "inference_performed": false,
+  "optimizer_instantiated": false,
+  "experiment_artifacts_modified": false,
+  "validation_freeze_commit": "4143a4a77139576ca8fb6c0866d57dd755c51caa",
+  "postfreeze_source_commit": "772f0939b2bec7913aee224b5a338c763d21f7e2",
+  "status": "PASS"
+}
