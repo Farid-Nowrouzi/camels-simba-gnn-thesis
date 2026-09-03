@@ -1,0 +1,612 @@
+{
+  "frozen_validation_conclusion": "ROBUST FIVE-MODEL WINNER: GCN-GRU",
+  "validation_freeze_commit": "4143a4a77139576ca8fb6c0866d57dd755c51caa",
+  "validation_freeze_sha256": "fec55630d759311b5c6aa845a9a12aab3a7afd7e292d1a4dab1e6da1b07f6d18",
+  "test_metrics_used_for_model_selection": false,
+  "test_seed_metrics": [
+    {
+      "model": "Static GCN",
+      "parameters": 5281,
+      "seed": 42,
+      "mae": 0.038196001405739664,
+      "rmse": 0.04895204191418271,
+      "r2": 0.83652809982381,
+      "bias": -0.0021046245127768065,
+      "prediction_sd": 0.11200778787581665,
+      "target_sd": 0.12137585089327442,
+      "sd_ratio": 0.9228177355832085,
+      "calibration_slope": 0.8442114212534665,
+      "calibration_intercept": 0.04597483114746592,
+      "pearson_r": 0.9148192418733008
+    },
+    {
+      "model": "Static GCN",
+      "parameters": 5281,
+      "seed": 123,
+      "mae": 0.036829303894469985,
+      "rmse": 0.049025534326344336,
+      "r2": 0.8154302372907066,
+      "bias": 0.0050274504357902565,
+      "prediction_sd": 0.09650427523811815,
+      "target_sd": 0.11439975375925339,
+      "sd_ratio": 0.8435706552411374,
+      "calibration_slope": 0.7644913124240393,
+      "calibration_intercept": 0.07457515778604976,
+      "pearson_r": 0.9062564086057586
+    },
+    {
+      "model": "Static GCN",
+      "parameters": 5281,
+      "seed": 2025,
+      "mae": 0.03863455318099824,
+      "rmse": 0.05006761454288272,
+      "r2": 0.8270093737215423,
+      "bias": 0.0035437530101235233,
+      "prediction_sd": 0.10213208900313345,
+      "target_sd": 0.12067815045868409,
+      "sd_ratio": 0.8463179839510372,
+      "calibration_slope": 0.7720650687781169,
+      "calibration_intercept": 0.07319635889499654,
+      "pearson_r": 0.9122635739981912
+    },
+    {
+      "model": "EvolveGCN-H",
+      "parameters": 3408097,
+      "seed": 42,
+      "mae": 0.06025855836287067,
+      "rmse": 0.1161899373803425,
+      "r2": 0.07904476257812643,
+      "bias": 0.004674674933822594,
+      "prediction_sd": 0.13767325479443834,
+      "target_sd": 0.12137585089327442,
+      "sd_ratio": 1.1342722113272286,
+      "calibration_slope": 0.6835544801281794,
+      "calibration_intercept": 0.10233605976687599,
+      "pearson_r": 0.6026370683350711
+    },
+    {
+      "model": "EvolveGCN-H",
+      "parameters": 3408097,
+      "seed": 123,
+      "mae": 0.05098572128744268,
+      "rmse": 0.06514538075678687,
+      "r2": 0.6741009188856459,
+      "bias": -0.008382940840958362,
+      "prediction_sd": 0.08857602180993417,
+      "target_sd": 0.11439975375925339,
+      "sd_ratio": 0.7742675914874473,
+      "calibration_slope": 0.6394938393343805,
+      "calibration_intercept": 0.09807757752888452,
+      "pearson_r": 0.8259338843123312
+    },
+    {
+      "model": "EvolveGCN-H",
+      "parameters": 3408097,
+      "seed": 2025,
+      "mae": 0.054932502816565594,
+      "rmse": 0.0728869514232596,
+      "r2": 0.6333865935311611,
+      "bias": 0.0041780782427953845,
+      "prediction_sd": 0.10733591083214217,
+      "target_sd": 0.12067815045868409,
+      "sd_ratio": 0.8894394753662567,
+      "calibration_slope": 0.7128469133548041,
+      "calibration_intercept": 0.09192663290927033,
+      "pearson_r": 0.8014563476185556
+    },
+    {
+      "model": "EvolveGCN-O",
+      "parameters": 11527,
+      "seed": 42,
+      "mae": 0.02994742125865832,
+      "rmse": 0.03900660887236601,
+      "r2": 0.896204654727002,
+      "bias": 0.002273415785227249,
+      "prediction_sd": 0.11489676184209358,
+      "target_sd": 0.12137585089327442,
+      "sd_ratio": 0.9466196199367707,
+      "calibration_slope": 0.8963229704195788,
+      "calibration_intercept": 0.0342702103307867,
+      "pearson_r": 0.9468670958662877
+    },
+    {
+      "model": "EvolveGCN-O",
+      "parameters": 11527,
+      "seed": 123,
+      "mae": 0.03304271429628875,
+      "rmse": 0.04281304624811715,
+      "r2": 0.8592436026915259,
+      "bias": 0.020435051390187656,
+      "prediction_sd": 0.1094210127340795,
+      "target_sd": 0.11439975375925339,
+      "sd_ratio": 0.9564794428172344,
+      "calibration_slope": 0.903082096586189,
+      "calibration_intercept": 0.049055727990282905,
+      "pearson_r": 0.9441730330619886
+    },
+    {
+      "model": "EvolveGCN-O",
+      "parameters": 11527,
+      "seed": 2025,
+      "mae": 0.034921327633644215,
+      "rmse": 0.04291565106849454,
+      "r2": 0.8729015711636929,
+      "bias": 0.0010683244437127565,
+      "prediction_sd": 0.11252667483683895,
+      "target_sd": 0.12067815045868409,
+      "sd_ratio": 0.93245276306554,
+      "calibration_slope": 0.8712242441079511,
+      "calibration_intercept": 0.040419760946194594,
+      "pearson_r": 0.934336063570348
+    },
+    {
+      "model": "GCN-GRU",
+      "parameters": 11617,
+      "seed": 42,
+      "mae": 0.029121713555274317,
+      "rmse": 0.03681533910128956,
+      "r2": 0.9075388912753211,
+      "bias": 0.006596792248351064,
+      "prediction_sd": 0.11582330738576424,
+      "target_sd": 0.12137585089327442,
+      "sd_ratio": 0.9542533093144491,
+      "calibration_slope": 0.9105534875015613,
+      "calibration_intercept": 0.03420176602906039,
+      "pearson_r": 0.9542052184819958
+    },
+    {
+      "model": "GCN-GRU",
+      "parameters": 11617,
+      "seed": 123,
+      "mae": 0.02910822177704294,
+      "rmse": 0.03631714960809461,
+      "r2": 0.8987163386092777,
+      "bias": 0.0071119133067961355,
+      "prediction_sd": 0.10482103541077391,
+      "target_sd": 0.11439975375925339,
+      "sd_ratio": 0.9162697642808109,
+      "calibration_slope": 0.871075352562635,
+      "calibration_intercept": 0.045184452126907526,
+      "pearson_r": 0.9506756487226776
+    },
+    {
+      "model": "GCN-GRU",
+      "parameters": 11617,
+      "seed": 2025,
+      "mae": 0.02994827674099462,
+      "rmse": 0.03940591949678055,
+      "r2": 0.8928402473708965,
+      "bias": 0.003053627722892002,
+      "prediction_sd": 0.11200460254270543,
+      "target_sd": 0.12067815045868409,
+      "sd_ratio": 0.928126608810199,
+      "calibration_slope": 0.8774513690451229,
+      "calibration_intercept": 0.040502172568006645,
+      "pearson_r": 0.9454005097105895
+    },
+    {
+      "model": "GCN-Transformer",
+      "parameters": 13825,
+      "seed": 42,
+      "mae": 0.03365953963490861,
+      "rmse": 0.04128809423769353,
+      "r2": 0.8837076460690408,
+      "bias": 0.005432094581684663,
+      "prediction_sd": 0.10429848403428946,
+      "target_sd": 0.12137585089327442,
+      "sd_ratio": 0.8593017743372933,
+      "calibration_slope": 0.8120600750137743,
+      "calibration_intercept": 0.06343409551697882,
+      "pearson_r": 0.945023156317869
+    },
+    {
+      "model": "GCN-Transformer",
+      "parameters": 13825,
+      "seed": 123,
+      "mae": 0.033460758218717815,
+      "rmse": 0.03971395185372118,
+      "r2": 0.8788838401815346,
+      "bias": 0.005820192211302952,
+      "prediction_sd": 0.09069671068984135,
+      "target_sd": 0.11439975375925339,
+      "sd_ratio": 0.7928051215976085,
+      "calibration_slope": 0.7550125507949973,
+      "calibration_intercept": 0.07816705804104257,
+      "pearson_r": 0.952330566777301
+    },
+    {
+      "model": "GCN-Transformer",
+      "parameters": 13825,
+      "seed": 2025,
+      "mae": 0.038908228945376266,
+      "rmse": 0.0497550971764308,
+      "r2": 0.8291622163792032,
+      "bias": -0.005947197254617416,
+      "prediction_sd": 0.10514829798044008,
+      "target_sd": 0.12067815045868409,
+      "sd_ratio": 0.8713118122939671,
+      "calibration_slope": 0.7953936488595276,
+      "calibration_intercept": 0.05657663558281756,
+      "pearson_r": 0.912869121750382
+    }
+  ],
+  "test_summary": [
+    {
+      "model": "Static GCN",
+      "parameters": 5281,
+      "mae_mean": 0.03788661949373596,
+      "mae_sample_sd": 0.0009415514442843749,
+      "rmse_mean": 0.04934839692780326,
+      "rmse_sample_sd": 0.0006239437210532525,
+      "r2_mean": 0.8263225702786864,
+      "r2_sample_sd": 0.010565686210240741,
+      "bias_mean": 0.0021555263110456576,
+      "sd_ratio_mean": 0.8709021249251276,
+      "calibration_slope_mean": 0.7935892674852076,
+      "pearson_r_mean": 0.9111130748257503
+    },
+    {
+      "model": "EvolveGCN-H",
+      "parameters": 3408097,
+      "mae_mean": 0.05539226082229298,
+      "mae_sample_sd": 0.004653483633229066,
+      "rmse_mean": 0.08474075652012965,
+      "rmse_sample_sd": 0.027509474943731318,
+      "r2_mean": 0.4621774249983111,
+      "r2_sample_sd": 0.33242652095185204,
+      "bias_mean": 0.00015660411188653882,
+      "sd_ratio_mean": 0.9326597593936441,
+      "calibration_slope_mean": 0.6786317442724547,
+      "pearson_r_mean": 0.743342433421986
+    },
+    {
+      "model": "EvolveGCN-O",
+      "parameters": 11527,
+      "mae_mean": 0.0326371543961971,
+      "mae_sample_sd": 0.0025116319955764024,
+      "rmse_mean": 0.041578435396325907,
+      "rmse_sample_sd": 0.002227857870084822,
+      "r2_mean": 0.8761166095274069,
+      "r2_sample_sd": 0.018689092959595626,
+      "bias_mean": 0.007925597206375886,
+      "sd_ratio_mean": 0.9451839419398484,
+      "calibration_slope_mean": 0.8902097703712396,
+      "pearson_r_mean": 0.9417920641662082
+    },
+    {
+      "model": "GCN-GRU",
+      "parameters": 11617,
+      "mae_mean": 0.029392737357770624,
+      "mae_sample_sd": 0.0004811585100095734,
+      "rmse_mean": 0.03751280273538824,
+      "rmse_sample_sd": 0.0016583022936065802,
+      "r2_mean": 0.8996984924184984,
+      "r2_sample_sd": 0.007398378385564929,
+      "bias_mean": 0.005587444426013068,
+      "sd_ratio_mean": 0.9328832274684863,
+      "calibration_slope_mean": 0.8863600697031065,
+      "pearson_r_mean": 0.9500937923050876
+    },
+    {
+      "model": "GCN-Transformer",
+      "parameters": 13825,
+      "mae_mean": 0.035342842266334225,
+      "mae_sample_sd": 0.0030893146717635464,
+      "rmse_mean": 0.04358571442261516,
+      "rmse_sample_sd": 0.005400504025881549,
+      "r2_mean": 0.8639179008765928,
+      "r2_sample_sd": 0.030195785789935266,
+      "bias_mean": 0.001768363179456733,
+      "sd_ratio_mean": 0.841139569409623,
+      "calibration_slope_mean": 0.7874887582227664,
+      "pearson_r_mean": 0.9367409482818507
+    }
+  ],
+  "paired_test_deltas": [
+    {
+      "comparison": "EvolveGCN-H - Static GCN",
+      "seed": 42,
+      "reference_mae": 0.038196001405739664,
+      "first_model_mae": 0.06025855836287067,
+      "delta_mae": 0.022062556957131003,
+      "delta_percent_of_reference": 57.76143089631286
+    },
+    {
+      "comparison": "EvolveGCN-H - Static GCN",
+      "seed": 123,
+      "reference_mae": 0.036829303894469985,
+      "first_model_mae": 0.05098572128744268,
+      "delta_mae": 0.014156417392972694,
+      "delta_percent_of_reference": 38.43791735389904
+    },
+    {
+      "comparison": "EvolveGCN-H - Static GCN",
+      "seed": 2025,
+      "reference_mae": 0.03863455318099824,
+      "first_model_mae": 0.054932502816565594,
+      "delta_mae": 0.016297949635567355,
+      "delta_percent_of_reference": 42.1849052044511
+    },
+    {
+      "comparison": "EvolveGCN-O - Static GCN",
+      "seed": 42,
+      "reference_mae": 0.038196001405739664,
+      "first_model_mae": 0.02994742125865832,
+      "delta_mae": -0.008248580147081346,
+      "delta_percent_of_reference": -21.595402250251887
+    },
+    {
+      "comparison": "EvolveGCN-O - Static GCN",
+      "seed": 123,
+      "reference_mae": 0.036829303894469985,
+      "first_model_mae": 0.03304271429628875,
+      "delta_mae": -0.0037865895981812336,
+      "delta_percent_of_reference": -10.281458506604574
+    },
+    {
+      "comparison": "EvolveGCN-O - Static GCN",
+      "seed": 2025,
+      "reference_mae": 0.03863455318099824,
+      "first_model_mae": 0.034921327633644215,
+      "delta_mae": -0.0037132255473540238,
+      "delta_percent_of_reference": -9.611151784150339
+    },
+    {
+      "comparison": "GCN-GRU - Static GCN",
+      "seed": 42,
+      "reference_mae": 0.038196001405739664,
+      "first_model_mae": 0.029121713555274317,
+      "delta_mae": -0.009074287850465348,
+      "delta_percent_of_reference": -23.75716702403767
+    },
+    {
+      "comparison": "GCN-GRU - Static GCN",
+      "seed": 123,
+      "reference_mae": 0.036829303894469985,
+      "first_model_mae": 0.02910822177704294,
+      "delta_mae": -0.007721082117427044,
+      "delta_percent_of_reference": -20.96450733782776
+    },
+    {
+      "comparison": "GCN-GRU - Static GCN",
+      "seed": 2025,
+      "reference_mae": 0.03863455318099824,
+      "first_model_mae": 0.02994827674099462,
+      "delta_mae": -0.00868627644000362,
+      "delta_percent_of_reference": -22.483180792358226
+    },
+    {
+      "comparison": "GCN-Transformer - Static GCN",
+      "seed": 42,
+      "reference_mae": 0.038196001405739664,
+      "first_model_mae": 0.03365953963490861,
+      "delta_mae": -0.004536461770831057,
+      "delta_percent_of_reference": -11.876797580569177
+    },
+    {
+      "comparison": "GCN-Transformer - Static GCN",
+      "seed": 123,
+      "reference_mae": 0.036829303894469985,
+      "first_model_mae": 0.033460758218717815,
+      "delta_mae": -0.00336854567575217,
+      "delta_percent_of_reference": -9.146373456865597
+    },
+    {
+      "comparison": "GCN-Transformer - Static GCN",
+      "seed": 2025,
+      "reference_mae": 0.03863455318099824,
+      "first_model_mae": 0.038908228945376266,
+      "delta_mae": 0.00027367576437802715,
+      "delta_percent_of_reference": 0.7083704659295245
+    },
+    {
+      "comparison": "EvolveGCN-O - EvolveGCN-H",
+      "seed": 42,
+      "reference_mae": 0.06025855836287067,
+      "first_model_mae": 0.02994742125865832,
+      "delta_mae": -0.03031113710421235,
+      "delta_percent_of_reference": -50.301796006605215
+    },
+    {
+      "comparison": "EvolveGCN-O - EvolveGCN-H",
+      "seed": 123,
+      "reference_mae": 0.05098572128744268,
+      "first_model_mae": 0.03304271429628875,
+      "delta_mae": -0.017943006991153927,
+      "delta_percent_of_reference": -35.192219582413024
+    },
+    {
+      "comparison": "EvolveGCN-O - EvolveGCN-H",
+      "seed": 2025,
+      "reference_mae": 0.054932502816565594,
+      "first_model_mae": 0.034921327633644215,
+      "delta_mae": -0.02001117518292138,
+      "delta_percent_of_reference": -36.42866091454831
+    },
+    {
+      "comparison": "GCN-Transformer - GCN-GRU",
+      "seed": 42,
+      "reference_mae": 0.029121713555274317,
+      "first_model_mae": 0.03365953963490861,
+      "delta_mae": 0.0045378260796342905,
+      "delta_percent_of_reference": 15.582277021650164
+    },
+    {
+      "comparison": "GCN-Transformer - GCN-GRU",
+      "seed": 123,
+      "reference_mae": 0.02910822177704294,
+      "first_model_mae": 0.033460758218717815,
+      "delta_mae": 0.004352536441674874,
+      "delta_percent_of_reference": 14.95294516791002
+    },
+    {
+      "comparison": "GCN-Transformer - GCN-GRU",
+      "seed": 2025,
+      "reference_mae": 0.02994827674099462,
+      "first_model_mae": 0.038908228945376266,
+      "delta_mae": 0.008959952204381647,
+      "delta_percent_of_reference": 29.91808938414423
+    }
+  ],
+  "validation_directions": {
+    "EvolveGCN-H - Static GCN": "ROBUST DEGRADATION",
+    "EvolveGCN-O - Static GCN": "SEED-DEPENDENT",
+    "GCN-GRU - Static GCN": "ROBUST IMPROVEMENT",
+    "GCN-Transformer - Static GCN": "ROBUST IMPROVEMENT",
+    "EvolveGCN-O - EvolveGCN-H": "ROBUST IMPROVEMENT",
+    "GCN-Transformer - GCN-GRU": "ROBUST DEGRADATION"
+  },
+  "test_directions": {
+    "EvolveGCN-H - Static GCN": "ROBUST DEGRADATION",
+    "EvolveGCN-O - Static GCN": "ROBUST IMPROVEMENT",
+    "GCN-GRU - Static GCN": "ROBUST IMPROVEMENT",
+    "GCN-Transformer - Static GCN": "SEED-DEPENDENT",
+    "EvolveGCN-O - EvolveGCN-H": "ROBUST IMPROVEMENT",
+    "GCN-Transformer - GCN-GRU": "ROBUST DEGRADATION"
+  },
+  "direction_agreement": {
+    "EvolveGCN-H - Static GCN": true,
+    "EvolveGCN-O - Static GCN": false,
+    "GCN-GRU - Static GCN": true,
+    "GCN-Transformer - Static GCN": false,
+    "EvolveGCN-O - EvolveGCN-H": true,
+    "GCN-Transformer - GCN-GRU": true
+  },
+  "validation_vs_test": "PARTIALLY CONFIRMS",
+  "test_confirmation_questions": [
+    {
+      "question": "Does held-out test support the frozen conclusion?",
+      "answer": "YES. GCN-GRU again has the lowest MAE for every seed and the lowest mean MAE."
+    },
+    {
+      "question": "Does test preserve validation ordering?",
+      "answer": "YES for the complete mean-MAE ordering: GRU, O, Transformer, Static, H."
+    },
+    {
+      "question": "Are validation improvements reversed?",
+      "answer": "Transformer versus Static reverses for seed2025 only; O versus Static changes in the favorable direction, becoming robust on test."
+    },
+    {
+      "question": "Which models are most seed-stable on test?",
+      "answer": "GCN-GRU has the smallest test MAE sample SD, followed by Static GCN."
+    },
+    {
+      "question": "Does prediction compression persist?",
+      "answer": "YES. Every model has mean SD ratio and calibration slope below 1; O and GRU are closest to the ideal overall."
+    },
+    {
+      "question": "Does test strengthen, weaken, or contradict validation?",
+      "answer": "It strongly supports the frozen GRU winner, strengthens O versus Static, and weakens Transformer versus Static; overall PARTIALLY CONFIRMS."
+    }
+  ],
+  "hypothesis_table": [
+    {
+      "hypothesis": "Temporal information improves over final-snapshot Static GCN",
+      "evidence": "four temporal/static comparisons",
+      "validation_conclusion": "EvolveGCN-H: ROBUST DEGRADATION; EvolveGCN-O: SEED-DEPENDENT; GCN-GRU: ROBUST IMPROVEMENT; GCN-Transformer: ROBUST IMPROVEMENT",
+      "test_conclusion": "EvolveGCN-H: ROBUST DEGRADATION; EvolveGCN-O: ROBUST IMPROVEMENT; GCN-GRU: ROBUST IMPROVEMENT; GCN-Transformer: SEED-DEPENDENT",
+      "status": "supported"
+    },
+    {
+      "hypothesis": "EvolveGCN-H is specifically the weak EvolveGCN formulation",
+      "evidence": "O versus H",
+      "validation_conclusion": "ROBUST IMPROVEMENT",
+      "test_conclusion": "ROBUST IMPROVEMENT",
+      "status": "supported"
+    },
+    {
+      "hypothesis": "Graph-level recurrence better captures temporal evolution",
+      "evidence": "GRU versus Static and Evolve family",
+      "validation_conclusion": "ROBUST IMPROVEMENT",
+      "test_conclusion": "ROBUST IMPROVEMENT",
+      "status": "supported"
+    },
+    {
+      "hypothesis": "Temporal self-attention better captures useful snapshots",
+      "evidence": "Transformer versus GRU and Static",
+      "validation_conclusion": "ROBUST DEGRADATION",
+      "test_conclusion": "ROBUST DEGRADATION",
+      "status": "not supported"
+    },
+    {
+      "hypothesis": "Richer temporal processing reduces prediction compression",
+      "evidence": "SD ratio and calibration slope",
+      "validation_conclusion": "descriptive metrics relative to ideal 1",
+      "test_conclusion": "descriptive metrics relative to ideal 1",
+      "status": "unresolved"
+    }
+  ],
+  "figures": {
+    "test_mae": [
+      "reports/temporal_five_model/figures/test_mae_all_models.png",
+      "reports/temporal_five_model/figures/test_mae_all_models.pdf"
+    ],
+    "test_compression": [
+      "reports/temporal_five_model/figures/test_prediction_compression.png",
+      "reports/temporal_five_model/figures/test_prediction_compression.pdf"
+    ],
+    "true_static_gcn": [
+      "reports/temporal_five_model/figures/test_true_vs_predicted_static_gcn.png",
+      "reports/temporal_five_model/figures/test_true_vs_predicted_static_gcn.pdf"
+    ],
+    "residual_static_gcn": [
+      "reports/temporal_five_model/figures/test_residuals_static_gcn.png",
+      "reports/temporal_five_model/figures/test_residuals_static_gcn.pdf"
+    ],
+    "true_evolvegcn_h": [
+      "reports/temporal_five_model/figures/test_true_vs_predicted_evolvegcn_h.png",
+      "reports/temporal_five_model/figures/test_true_vs_predicted_evolvegcn_h.pdf"
+    ],
+    "residual_evolvegcn_h": [
+      "reports/temporal_five_model/figures/test_residuals_evolvegcn_h.png",
+      "reports/temporal_five_model/figures/test_residuals_evolvegcn_h.pdf"
+    ],
+    "true_evolvegcn_o": [
+      "reports/temporal_five_model/figures/test_true_vs_predicted_evolvegcn_o.png",
+      "reports/temporal_five_model/figures/test_true_vs_predicted_evolvegcn_o.pdf"
+    ],
+    "residual_evolvegcn_o": [
+      "reports/temporal_five_model/figures/test_residuals_evolvegcn_o.png",
+      "reports/temporal_five_model/figures/test_residuals_evolvegcn_o.pdf"
+    ],
+    "true_gcn_gru": [
+      "reports/temporal_five_model/figures/test_true_vs_predicted_gcn_gru.png",
+      "reports/temporal_five_model/figures/test_true_vs_predicted_gcn_gru.pdf"
+    ],
+    "residual_gcn_gru": [
+      "reports/temporal_five_model/figures/test_residuals_gcn_gru.png",
+      "reports/temporal_five_model/figures/test_residuals_gcn_gru.pdf"
+    ],
+    "true_gcn_transformer": [
+      "reports/temporal_five_model/figures/test_true_vs_predicted_gcn_transformer.png",
+      "reports/temporal_five_model/figures/test_true_vs_predicted_gcn_transformer.pdf"
+    ],
+    "residual_gcn_transformer": [
+      "reports/temporal_five_model/figures/test_residuals_gcn_transformer.png",
+      "reports/temporal_five_model/figures/test_residuals_gcn_transformer.pdf"
+    ]
+  },
+  "fairness_limitations": [
+    {
+      "comparison": "GCN-GRU vs GCN-Transformer",
+      "fairness_level": "strongest controlled comparison",
+      "matched": "data; graph; snapshots; features; target; splits; seeds; GCN encoder; pooling; budget; optimizer; scheduler; stopping; clipping",
+      "difference": "GRU recurrence vs Transformer attention/readout",
+      "limitation": "11,617 vs 13,825 parameters"
+    },
+    {
+      "comparison": "EvolveGCN-H vs EvolveGCN-O",
+      "fairness_level": "controlled EvolveGCN-family comparison",
+      "matched": "data; graph; snapshots; features; target; splits; seeds; h32/l2; pooling; linear head; training protocol",
+      "difference": "H vs O weight evolution",
+      "limitation": "3,408,097 vs 11,527 parameters"
+    },
+    {
+      "comparison": "all five",
+      "fairness_level": "matched-data / matched-split architecture benchmark",
+      "matched": "U1000/Top1500/raw7/k8; target; splits; seeds",
+      "difference": "architectures/capacities; Static final snapshot only",
+      "limitation": "not a parameter-matched ablation; architecture-specific details"
+    }
+  ]
+}

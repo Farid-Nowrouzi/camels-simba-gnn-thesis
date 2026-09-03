@@ -1,0 +1,61 @@
+{
+  "seed42_status": "COMPLETE",
+  "seed123_status": "COMPLETE",
+  "seed2025_status": "COMPLETE",
+  "training_complete": true,
+  "recovery_used_for_seed123": true,
+  "seed123_recovery_type": "inference-only finalization",
+  "seed123_additional_optimization_steps": 0,
+  "seed123_checkpoint_preserved": true,
+  "seed123_checkpoint_sha256": "14b0e22641b0e58ad744338311fea93632f2d973e6db113184f2cc3779814210",
+  "runs": [
+    {
+      "model": "EvolveGCN-O",
+      "seed": 42,
+      "run_path": "/home/ml/thesis-camels-notebook16/experiments/evolvegcn_o_u1000_top1500_sparse_train700_seed42_none_h32_l2_mean_temporal_mean_linear",
+      "validation_rows": 99,
+      "test_rows": 201,
+      "checkpoint_sha256": "04dc60e5c70465e4d52b4f9806ea315afc6658ef5a2e1e302719082925762454",
+      "official_audit": "PASS",
+      "status": "COMPLETE",
+      "artifact_sha256": {
+        "config.json": "606fec27172cd4cd4b6a3d499d0e7e3a97adfee834031a8fb4bba9c48fabd66e",
+        "checkpoints/best_model.pt": "04dc60e5c70465e4d52b4f9806ea315afc6658ef5a2e1e302719082925762454",
+        "predictions/val_predictions.csv": "8c4deae4d8d039ede925777f80e7c74112f2751241459a8d95316eac4bb0472d",
+        "predictions/test_predictions.csv": "85d6b1b399f5e5eb92efe3d6b32231e1f0ce8ff66fa05c3015a6910045fa5f96"
+      }
+    },
+    {
+      "model": "EvolveGCN-O",
+      "seed": 123,
+      "run_path": "/home/ml/thesis-camels-notebook16/experiments/evolvegcn_o_u1000_top1500_sparse_train700_seed123_none_h32_l2_mean_temporal_mean_linear",
+      "validation_rows": 99,
+      "test_rows": 201,
+      "checkpoint_sha256": "14b0e22641b0e58ad744338311fea93632f2d973e6db113184f2cc3779814210",
+      "official_audit": "PASS",
+      "status": "COMPLETE",
+      "artifact_sha256": {
+        "config.json": "d4d5579d0ad10508a5a85b16f73d592d2c20c4dea56096f0dfad454831cf6ff6",
+        "checkpoints/best_model.pt": "14b0e22641b0e58ad744338311fea93632f2d973e6db113184f2cc3779814210",
+        "predictions/val_predictions.csv": "89b5bf9fac96d52a3419a4839586c0c028122acc2930b01236f13eb93c7ea45d",
+        "predictions/test_predictions.csv": "8b77aafe28d60ec201f9ab2d9d79ecfaea4a1ff31ff45c126598149f0e9ff79c"
+      }
+    },
+    {
+      "model": "EvolveGCN-O",
+      "seed": 2025,
+      "run_path": "/home/ml/thesis-camels-notebook16/experiments/evolvegcn_o_u1000_top1500_sparse_train700_seed2025_none_h32_l2_mean_temporal_mean_linear",
+      "validation_rows": 99,
+      "test_rows": 201,
+      "checkpoint_sha256": "1809b552fc2b4821735612e81d2ef956f7647b42e7006af95221343c2397d046",
+      "official_audit": "PASS",
+      "status": "COMPLETE",
+      "artifact_sha256": {
+        "config.json": "249b3f97f5be51a2e48884167cf830ada8e3bae0d3c889c6642e7d2d9321315c",
+        "checkpoints/best_model.pt": "1809b552fc2b4821735612e81d2ef956f7647b42e7006af95221343c2397d046",
+        "predictions/val_predictions.csv": "1e55e0c1e3f59ee20a3931735c62a07c7ff43e725ecc29fe77633653b08f6d64",
+        "predictions/test_predictions.csv": "7f28f8c7331bdfaa164a64c5bac12da97fb3dd72e69bb8025852812cbd2dd204"
+      }
+    }
+  ]
+}

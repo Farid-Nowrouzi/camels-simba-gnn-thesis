@@ -1,0 +1,4 @@
+comparison,fairness_level,matched,difference,limitation
+GCN-GRU vs GCN-Transformer,strongest controlled comparison,data; graph; snapshots; features; target; splits; seeds; GCN encoder; pooling; budget; optimizer; scheduler; stopping; clipping,GRU recurrence vs Transformer attention/readout,"11,617 vs 13,825 parameters"
+EvolveGCN-H vs EvolveGCN-O,controlled EvolveGCN-family comparison,data; graph; snapshots; features; target; splits; seeds; h32/l2; pooling; linear head; training protocol,H vs O weight evolution,"3,408,097 vs 11,527 parameters"
+all five,matched-data / matched-split architecture benchmark,U1000/Top1500/raw7/k8; target; splits; seeds,architectures/capacities; Static final snapshot only,not a parameter-matched ablation; architecture-specific details

@@ -1,0 +1,6 @@
+hypothesis,evidence,validation_conclusion,test_conclusion,status
+Temporal information improves over final-snapshot Static GCN,four temporal/static comparisons,EvolveGCN-H: ROBUST DEGRADATION; EvolveGCN-O: SEED-DEPENDENT; GCN-GRU: ROBUST IMPROVEMENT; GCN-Transformer: ROBUST IMPROVEMENT,EvolveGCN-H: ROBUST DEGRADATION; EvolveGCN-O: ROBUST IMPROVEMENT; GCN-GRU: ROBUST IMPROVEMENT; GCN-Transformer: SEED-DEPENDENT,supported
+EvolveGCN-H is specifically the weak EvolveGCN formulation,O versus H,ROBUST IMPROVEMENT,ROBUST IMPROVEMENT,supported
+Graph-level recurrence better captures temporal evolution,GRU versus Static and Evolve family,ROBUST IMPROVEMENT,ROBUST IMPROVEMENT,supported
+Temporal self-attention better captures useful snapshots,Transformer versus GRU and Static,ROBUST DEGRADATION,ROBUST DEGRADATION,not supported
+Richer temporal processing reduces prediction compression,SD ratio and calibration slope,descriptive metrics relative to ideal 1,descriptive metrics relative to ideal 1,unresolved
