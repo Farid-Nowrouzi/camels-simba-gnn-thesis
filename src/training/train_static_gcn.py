@@ -71,7 +71,7 @@ import csv
 import json
 import random
 from pathlib import Path
-from typing import Any, Dict, List, Tuple
+from typing import Any, Callable, Dict, List, Tuple
 
 import numpy as np
 import torch
@@ -772,6 +772,10 @@ def train_static_gcn(
     test_ratio: float = 0.15,
     grad_clip_norm: float = 1.0,
     device_name: str = "auto",
+    model_factory: Callable[[int], nn.Module] | None = None,
+    model_name: str = "StaticGCNRegressor",
+    config_overrides: Dict[str, Any] | None = None,
+    training_label: str = "Static GCN",
 ) -> Dict[str, Any]:
     """
     Train the Static GCN regressor.
@@ -800,7 +804,7 @@ def train_static_gcn(
         device = torch.device(device_name)
 
     print("=" * 90)
-    print("CAMELS-SIMBA Static GCN Training")
+    print(f"CAMELS-SIMBA {training_label} Training")
     print("=" * 90)
     print(f"Dataset path:       {dataset_path}")
     print(f"Dataset format:     {dataset_format}")
@@ -871,16 +875,20 @@ def train_static_gcn(
     print(f"Val IDs:   {val_ids}")
     print(f"Test IDs:  {test_ids}")
 
-    model = StaticGCNRegressor(
-        node_features=node_features,
-        hidden_dim=hidden_dim,
-        num_layers=num_layers,
-        dropout=dropout,
-        graph_pooling=graph_pooling,
-        conv_type=conv_type,
-        add_self_loops=True,
-        use_layer_norm=True,
-        residual=True,
+    model = (
+        model_factory(node_features)
+        if model_factory is not None
+        else StaticGCNRegressor(
+            node_features=node_features,
+            hidden_dim=hidden_dim,
+            num_layers=num_layers,
+            dropout=dropout,
+            graph_pooling=graph_pooling,
+            conv_type=conv_type,
+            add_self_loops=True,
+            use_layer_norm=True,
+            residual=True,
+        )
     ).to(device)
 
     criterion = nn.MSELoss()
@@ -908,7 +916,7 @@ def train_static_gcn(
     print(f"Trainable parameters: {trainable_params}")
 
     config = {
-        "model": "StaticGCNRegressor",
+        "model": model_name,
         "dataset_path": str(dataset_path),
         "dataset_format": dataset_format,
         "experiment_name": experiment_name,
@@ -969,6 +977,8 @@ def train_static_gcn(
         "test_ids": test_ids,
         "trainable_parameters": trainable_params,
     }
+    if config_overrides:
+        config.update(config_overrides)
 
     save_json(config, experiment_dir / "config.json")
 
@@ -1095,7 +1105,7 @@ def train_static_gcn(
 
     print()
     print("=" * 90)
-    print("STATIC GCN TRAINING COMPLETE")
+    print(f"{training_label.upper()} TRAINING COMPLETE")
     print("=" * 90)
     print(f"Best checkpoint:     {best_checkpoint_path}")
     print(f"Train log:           {train_log_path}")
