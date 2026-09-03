@@ -1,0 +1,129 @@
+{
+  "schema_version": "camels_temporal_training_closure_v1",
+  "study": "U1000 Top1500 GCN-GRU and GCN-Temporal-Transformer production closure",
+  "created_utc": "2026-09-03",
+  "dataset": {
+    "repository_path": "data/processed/temporal_1000u_none_top1500_periodic_knn_sparse/camels_1000u_temporal_logmass_none_top1500_periodic_knn_sparse.pt",
+    "resolved_path": "/home/ml/thesis-camels/data/processed/temporal_1000u_none_top1500_periodic_knn_sparse/camels_1000u_temporal_logmass_none_top1500_periodic_knn_sparse.pt",
+    "sha256": "ff6f6a89517c0b67a96a8733ce5778dba1524df441cc23c27fbfa4e2f5cdb113",
+    "universe_count": 1000,
+    "top_n": 1500,
+    "graph": "periodic_sparse_knn",
+    "k": 8,
+    "box_size_h_inv_mpc": 25.0,
+    "features": ["log10_Mvir", "X", "Y", "Z", "VX", "VY", "VZ"],
+    "node_normalization": "none",
+    "target": "Omega_m",
+    "target_normalization": "none",
+    "snapshot_scale_factors": [0.2, 0.25, 0.51209, 0.75065, 1.0],
+    "dataset_rebuild_required": false
+  },
+  "seeds": [42, 123, 2025],
+  "splits": {
+    "counts": {"train": 700, "validation": 99, "test": 201},
+    "seed42": {
+      "manifest": "configs/splits/u1000_top1500_none_k8_sparse/seed42_train700.json",
+      "sha256": "f5556ec5c193e7cb80f2231705edbdae32d4de206889dec308a819bdde427ab7"
+    },
+    "seed123": {
+      "manifest": "configs/splits/u1000_top1500_none_k8_sparse/seed123_train700.json",
+      "sha256": "18a295106ec844848053f3040d2be3cdf73a443010be31e6e2cd962362982471"
+    },
+    "seed2025": {
+      "manifest": "configs/splits/u1000_top1500_none_k8_sparse/seed2025_train700.json",
+      "sha256": "c233c0631b1a24d963ffccc7c6389054fddf135a7aabc4dc4ab7bf5976fab3a9"
+    },
+    "canonical_prediction_ids_match_manifest_in_order": true,
+    "duplicate_ids_found": false,
+    "split_overlap_found": false
+  },
+  "gcn_gru": {
+    "runs": [
+      {
+        "seed": 42,
+        "path": "experiments/gcn_gru_u1000_top1500_sparse_train700_seed42_none_h32_l3_final",
+        "checkpoint_sha256": "9e1f790f5457042a4c6fa2a99865b9a4d5981fd0727f817da3d31cd0beca495f",
+        "validation_prediction_rows": 99,
+        "test_prediction_rows": 201,
+        "official_auditor": "PASS",
+        "artifact_integrity": "PASS"
+      },
+      {
+        "seed": 123,
+        "path": "experiments/gcn_gru_u1000_top1500_sparse_train700_seed123_none_h32_l3_final",
+        "checkpoint_sha256": "0ce928085fc4fb02ab5e1b724a4d0c23075f9884c787b6e520fa8e55b5b714f9",
+        "validation_prediction_rows": 99,
+        "test_prediction_rows": 201,
+        "official_auditor": "PASS",
+        "artifact_integrity": "PASS"
+      },
+      {
+        "seed": 2025,
+        "path": "experiments/gcn_gru_u1000_top1500_sparse_train700_seed2025_none_h32_l3_final",
+        "checkpoint_sha256": "f8b37b6342407e982b79d29fc6a9cc50613d4ea8300e09459bb8b96ecaaff932",
+        "validation_prediction_rows": 99,
+        "test_prediction_rows": 201,
+        "official_auditor": "PASS",
+        "artifact_integrity": "PASS"
+      }
+    ],
+    "production_log": "logs/gcn_gru/gcn_gru_3seed_20260903T052018Z.log",
+    "GCN_GRU_TRAINING_STATUS": "CLOSED"
+  },
+  "gcn_temporal_transformer": {
+    "runs": [
+      {
+        "seed": 42,
+        "path": "experiments/gcn_temporal_transformer_u1000_top1500_sparse_train700_seed42_none_h32_l3_final",
+        "checkpoint_sha256": "f5ff7988b573d7831da176c9ec84c88e21c66563a67b0ba40ae8319fe6854704",
+        "validation_prediction_rows": 99,
+        "test_prediction_rows": 201,
+        "official_auditor": "PASS",
+        "artifact_integrity": "PASS",
+        "completion_source": "original production run"
+      },
+      {
+        "seed": 123,
+        "path": "experiments/gcn_temporal_transformer_u1000_top1500_sparse_train700_seed123_none_h32_l3_final",
+        "checkpoint_sha256": "adb93a7455028b3f487fd1be7284e9bbc343aceb4dfbb544281431aa900065fe",
+        "validation_prediction_rows": 99,
+        "test_prediction_rows": 201,
+        "official_auditor": "PASS",
+        "artifact_integrity": "PASS",
+        "completion_source": "recovery run"
+      },
+      {
+        "seed": 2025,
+        "path": "experiments/gcn_temporal_transformer_u1000_top1500_sparse_train700_seed2025_none_h32_l3_final",
+        "checkpoint_sha256": "bf82667c1e86803c515dd708a91c70378be51d0d46a69c781d61330f46729be4",
+        "validation_prediction_rows": 99,
+        "test_prediction_rows": 201,
+        "official_auditor": "PASS",
+        "artifact_integrity": "PASS",
+        "completion_source": "recovery run"
+      }
+    ],
+    "original_log": "logs/gcn_transformer/gcn_transformer_3seed_20260903T061207Z.log",
+    "recovery_log": "logs/gcn_transformer/gcn_transformer_recovery_123_2025_20260903T072323Z.log",
+    "interrupted_seed123_archive": "experiments/gcn_temporal_transformer_u1000_top1500_sparse_train700_seed123_none_h32_l3_final_INTERRUPTED_20260903T072117Z",
+    "interrupted_archive_classification": "historical computationally incomplete run; not a scientific model failure and not canonical",
+    "GCN_TRANSFORMER_TRAINING_STATUS": "CLOSED"
+  },
+  "six_run_fairness_audit": {
+    "unexpected_scientific_differences": 0,
+    "intentional_architecture_differences_only": true
+  },
+  "artifact_checks": {
+    "all_required_files_nonempty": true,
+    "prediction_rows_well_formed": true,
+    "prediction_ids_unique": true,
+    "prediction_ids_match_manifests": true,
+    "predictions_finite": true,
+    "targets_finite": true,
+    "production_logs_free_of_genuine_training_failure": true
+  },
+  "performance_selection_performed": false,
+  "test_metrics_used_for_selection": false,
+  "test_prediction_files_integrity_checked": true,
+  "model_rankings_included": false
+}
