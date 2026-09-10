@@ -1,0 +1,251 @@
+{
+  "experiment_name": "u1000_top1500_set_transformer",
+  "scientific_hypothesis": "Can learned halo-to-halo attention without an explicit graph recover more Omega_m information than DeepSets and approach or outperform Static GCN?",
+  "architecture": {
+    "input_projection": [
+      7,
+      16
+    ],
+    "projection_order": [
+      "Linear",
+      "ReLU",
+      "Dropout",
+      "LayerNorm"
+    ],
+    "dim": 16,
+    "num_heads": 2,
+    "head_dim": 8,
+    "inducing_points": 32,
+    "isab_blocks": 2,
+    "pma_seeds": 1,
+    "mab_ffn": [
+      16,
+      16,
+      16
+    ],
+    "pma_preprocessing_ffn": [
+      16,
+      16,
+      16
+    ],
+    "regression_head": [
+      16,
+      32,
+      16,
+      1
+    ],
+    "activation": "ReLU",
+    "dropout": 0.2,
+    "attention_dropout": 0.2,
+    "attention_output_dropout": 0.2,
+    "ffn_dropout": "after ReLU and final linear",
+    "normalization": "post-residual LayerNorm",
+    "biased_projections": true,
+    "initialization": "Xavier uniform weights/inducing/seeds; zero biases; LayerNorm weight=1 bias=0",
+    "positional_encoding": false,
+    "halo_rank_embedding": false,
+    "output_activation": null
+  },
+  "expected_parameter_count": 11313,
+  "parameter_breakdown": {
+    "input_projection": 160,
+    "two_isabs": 7808,
+    "pma_including_preprocessing_ffn": 2256,
+    "regression_head": 1089
+  },
+  "dataset_path": "data/processed/temporal_1000u_none_top1500_periodic_knn_sparse/camels_1000u_temporal_logmass_none_top1500_periodic_knn_sparse.pt",
+  "dataset_sha256": "ff6f6a89517c0b67a96a8733ce5778dba1524df441cc23c27fbfa4e2f5cdb113",
+  "top_n": 1500,
+  "snapshot": "final a=1.0",
+  "feature_order": [
+    "log10_Mvir",
+    "X",
+    "Y",
+    "Z",
+    "VX",
+    "VY",
+    "VZ"
+  ],
+  "preprocessing": "none beyond existing log10 mass representation",
+  "target": "raw Omega_m",
+  "split_paths": {
+    "42": "configs/splits/u1000_top1500_none_k8_sparse/seed42_train700.json",
+    "123": "configs/splits/u1000_top1500_none_k8_sparse/seed123_train700.json",
+    "2025": "configs/splits/u1000_top1500_none_k8_sparse/seed2025_train700.json"
+  },
+  "split_hashes": {
+    "42": "f5556ec5c193e7cb80f2231705edbdae32d4de206889dec308a819bdde427ab7",
+    "123": "18a295106ec844848053f3040d2be3cdf73a443010be31e6e2cd962362982471",
+    "2025": "c233c0631b1a24d963ffccc7c6389054fddf135a7aabc4dc4ab7bf5976fab3a9"
+  },
+  "split_counts": {
+    "train": 700,
+    "val": 99,
+    "test": 201
+  },
+  "seeds": [
+    42,
+    123,
+    2025
+  ],
+  "loss": "MSELoss(mean)",
+  "optimizer": "AdamW",
+  "learning_rate": 0.001,
+  "weight_decay": 1e-05,
+  "batch_size": 8,
+  "max_epochs": 300,
+  "patience": 40,
+  "scheduler": {
+    "name": "ReduceLROnPlateau",
+    "mode": "min",
+    "factor": 0.5,
+    "patience": 10,
+    "min_lr": 1e-06
+  },
+  "gradient_clipping": 1.0,
+  "dtype": "float32",
+  "amp": false,
+  "num_workers": 0,
+  "train_shuffle": "seeded",
+  "evaluation_shuffle": false,
+  "checkpoint_criterion": "strict minimum validation MSE; earlier checkpoint retained on exact ties",
+  "primary_comparison_metric": "MAE",
+  "freeze_statement": "The Set Transformer architecture and training protocol are frozen before scientific test-set evaluation. Test performance must not be used to alter architecture or hyperparameters.",
+  "implementation_file_hashes": {
+    "src/models/set_transformer.py": "132cf2aebf498f5520d4534af2ec2a65d166adf8b6f3a4db79f6fe740aebcd44",
+    "src/evaluation/run_modern_set_transformer.py": "f1284eb5db6ee947ddcc192a6f1fefeb9c7941991f78094986abc3d12416bd3d",
+    "tests/test_modern_set_transformer.py": "7c1e458afc832762ead72e0062b222d173e5f57708dbe3b793bccebb13e9900b",
+    "src/models/deepsets.py": "da0ce5717dd25c9b2c023f5980e06a87e261705d761079550579453e1d75e488",
+    "src/evaluation/run_modern_deepsets.py": "977381225ce9426ac2eee1f407919cd19ca6caca5e6c554f7578814eb9e11b9a",
+    "src/evaluation/baseline_common.py": "c416400148f7daade7c14fd8cf52bdb8f392a72e78af713a37a42491957d5133",
+    "src/training/split_manifest.py": "86f417c8095f4ccce811059ebd71da675e46455ec74d3fb303c14b5092bf1b01",
+    "scripts/build_experiment_registry.py": "fe1e6d61fd3a0f40f75d74b89506898320fbe76a1007cac504c9d3478e7a58ef"
+  },
+  "config_sha256": "153e01395fe4da0492db57d0e7c5009bd656ee99bb6162ef94180eb34d125efe",
+  "family_configuration": {
+    "schema_version": "1.0",
+    "family_id": "u1000_top1500_set_transformer",
+    "scientific_question": "Can learned halo-to-halo attention without an explicit graph recover more Omega_m information than DeepSets and approach or outperform Static GCN?",
+    "model_family": "set_transformer",
+    "model": "SetTransformerRegressor",
+    "training_module": "src.evaluation.run_modern_set_transformer",
+    "output_root": "experiments",
+    "representation": "raw_halo_set",
+    "uses_graph_edges": false,
+    "snapshot_protocol": "final",
+    "final_scale_factor": 1.0,
+    "feature_names": [
+      "log10_Mvir",
+      "X",
+      "Y",
+      "Z",
+      "VX",
+      "VY",
+      "VZ"
+    ],
+    "feature_normalization": "none",
+    "target": "Omega_m",
+    "target_normalization": "none",
+    "top_n": 1500,
+    "seeds": [
+      42,
+      123,
+      2025
+    ],
+    "expected_jobs": 3,
+    "dataset": {
+      "path": "data/processed/temporal_1000u_none_top1500_periodic_knn_sparse/camels_1000u_temporal_logmass_none_top1500_periodic_knn_sparse.pt",
+      "sha256": "ff6f6a89517c0b67a96a8733ce5778dba1524df441cc23c27fbfa4e2f5cdb113",
+      "split_manifests": {
+        "42": {
+          "path": "configs/splits/u1000_top1500_none_k8_sparse/seed42_train700.json",
+          "sha256": "f5556ec5c193e7cb80f2231705edbdae32d4de206889dec308a819bdde427ab7"
+        },
+        "123": {
+          "path": "configs/splits/u1000_top1500_none_k8_sparse/seed123_train700.json",
+          "sha256": "18a295106ec844848053f3040d2be3cdf73a443010be31e6e2cd962362982471"
+        },
+        "2025": {
+          "path": "configs/splits/u1000_top1500_none_k8_sparse/seed2025_train700.json",
+          "sha256": "c233c0631b1a24d963ffccc7c6389054fddf135a7aabc4dc4ab7bf5976fab3a9"
+        }
+      }
+    },
+    "architecture": {
+      "input_projection": [
+        7,
+        16
+      ],
+      "projection_order": [
+        "Linear",
+        "ReLU",
+        "Dropout",
+        "LayerNorm"
+      ],
+      "dim": 16,
+      "num_heads": 2,
+      "head_dim": 8,
+      "inducing_points": 32,
+      "isab_blocks": 2,
+      "pma_seeds": 1,
+      "mab_ffn": [
+        16,
+        16,
+        16
+      ],
+      "pma_preprocessing_ffn": [
+        16,
+        16,
+        16
+      ],
+      "regression_head": [
+        16,
+        32,
+        16,
+        1
+      ],
+      "activation": "ReLU",
+      "dropout": 0.2,
+      "attention_dropout": 0.2,
+      "attention_output_dropout": 0.2,
+      "ffn_dropout": "after ReLU and final linear",
+      "normalization": "post-residual LayerNorm",
+      "biased_projections": true,
+      "initialization": "Xavier uniform weights/inducing/seeds; zero biases; LayerNorm weight=1 bias=0",
+      "positional_encoding": false,
+      "halo_rank_embedding": false,
+      "output_activation": null
+    },
+    "expected_parameter_count": 11313,
+    "fixed_configuration": {
+      "loss": "MSELoss(mean)",
+      "optimizer": "AdamW",
+      "learning_rate": 0.001,
+      "weight_decay": 1e-05,
+      "batch_size": 8,
+      "max_epochs": 300,
+      "patience": 40,
+      "scheduler": {
+        "name": "ReduceLROnPlateau",
+        "mode": "min",
+        "factor": 0.5,
+        "patience": 10,
+        "min_lr": 1e-06
+      },
+      "gradient_clipping": 1.0,
+      "dtype": "float32",
+      "amp": false,
+      "num_workers": 0,
+      "train_shuffle": "seeded",
+      "evaluation_shuffle": false,
+      "checkpoint_criterion": "strict minimum validation MSE; earlier checkpoint on exact ties",
+      "primary_comparison_metric": "MAE"
+    }
+  },
+  "control_artifact_manifest_sha256": "b329b1995facd81d4c38ba815d90faf3f8f66297fb7ed51e076eb523bac82ec3",
+  "source_commit": "9b515aa70d785f691ccfa2f0ec4e7833875a4359",
+  "branch": "thesis-notebook17-set-transformer",
+  "freeze_timestamp_utc": "2026-09-10T06:00:54.196752+00:00",
+  "implementation_status": "implementation only; no scientific training, smoke execution, or test evaluation",
+  "test_use_policy": "Train uses train/validation only. Finalize requires all three completed seed checkpoints and verified freeze, implementation, config, split, and checkpoint hashes. Test is evaluated once per frozen seed after a persistent exclusive attempt marker; interrupted test attempts require manual review and cannot be automatically retried. No test-driven architecture or hyperparameter changes."
+}

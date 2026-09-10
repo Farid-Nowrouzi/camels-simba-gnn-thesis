@@ -344,6 +344,9 @@ def find_experiment_dirs(experiments_root: Path) -> list[Path]:
     for path in sorted(experiments_root.rglob("*")):
         if not path.is_dir():
             continue
+        # Notebook 17 smoke evidence is never a scientific experiment.
+        if "notebook17_set_transformer" in path.parts:
+            continue
         has_marker = any((path / marker).exists() for marker in markers)
         has_predictions = (path / "predictions").is_dir()
         has_checkpoint_dir = (path / "checkpoints").is_dir()
@@ -620,6 +623,8 @@ def classify_family(name: str, path: str, config: dict[str, Any], metrics: dict[
         return "gcn_temporal_transformer"
     if "deepsets" in lowered or config.get("model") == "DeepSetsRegressor":
         return "deepsets"
+    if name.startswith("set_transformer_u1000_top1500_") or model == "SetTransformerRegressor":
+        return "set_transformer"
     if "debug_overfit" in lowered:
         return "debug_overfit"
     if "debug" in lowered:

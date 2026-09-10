@@ -1,0 +1,120 @@
+{
+  "schema_version": "1.0",
+  "family_id": "u1000_top1500_set_transformer",
+  "scientific_question": "Can learned halo-to-halo attention without an explicit graph recover more Omega_m information than DeepSets and approach or outperform Static GCN?",
+  "model_family": "set_transformer",
+  "model": "SetTransformerRegressor",
+  "training_module": "src.evaluation.run_modern_set_transformer",
+  "output_root": "experiments",
+  "representation": "raw_halo_set",
+  "uses_graph_edges": false,
+  "snapshot_protocol": "final",
+  "final_scale_factor": 1.0,
+  "feature_names": [
+    "log10_Mvir",
+    "X",
+    "Y",
+    "Z",
+    "VX",
+    "VY",
+    "VZ"
+  ],
+  "feature_normalization": "none",
+  "target": "Omega_m",
+  "target_normalization": "none",
+  "top_n": 1500,
+  "seeds": [
+    42,
+    123,
+    2025
+  ],
+  "expected_jobs": 3,
+  "dataset": {
+    "path": "data/processed/temporal_1000u_none_top1500_periodic_knn_sparse/camels_1000u_temporal_logmass_none_top1500_periodic_knn_sparse.pt",
+    "sha256": "ff6f6a89517c0b67a96a8733ce5778dba1524df441cc23c27fbfa4e2f5cdb113",
+    "split_manifests": {
+      "42": {
+        "path": "configs/splits/u1000_top1500_none_k8_sparse/seed42_train700.json",
+        "sha256": "f5556ec5c193e7cb80f2231705edbdae32d4de206889dec308a819bdde427ab7"
+      },
+      "123": {
+        "path": "configs/splits/u1000_top1500_none_k8_sparse/seed123_train700.json",
+        "sha256": "18a295106ec844848053f3040d2be3cdf73a443010be31e6e2cd962362982471"
+      },
+      "2025": {
+        "path": "configs/splits/u1000_top1500_none_k8_sparse/seed2025_train700.json",
+        "sha256": "c233c0631b1a24d963ffccc7c6389054fddf135a7aabc4dc4ab7bf5976fab3a9"
+      }
+    }
+  },
+  "architecture": {
+    "input_projection": [
+      7,
+      16
+    ],
+    "projection_order": [
+      "Linear",
+      "ReLU",
+      "Dropout",
+      "LayerNorm"
+    ],
+    "dim": 16,
+    "num_heads": 2,
+    "head_dim": 8,
+    "inducing_points": 32,
+    "isab_blocks": 2,
+    "pma_seeds": 1,
+    "mab_ffn": [
+      16,
+      16,
+      16
+    ],
+    "pma_preprocessing_ffn": [
+      16,
+      16,
+      16
+    ],
+    "regression_head": [
+      16,
+      32,
+      16,
+      1
+    ],
+    "activation": "ReLU",
+    "dropout": 0.2,
+    "attention_dropout": 0.2,
+    "attention_output_dropout": 0.2,
+    "ffn_dropout": "after ReLU and final linear",
+    "normalization": "post-residual LayerNorm",
+    "biased_projections": true,
+    "initialization": "Xavier uniform weights/inducing/seeds; zero biases; LayerNorm weight=1 bias=0",
+    "positional_encoding": false,
+    "halo_rank_embedding": false,
+    "output_activation": null
+  },
+  "expected_parameter_count": 11313,
+  "fixed_configuration": {
+    "loss": "MSELoss(mean)",
+    "optimizer": "AdamW",
+    "learning_rate": 0.001,
+    "weight_decay": 1e-05,
+    "batch_size": 8,
+    "max_epochs": 300,
+    "patience": 40,
+    "scheduler": {
+      "name": "ReduceLROnPlateau",
+      "mode": "min",
+      "factor": 0.5,
+      "patience": 10,
+      "min_lr": 1e-06
+    },
+    "gradient_clipping": 1.0,
+    "dtype": "float32",
+    "amp": false,
+    "num_workers": 0,
+    "train_shuffle": "seeded",
+    "evaluation_shuffle": false,
+    "checkpoint_criterion": "strict minimum validation MSE; earlier checkpoint on exact ties",
+    "primary_comparison_metric": "MAE"
+  }
+}
