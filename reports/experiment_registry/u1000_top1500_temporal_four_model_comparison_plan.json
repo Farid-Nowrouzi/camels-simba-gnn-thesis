@@ -1,0 +1,12 @@
+{
+  "schema_version": "camels_temporal_comparison_plan_v1",
+  "status": "superseded_read_only_plan",
+  "superseded_by": "reports/experiment_registry/u1000_top1500_temporal_five_model_comparison_plan.json",
+  "models": ["Static GCN", "EvolveGCN-H", "GCN-GRU", "GCN-Temporal-Transformer"],
+  "matched_seeds": [42, 123, 2025],
+  "primary_selection_criterion": "validation MAE",
+  "supporting_metrics": ["RMSE", "R2", "prediction SD / target SD", "calibration slope", "bias"],
+  "decision_order": ["validation comparison", "freeze architecture conclusion", "commit freeze", "held-out test evaluation"],
+  "test_used_for_architecture_selection": false,
+  "comparison_performed": false
+}

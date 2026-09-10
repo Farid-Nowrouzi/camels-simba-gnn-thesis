@@ -1,0 +1,335 @@
+{
+  "schema_version": "camels_u1000_top1500_static_gcn_vs_pna_architecture_freeze_v1",
+  "status": "FROZEN_ON_VALIDATION_BEFORE_TEST_VALUE_INSPECTION",
+  "created_utc": "2026-09-03T03:43:35Z",
+  "pre_freeze_head": "37442cee1805e1fbd0995d547a20bc6cbc7e8196",
+  "research_question": "Holding dataset, graph, k, TopN, node features, normalization, snapshot, splits, seeds, hidden width, message-passing depth, activation, dropout, layer normalization, residual policy, graph pooling, regression head, loss, optimizer, learning rate, weight decay, batch size, maximum epochs, early stopping, scheduler, and gradient clipping fixed, does replacing the Static GCN message-passing operator with PNA improve Omega_m regression?",
+  "dataset": {
+    "suite": "CAMELS-SIMBA",
+    "universes": 1000,
+    "top_n_halos": 1500,
+    "snapshot": "final",
+    "features": [
+      "log10(Mvir)",
+      "X",
+      "Y",
+      "Z",
+      "VX",
+      "VY",
+      "VZ"
+    ],
+    "normalization": "none",
+    "target": "Omega_m",
+    "path": "data/processed/temporal_1000u_none_top1500_periodic_knn_sparse/camels_1000u_temporal_logmass_none_top1500_periodic_knn_sparse.pt",
+    "sha256": "ff6f6a89517c0b67a96a8733ce5778dba1524df441cc23c27fbfa4e2f5cdb113"
+  },
+  "graph": {
+    "family": "periodic_sparse_knn",
+    "k": 8,
+    "box_size_h_inverse_mpc": 25.0
+  },
+  "protocol": {
+    "path": "reports/experiment_registry/u1000_top1500_static_pna_protocol.json",
+    "sha256": "b589202f683799a0ff6896389bfba22c289a1449bf649ac075bf154490eedecc"
+  },
+  "seeds": [
+    42,
+    123,
+    2025
+  ],
+  "splits": {
+    "42": {
+      "path": "configs/splits/u1000_top1500_none_k8_sparse/seed42_train700.json",
+      "sha256": "f5556ec5c193e7cb80f2231705edbdae32d4de206889dec308a819bdde427ab7",
+      "counts": {
+        "train": 700,
+        "validation": 99,
+        "test": 201
+      }
+    },
+    "123": {
+      "path": "configs/splits/u1000_top1500_none_k8_sparse/seed123_train700.json",
+      "sha256": "18a295106ec844848053f3040d2be3cdf73a443010be31e6e2cd962362982471",
+      "counts": {
+        "train": 700,
+        "validation": 99,
+        "test": 201
+      }
+    },
+    "2025": {
+      "path": "configs/splits/u1000_top1500_none_k8_sparse/seed2025_train700.json",
+      "sha256": "c233c0631b1a24d963ffccc7c6389054fddf135a7aabc4dc4ab7bf5976fab3a9",
+      "counts": {
+        "train": 700,
+        "validation": 99,
+        "test": 201
+      }
+    }
+  },
+  "split_audit": {
+    "duplicate_count_each_seed": 0,
+    "overlap_count_each_seed": 0,
+    "control_treatment_ordered_split_mismatch_each_seed": 0
+  },
+  "control_runs": {
+    "42": {
+      "identity": "static_gcn_u1000_top1500_sparse_train700_seed42_none_h32_l3_mean_mlp_final",
+      "checkpoint_sha256": "49ea8189bec30852bfa0879012144df8b7982291892b976368970c2c0926a487"
+    },
+    "123": {
+      "identity": "static_gcn_u1000_top1500_sparse_train700_seed123_none_h32_l3_mean_mlp_final",
+      "checkpoint_sha256": "dce2c8cac85ab8a3f8c3e6ae3247fcaa3cf818c9ae6364b3adf5598bd3ef50eb"
+    },
+    "2025": {
+      "identity": "static_gcn_u1000_top1500_sparse_train700_seed2025_none_h32_l3_mean_mlp_final",
+      "checkpoint_sha256": "8be14a8dc8e7bb9a6ffb2f20ab5afe9df80e98740dc9db12584426d656b3809f"
+    }
+  },
+  "pna_runs": {
+    "42": {
+      "identity": "static_pna_u1000_top1500_sparse_train700_seed42_none_h32_l3_mean_mlp_final",
+      "checkpoint_sha256": "404d6981530b76d3776163aa523a952e9a7a7e02f9e7807e34fa463745146387"
+    },
+    "123": {
+      "identity": "static_pna_u1000_top1500_sparse_train700_seed123_none_h32_l3_mean_mlp_final",
+      "checkpoint_sha256": "cf4a744080a93d42d9cb67f9884cf8573aedbfd8b550611e7d79247ae77a3bcf"
+    },
+    "2025": {
+      "identity": "static_pna_u1000_top1500_sparse_train700_seed2025_none_h32_l3_mean_mlp_final",
+      "checkpoint_sha256": "c2e354db984ef7b627b77e0c6aafa7c49a53902a6fc14816c54ea7572757f998"
+    }
+  },
+  "unexpected_scientific_config_differences": 0,
+  "primary_selection_metric": "validation_mae",
+  "validation_metrics": [
+    {
+      "architecture": "Static GCN",
+      "seed": 42,
+      "n": 99,
+      "mae": 0.03655207608685349,
+      "rmse": 0.0497031334127659,
+      "r2": 0.8046685844554917,
+      "prediction_mean": 0.309071274718853,
+      "target_mean": 0.31193333367506665,
+      "prediction_sample_sd": 0.10056560854071053,
+      "target_sample_sd": 0.11303222572453492,
+      "sd_ratio": 0.8897074077422297,
+      "bias": -0.002862058956213672,
+      "calibration_slope": 0.7984477688368198,
+      "calibration_intercept": 0.06000880042016479,
+      "pearson_r": 0.8974273585773603
+    },
+    {
+      "architecture": "Static PNA",
+      "seed": 42,
+      "n": 99,
+      "mae": 0.036957770736530574,
+      "rmse": 0.04723545237927592,
+      "r2": 0.8235828840095363,
+      "prediction_mean": 0.2987811548842324,
+      "target_mean": 0.31193333367506665,
+      "prediction_sample_sd": 0.09031145571851322,
+      "target_sample_sd": 0.11303222572453492,
+      "sd_ratio": 0.798988564010114,
+      "bias": -0.013152178790834215,
+      "calibration_slope": 0.7378214483410732,
+      "calibration_intercept": 0.06863005084623547,
+      "pearson_r": 0.923444316446729
+    },
+    {
+      "architecture": "Static GCN",
+      "seed": 123,
+      "n": 99,
+      "mae": 0.0412676798725369,
+      "rmse": 0.04983017309371394,
+      "r2": 0.8167076754783472,
+      "prediction_mean": 0.3081436843583078,
+      "target_mean": 0.3029838381241066,
+      "prediction_sample_sd": 0.09813643093899585,
+      "target_sample_sd": 0.11698355520786095,
+      "sd_ratio": 0.8388908232838641,
+      "bias": 0.005159846234201181,
+      "calibration_slope": 0.761205403829957,
+      "calibration_intercept": 0.0775107495050969,
+      "pearson_r": 0.9073950777649407
+    },
+    {
+      "architecture": "Static PNA",
+      "seed": 123,
+      "n": 99,
+      "mae": 0.04344748705625534,
+      "rmse": 0.05527488927004478,
+      "r2": 0.7744643239362392,
+      "prediction_mean": 0.2859583858287696,
+      "target_mean": 0.3029838381241066,
+      "prediction_sample_sd": 0.0935412585361744,
+      "target_sample_sd": 0.11698355520786095,
+      "sd_ratio": 0.7996103244594219,
+      "bias": -0.01702545229533706,
+      "calibration_slope": 0.7176190939528604,
+      "calibration_intercept": 0.06853139843178807,
+      "pearson_r": 0.897461015699126
+    },
+    {
+      "architecture": "Static GCN",
+      "seed": 2025,
+      "n": 99,
+      "mae": 0.036247752155318405,
+      "rmse": 0.045682047574410994,
+      "r2": 0.8513691925486767,
+      "prediction_mean": 0.30815547478921484,
+      "target_mean": 0.30342424239474114,
+      "prediction_sample_sd": 0.10613849153824775,
+      "target_sample_sd": 0.11909559613585159,
+      "sd_ratio": 0.8912041669213046,
+      "bias": 0.004731232394473721,
+      "calibration_slope": 0.8236041729218234,
+      "calibration_intercept": 0.05825400258726321,
+      "pearson_r": 0.9241475786261104
+    },
+    {
+      "architecture": "Static PNA",
+      "seed": 2025,
+      "n": 99,
+      "mae": 0.05583955806614173,
+      "rmse": 0.06774145721168606,
+      "r2": 0.6731663357519078,
+      "prediction_mean": 0.2698392378862458,
+      "target_mean": 0.30342424239474114,
+      "prediction_sample_sd": 0.07185867793401171,
+      "target_sample_sd": 0.11909559613585159,
+      "sd_ratio": 0.6033697320935609,
+      "bias": -0.03358500450849533,
+      "calibration_slope": 0.5587785303580399,
+      "calibration_intercept": 0.1002922856459107,
+      "pearson_r": 0.926096389388312
+    }
+  ],
+  "seed_matched_pna_minus_gcn_validation_differences": [
+    {
+      "seed": 42,
+      "delta_mae": 0.0004056946496770811,
+      "delta_rmse": -0.002467681033489981,
+      "delta_r2": 0.018914299554044556,
+      "delta_sd_ratio": -0.0907188437321157,
+      "delta_calibration_slope": -0.060626320495746566,
+      "winner_by_validation_mae": "Static GCN"
+    },
+    {
+      "seed": 123,
+      "delta_mae": 0.002179807183718442,
+      "delta_rmse": 0.005444716176330841,
+      "delta_r2": -0.04224335154210801,
+      "delta_sd_ratio": -0.03928049882444218,
+      "delta_calibration_slope": -0.04358630987709666,
+      "winner_by_validation_mae": "Static GCN"
+    },
+    {
+      "seed": 2025,
+      "delta_mae": 0.019591805910823323,
+      "delta_rmse": 0.022059409637275068,
+      "delta_r2": -0.17820285679676895,
+      "delta_sd_ratio": -0.2878344348277436,
+      "delta_calibration_slope": -0.2648256425637835,
+      "winner_by_validation_mae": "Static GCN"
+    }
+  ],
+  "validation_summary": {
+    "Static GCN": {
+      "mae": {
+        "mean": 0.038022502704902934,
+        "sample_sd": 0.002814522055487548,
+        "range": [
+          0.036247752155318405,
+          0.0412676798725369
+        ]
+      },
+      "rmse": {
+        "mean": 0.04840511802696361,
+        "sample_sd": 0.0023591034922842364,
+        "range": [
+          0.045682047574410994,
+          0.04983017309371394
+        ]
+      },
+      "r2": {
+        "mean": 0.8242484841608385,
+        "sample_sd": 0.024246330562742197,
+        "range": [
+          0.8046685844554917,
+          0.8513691925486767
+        ]
+      },
+      "sd_ratio": {
+        "mean": 0.8732674659824661,
+        "sample_sd": 0.02978045070898938,
+        "range": [
+          0.8388908232838641,
+          0.8912041669213046
+        ]
+      },
+      "calibration_slope": {
+        "mean": 0.7944191151962001,
+        "sample_sd": 0.03139385503027739,
+        "range": [
+          0.761205403829957,
+          0.8236041729218234
+        ]
+      }
+    },
+    "Static PNA": {
+      "mae": {
+        "mean": 0.04541493861964255,
+        "sample_sd": 0.009593415576887731,
+        "range": [
+          0.036957770736530574,
+          0.05583955806614173
+        ]
+      },
+      "rmse": {
+        "mean": 0.05675059962033559,
+        "sample_sd": 0.010332344812537645,
+        "range": [
+          0.04723545237927592,
+          0.06774145721168606
+        ]
+      },
+      "r2": {
+        "mean": 0.7570711812325611,
+        "sample_sd": 0.07670186149806114,
+        "range": [
+          0.6731663357519078,
+          0.8235828840095363
+        ]
+      },
+      "sd_ratio": {
+        "mean": 0.7339895401876989,
+        "sample_sd": 0.11312049923168728,
+        "range": [
+          0.6033697320935609,
+          0.7996103244594219
+        ]
+      },
+      "calibration_slope": {
+        "mean": 0.6714063575506578,
+        "sample_sd": 0.09806020790465615,
+        "range": [
+          0.5587785303580399,
+          0.7378214483410732
+        ]
+      }
+    }
+  },
+  "validation_classification": "ROBUST DEGRADATION",
+  "parameter_counts": {
+    "static_gcn": 5281,
+    "static_pna": 51553,
+    "pna_to_gcn_ratio": 9.761976898314714
+  },
+  "parameter_count_matched": false,
+  "capacity_control_required": false,
+  "scientific_interpretation": "Under matched data, graph, width, depth, pooling, head, and optimization settings, Static PNA does not outperform Static GCN: validation MAE is higher for PNA in all three seed-matched comparisons, its across-seed mean MAE and RMSE are higher, and its mean R2, prediction-SD ratio, and calibration slope are lower. This is a controlled architecture benchmark, not a parameter-count-matched operator ablation. Static PNA has approximately 9.76 times as many trainable parameters, so no effect may be attributed to its aggregation mechanism alone. Because the substantially larger PNA did not establish a robust validation advantage, a parameter-capacity control is not scientifically required to support the conclusion that increased PNA complexity did not solve the static-model limitation.",
+  "test_metrics_used_for_architecture_classification": false,
+  "test_predictions_parsed_before_freeze": false,
+  "pna_hyperparameter_sweep_performed": false
+}

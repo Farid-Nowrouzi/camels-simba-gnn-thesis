@@ -1,0 +1,28 @@
+{
+  "schema_version": "camels_temporal_protocol_v1",
+  "status": "frozen_pre_training",
+  "production_training_performed": false,
+  "dataset": {
+    "path": "data/processed/temporal_1000u_none_top1500_periodic_knn_sparse/camels_1000u_temporal_logmass_none_top1500_periodic_knn_sparse.pt",
+    "sha256": "ff6f6a89517c0b67a96a8733ce5778dba1524df441cc23c27fbfa4e2f5cdb113",
+    "universe_count": 1000, "top_n": 1500,
+    "graph": "periodic sparse kNN", "k": 8, "box_size_h_inv_mpc": 25.0,
+    "feature_names": ["log10_Mvir", "X", "Y", "Z", "VX", "VY", "VZ"],
+    "node_feature_dimension": 7, "normalization": "none", "target": "Omega_m",
+    "snapshot_count": 5,
+    "chronological_scale_factors": [0.2, 0.25, 0.51209, 0.75065, 1.0]
+  },
+  "split_manifests": {
+    "42": "configs/splits/u1000_top1500_none_k8_sparse/seed42_train700.json",
+    "123": "configs/splits/u1000_top1500_none_k8_sparse/seed123_train700.json",
+    "2025": "configs/splits/u1000_top1500_none_k8_sparse/seed2025_train700.json"
+  },
+  "seeds": [42, 123, 2025],
+  "spatial_encoder": {"class": "SharedGCNSnapshotEncoder", "layers": 3, "hidden_dim": 32, "activation": "ReLU", "dropout": 0.2, "layer_norm": true, "residual": true, "shared_across_snapshots": true},
+  "graph_pooling": "mean",
+  "temporal_module": {"type": "GRU", "input_size": 32, "hidden_size": 32, "num_layers": 1, "batch_first": true, "bidirectional": false, "internal_dropout": 0.0},
+  "temporal_readout": "final GRU hidden state",
+  "regression_head": [32, 32, 16, 1],
+  "trainable_parameter_count": 11617,
+  "training": {"loss": "MSE", "optimizer": "AdamW", "learning_rate": 0.001, "weight_decay": 0.00001, "batch_size": 8, "max_epochs": 300, "early_stopping_patience": 40, "early_stopping_criterion": "validation MSE", "scheduler": "ReduceLROnPlateau", "scheduler_factor": 0.5, "scheduler_patience": 10, "scheduler_min_lr": 0.000001, "gradient_clip_norm": 1.0, "checkpoint_criterion": "minimum validation MSE", "deterministic_seeding": true}
+}

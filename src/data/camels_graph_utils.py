@@ -572,6 +572,57 @@ def build_sparse_knn_edge_index(
     return np.asarray(ordered, dtype=np.int64).T if ordered else np.empty((2, 0), dtype=np.int64)
 
 
+def build_sparse_radius_edge_index(
+    positions: np.ndarray,
+    mask: np.ndarray,
+    radius: float,
+    periodic_boundary: bool = True,
+    box_size: float = DEFAULT_BOX_SIZE,
+) -> np.ndarray:
+    """Build deterministic symmetric fixed-radius edges without a dense matrix.
+
+    Each unordered pair of real, distinct nodes is evaluated exactly once.  A
+    pair is included when its Euclidean minimum-image distance is ``<= radius``.
+    Both directed orientations are stored, padding is excluded, and the result
+    is lexicographically ordered by ``(source, target)``.
+    """
+    if positions.ndim != 2 or positions.shape[1] != 3:
+        raise ValueError(f"positions must have shape [N,3], got {positions.shape}")
+    if radius is None or not np.isfinite(radius) or radius <= 0:
+        raise ValueError("Radius must be a finite positive number for radius graph mode.")
+    if periodic_boundary and (not np.isfinite(box_size) or box_size <= 0):
+        raise ValueError("box_size must be finite and positive for periodic radius graphs.")
+
+    valid_indices = np.flatnonzero(mask.reshape(-1) > 0).astype(np.int64)
+    real_count = valid_indices.size
+    if real_count <= 1:
+        return np.empty((2, 0), dtype=np.int64)
+
+    valid_positions = positions[valid_indices].astype(np.float64, copy=False)
+    edge_pairs: list[tuple[int, int]] = []
+    for local_i in range(real_count - 1):
+        diff = valid_positions[local_i + 1:] - valid_positions[local_i]
+        if periodic_boundary:
+            abs_diff = np.abs(diff)
+            diff = np.minimum(abs_diff, float(box_size) - abs_diff)
+        # Match compute_pairwise_distances/build_radius_adjacency exactly: the
+        # historical dense implementation rounds Euclidean distances to
+        # float32 before applying its inclusive threshold.
+        distances = np.sqrt(np.einsum("ij,ij->i", diff, diff)).astype(np.float32)
+        for offset in np.flatnonzero(distances <= radius):
+            local_j = local_i + 1 + int(offset)
+            global_i = int(valid_indices[local_i])
+            global_j = int(valid_indices[local_j])
+            edge_pairs.append((global_i, global_j))
+            edge_pairs.append((global_j, global_i))
+
+    edge_pairs.sort()
+    return (
+        np.asarray(edge_pairs, dtype=np.int64).T
+        if edge_pairs else np.empty((2, 0), dtype=np.int64)
+    )
+
+
 def build_radius_adjacency(
     positions: np.ndarray,
     mask: np.ndarray,
@@ -818,9 +869,6 @@ def process_snapshot(
 
     if graph_storage not in {GRAPH_STORAGE_DENSE, GRAPH_STORAGE_SPARSE}:
         raise ValueError(f"Unknown graph_storage: {graph_storage}")
-    if graph_storage == GRAPH_STORAGE_SPARSE and graph_mode != "knn":
-        raise ValueError("The sparse path currently supports graph_mode='knn' only.")
-
     selection = selection_provenance(df_selected)
     adjacency = None
     edge_index = None
@@ -829,7 +877,7 @@ def process_snapshot(
             positions=positions_padded, mask=mask, graph_mode=graph_mode, k=k,
             radius=radius, periodic_boundary=periodic_boundary, box_size=box_size,
         )
-    else:
+    elif graph_mode == "knn":
         edge_index = build_sparse_knn_edge_index(
             positions=positions_padded,
             mask=mask,
@@ -838,6 +886,16 @@ def process_snapshot(
             box_size=box_size,
             tie_keys=np.arange(selected_num_halos, dtype=np.int64),
         )
+    elif graph_mode == "radius":
+        edge_index = build_sparse_radius_edge_index(
+            positions=positions_padded,
+            mask=mask,
+            radius=radius,
+            periodic_boundary=periodic_boundary,
+            box_size=box_size,
+        )
+    else:
+        raise ValueError(f"Unknown graph_mode: {graph_mode}")
 
     if X_padded.shape != (num_nodes, 7):
         raise ValueError(

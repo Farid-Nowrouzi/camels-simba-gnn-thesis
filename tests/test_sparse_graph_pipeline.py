@@ -129,6 +129,44 @@ class TopNAndKNNTests(unittest.TestCase):
         self.assertTrue(np.array_equal(first, second))
         self.assertEqual(first.shape[1], 6)
 
+    def test_multi_k_periodic_nesting_padding_and_effective_k(self) -> None:
+        real_positions = np.array([
+            [0.1, 0.2, 0.3], [24.9, 0.2, 0.3], [2.0, 1.0, 3.0],
+            [4.1, 2.3, 1.2], [6.4, 4.7, 2.1], [8.2, 7.1, 5.4],
+            [10.7, 9.3, 8.8], [12.1, 12.9, 11.4], [14.8, 15.2, 13.7],
+            [17.3, 18.1, 16.6], [19.6, 20.4, 19.2], [21.8, 22.7, 21.1],
+            [23.2, 5.8, 17.9], [7.6, 19.5, 23.4],
+        ], dtype=np.float32)
+        positions = np.vstack([real_positions, np.zeros((2, 3), dtype=np.float32)])
+        mask = np.vstack([np.ones((14, 1), dtype=np.float32), np.zeros((2, 1), dtype=np.float32)])
+        tie_keys = np.arange(14, dtype=np.int64)
+        edge_sets = {}
+
+        for k in (4, 6, 8, 12):
+            first = build_sparse_knn_edge_index(positions, mask, k=k, tie_keys=tie_keys)
+            second = build_sparse_knn_edge_index(positions, mask, k=k, tie_keys=tie_keys)
+            self.assertTrue(np.array_equal(first, second))
+            pairs = edge_set(first)
+            edge_sets[k] = pairs
+            self.assertIn((0, 1), pairs)
+            self.assertIn((1, 0), pairs)
+            self.assertEqual(len(pairs), first.shape[1])
+            self.assertEqual(list(zip(*first.tolist())), sorted(pairs))
+            self.assertTrue(all(source != target for source, target in pairs))
+            self.assertTrue(all(0 <= source < 14 and 0 <= target < 14 for source, target in pairs))
+            self.assertTrue(all((target, source) in pairs for source, target in pairs))
+            degree = np.bincount(first[0], minlength=14)
+            self.assertTrue(np.all(degree >= k))
+
+        self.assertTrue(edge_sets[4] <= edge_sets[6] <= edge_sets[8] <= edge_sets[12])
+
+        small_positions = np.array([[0.1, 0, 0], [24.9, 0, 0], [10, 0, 0]], dtype=np.float32)
+        small_mask = np.ones((3, 1), dtype=np.float32)
+        complete = build_sparse_knn_edge_index(small_positions, small_mask, k=12)
+        self.assertEqual(edge_set(complete), {
+            (source, target) for source in range(3) for target in range(3) if source != target
+        })
+
 
 class ModelAndBatchEquivalenceTests(unittest.TestCase):
     def setUp(self) -> None:

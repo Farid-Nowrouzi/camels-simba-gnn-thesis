@@ -1,0 +1,13 @@
+{
+  "schema_version": "camels_evolvegcn_o_v1", "model": "EvolveGCNORegressor",
+  "experiment_name": "evolvegcn_o_u1000_top1500_sparse_train700_seed123_none_h32_l2_mean_temporal_mean_linear", "output_root": "experiments",
+  "dataset_path": "data/processed/temporal_1000u_none_top1500_periodic_knn_sparse/camels_1000u_temporal_logmass_none_top1500_periodic_knn_sparse.pt", "dataset_sha256": "ff6f6a89517c0b67a96a8733ce5778dba1524df441cc23c27fbfa4e2f5cdb113",
+  "split_manifest_path": "configs/splits/u1000_top1500_none_k8_sparse/seed123_train700.json", "split_manifest_sha256": "18a295106ec844848053f3040d2be3cdf73a443010be31e6e2cd962362982471", "seed": 123,
+  "counts": {"train": 700, "val": 99, "test": 201}, "snapshots": 5, "scale_factors": [0.2, 0.25, 0.51209, 0.75065, 1.0],
+  "node_features": 7, "node_feature_names": ["log10_Mvir", "X", "Y", "Z", "VX", "VY", "VZ"], "node_normalization": "none", "target": "Omega_m", "target_normalization": "none",
+  "graph": "periodic_sparse_knn", "k": 8, "box_size": 25.0, "hidden_dim": 32, "num_layers": 2, "activation": "relu", "dropout": 0.2,
+  "graph_pooling": "mean", "temporal_pooling": "mean", "head_type": "linear", "add_self_loops": true, "weight_evolution": "canonical_matrix_gru_previous_weight_only", "parameter_count": 11527,
+  "batch_size": 4, "epochs": 300, "patience": 40, "optimizer": "AdamW", "learning_rate": 0.001, "weight_decay": 0.00001, "loss": "MSELoss",
+  "scheduler": {"name": "ReduceLROnPlateau", "mode": "min", "factor": 0.5, "patience": 10, "min_lr": 0.000001}, "scheduler_factor": 0.5, "scheduler_patience": 10, "scheduler_min_lr": 0.000001, "grad_clip_norm": 1.0,
+  "checkpoint_criterion": "minimum_validation_mse", "deterministic_seed_handling": true, "device": "cuda"
+}

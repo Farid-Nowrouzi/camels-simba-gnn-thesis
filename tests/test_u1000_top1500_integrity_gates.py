@@ -1,20 +1,50 @@
 from __future__ import annotations
 
 import json
+import os
+import subprocess
 import tempfile
 import unittest
+import uuid
+from copy import deepcopy
 from pathlib import Path
 from unittest.mock import patch
 
+import torch
+
 from scripts.validation import manage_u1000_top1500_training_scaling_matrix as manager
 from scripts.validation import validate_u1000_top1000_sparse_dataset as validator
-from src.data.source_manifest import sha256_file_streaming, source_manifest_sha256
+from scripts.validation import validate_u1000_top1500_knn_variants as variant_validator
+from src.data.source_manifest import (
+    build_full_source_manifest,
+    sha256_file_streaming,
+    source_manifest_sha256,
+)
 from src.training.split_manifest import canonical_manifest_sha256
+
+
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+TOP1500_LAUNCHER = PROJECT_ROOT / "scripts/production/run_u1000_top1500_sparse_build.sh"
+ESTABLISHED_PYTHON = "/home/ml/thesis-camels/envs/camels-gnn/bin/python"
 
 
 def write_json(path: Path, value: dict) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(value, indent=2) + "\n", encoding="utf-8")
+
+
+def make_source_manifest_fixture(root: Path) -> dict:
+    raw_root = root / "raw"
+    target_root = root / "outputs"
+    raw_root.mkdir(parents=True)
+    target_root.mkdir(parents=True)
+    catalogue = raw_root / "LH_0_hlist_1.00000.list"
+    target = target_root / "target_inspection_1000u.csv"
+    catalogue.write_text("# fixture catalogue\n1 2 3\n", encoding="utf-8")
+    target.write_text("universe_id,omega_m\nLH_0,0.3\n", encoding="utf-8")
+    return build_full_source_manifest(
+        [catalogue], raw_root=raw_root, target_path=target, target_root=target_root,
+    )
 
 
 def make_bound_fixture(root: Path) -> tuple[dict[str, str], Path]:
@@ -130,6 +160,41 @@ def builder_metadata(root: Path) -> dict:
     }
 
 
+def committed_builder_metadata(root: Path) -> dict:
+    metadata = builder_metadata(root)
+    subprocess.run(["git", "init", "-q"], cwd=root, check=True)
+    subprocess.run(["git", "config", "user.email", "fixture@example.invalid"], cwd=root, check=True)
+    subprocess.run(["git", "config", "user.name", "Fixture"], cwd=root, check=True)
+    subprocess.run(["git", "add", metadata["builder_source_path"], metadata["build_launcher_path"]],
+                   cwd=root, check=True)
+    subprocess.run(["git", "commit", "-qm", "fixture provenance"], cwd=root, check=True)
+    commit = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=root, text=True).strip()
+    metadata["source_git_commit"] = commit
+    metadata["git_commit"] = commit
+    return metadata
+
+
+def launcher_resolution(
+    *arguments: str,
+    launcher: Path = TOP1500_LAUNCHER,
+    project_root: Path = PROJECT_ROOT,
+    python_override: str | None = ESTABLISHED_PYTHON,
+) -> subprocess.CompletedProcess[str]:
+    environment = os.environ.copy()
+    if python_override is None:
+        environment.pop("CAMELS_PYTHON", None)
+    else:
+        environment["CAMELS_PYTHON"] = python_override
+    return subprocess.run(
+        ["bash", str(launcher), "--resolve-only", *arguments],
+        cwd=project_root, text=True, capture_output=True, check=False, env=environment,
+    )
+
+
+def parse_resolution(output: str) -> dict[str, str]:
+    return dict(line.split("=", 1) for line in output.splitlines() if "=" in line)
+
+
 class Top1500IntegrityGateTests(unittest.TestCase):
     def setUp(self) -> None:
         self.temporary = tempfile.TemporaryDirectory()
@@ -191,14 +256,310 @@ class Top1500IntegrityGateTests(unittest.TestCase):
             validator.check_builder_provenance({}, self.root, required=True)
 
     def test_wrong_builder_source_hash_fails(self) -> None:
-        metadata = builder_metadata(self.root)
+        metadata = committed_builder_metadata(self.root)
         metadata["builder_source_sha256"] = "c" * 64
-        with self.assertRaisesRegex(ValueError, "builder source SHA-256"):
+        with self.assertRaisesRegex(ValueError, "recorded Git commit blob"):
+            validator.check_builder_provenance(metadata, self.root, required=True)
+
+    def test_wrong_launcher_hash_fails(self) -> None:
+        metadata = committed_builder_metadata(self.root)
+        metadata["build_launcher_sha256"] = "d" * 64
+        with self.assertRaisesRegex(ValueError, "recorded Git commit blob"):
             validator.check_builder_provenance(metadata, self.root, required=True)
 
     def test_correct_builder_provenance_passes_and_historical_top1000_is_accepted(self) -> None:
-        validator.check_builder_provenance(builder_metadata(self.root), self.root, required=True)
+        metadata = committed_builder_metadata(self.root)
+        validator.check_builder_provenance(metadata, self.root, required=True)
+        (self.root / metadata["build_launcher_path"]).write_text("#!/bin/sh\n# later revision\n")
+        validator.check_builder_provenance(metadata, self.root, required=True)
         validator.check_builder_provenance({}, self.root, required=False)
+
+    def test_wrong_provenance_commit_cannot_validate(self) -> None:
+        metadata = committed_builder_metadata(self.root)
+        metadata["source_git_commit"] = metadata["git_commit"] = "0" * 40
+        with self.assertRaisesRegex(ValueError, "recorded provenance blob is unavailable"):
+            validator.check_builder_provenance(metadata, self.root, required=True)
+
+    def test_graph_source_commit_identity_is_fail_closed(self) -> None:
+        subprocess.run(["git", "init", "-q"], cwd=self.root, check=True)
+        subprocess.run(["git", "config", "user.email", "fixture@example.invalid"],
+                       cwd=self.root, check=True)
+        subprocess.run(["git", "config", "user.name", "Fixture"], cwd=self.root, check=True)
+        graph_source = self.root / validator.EXPECTED_GRAPH_SOURCE
+        graph_source.parent.mkdir(parents=True)
+        graph_source.write_text("# authoritative graph mathematics\n", encoding="utf-8")
+        subprocess.run(["git", "add", validator.EXPECTED_GRAPH_SOURCE.as_posix()],
+                       cwd=self.root, check=True)
+        subprocess.run(["git", "commit", "-qm", "k8 graph"], cwd=self.root, check=True)
+        k8_commit = subprocess.check_output(
+            ["git", "rev-parse", "HEAD"], cwd=self.root, text=True,
+        ).strip()
+        authoritative_hash = sha256_file_streaming(graph_source)
+
+        note = self.root / "note.txt"
+        note.write_text("variant commit without graph changes\n", encoding="utf-8")
+        subprocess.run(["git", "add", "note.txt"], cwd=self.root, check=True)
+        subprocess.run(["git", "commit", "-qm", "matched variant"], cwd=self.root, check=True)
+        matched_commit = subprocess.check_output(
+            ["git", "rev-parse", "HEAD"], cwd=self.root, text=True,
+        ).strip()
+        variant_validator.require_matching_graph_source(
+            self.root, matched_commit, k8_commit, authoritative_sha256=authoritative_hash,
+        )
+
+        graph_source.write_text("# changed graph mathematics\n", encoding="utf-8")
+        subprocess.run(["git", "add", validator.EXPECTED_GRAPH_SOURCE.as_posix()],
+                       cwd=self.root, check=True)
+        subprocess.run(["git", "commit", "-qm", "changed graph"], cwd=self.root, check=True)
+        changed_commit = subprocess.check_output(
+            ["git", "rev-parse", "HEAD"], cwd=self.root, text=True,
+        ).strip()
+        with self.assertRaisesRegex(ValueError, "differs from the authoritative"):
+            variant_validator.require_matching_graph_source(
+                self.root, changed_commit, k8_commit, authoritative_sha256=authoritative_hash,
+            )
+        with self.assertRaisesRegex(ValueError, "recorded provenance blob is unavailable"):
+            variant_validator.require_matching_graph_source(
+                self.root, "0" * 40, k8_commit, authoritative_sha256=authoritative_hash,
+            )
+
+    def test_missing_graph_source_at_recorded_commit_fails(self) -> None:
+        subprocess.run(["git", "init", "-q"], cwd=self.root, check=True)
+        subprocess.run(["git", "config", "user.email", "fixture@example.invalid"],
+                       cwd=self.root, check=True)
+        subprocess.run(["git", "config", "user.name", "Fixture"], cwd=self.root, check=True)
+        subprocess.run(["git", "commit", "--allow-empty", "-qm", "missing graph source"],
+                       cwd=self.root, check=True)
+        commit = subprocess.check_output(
+            ["git", "rev-parse", "HEAD"], cwd=self.root, text=True,
+        ).strip()
+        with self.assertRaisesRegex(ValueError, "recorded provenance blob is unavailable"):
+            variant_validator.require_matching_graph_source(
+                self.root, commit, commit, authoritative_sha256="a" * 64,
+            )
+
+    def test_cross_variant_tensor_dtype_identity_is_explicit(self) -> None:
+        cases = (
+            ("target", torch.tensor([1.0], dtype=torch.float64),
+             torch.tensor([1.0], dtype=torch.float32)),
+            ("node features", torch.ones((2, 7), dtype=torch.float64),
+             torch.ones((2, 7), dtype=torch.float32)),
+            ("node mask", torch.ones((2, 1), dtype=torch.float64),
+             torch.ones((2, 1), dtype=torch.float32)),
+        )
+        for label, candidate, control in cases:
+            with self.subTest(label=label):
+                with self.assertRaisesRegex(ValueError, rf"{label}: dtype changed; expected .*actual"):
+                    variant_validator.require_same_tensor(candidate, control, label=label)
+
+    def test_k_dependent_preprocessing_version_is_exact(self) -> None:
+        for k in (4, 6, 8, 12):
+            expected = variant_validator.expected_preprocessing_version(k)
+            self.assertIn(f"knn_k{k}_box25", expected)
+            variant_validator.require_preprocessing_version(expected, k=k, label="fixture")
+            with self.assertRaisesRegex(ValueError, "wrong k-dependent preprocessing version"):
+                variant_validator.require_preprocessing_version(
+                    expected.replace(f"knn_k{k}_", "knn_k99_"), k=k, label="fixture",
+                )
+
+    def test_snapshot_source_path_requires_full_stored_identity(self) -> None:
+        variant_validator.require_same_snapshot_path(
+            "data/raw/A/snapshot.txt", "data/raw/A/snapshot.txt", label="fixture",
+        )
+        with self.assertRaisesRegex(ValueError, "stored source catalogue path changed"):
+            variant_validator.require_same_snapshot_path(
+                "data/raw/B/snapshot.txt", "data/raw/A/snapshot.txt", label="fixture",
+            )
+
+    def test_source_manifest_same_content_different_verified_roots_passes(self) -> None:
+        k8 = make_source_manifest_fixture(self.root / "checkout_A")
+        variant = make_source_manifest_fixture(self.root / "checkout_B")
+        self.assertNotEqual(k8["source_roots"], variant["source_roots"])
+        variant_validator.require_matching_source_manifests(variant, k8)
+
+    def test_source_manifest_different_entry_checksum_fails(self) -> None:
+        k8 = make_source_manifest_fixture(self.root / "checkout_A")
+        variant = deepcopy(k8)
+        variant["entries"][0]["sha256"] = "0" * 64
+        variant["manifest_sha256"] = source_manifest_sha256(variant)
+        with self.assertRaisesRegex(ValueError, "scientific identity changed: entries"):
+            variant_validator.require_matching_source_manifests(variant, k8)
+
+    def test_source_manifest_different_relative_path_fails(self) -> None:
+        k8 = make_source_manifest_fixture(self.root / "checkout_A")
+        variant = deepcopy(k8)
+        variant["entries"][0]["relative_path"] = "renamed_catalogue.list"
+        variant["manifest_sha256"] = source_manifest_sha256(variant)
+        with self.assertRaisesRegex(ValueError, "scientific identity changed: entries"):
+            variant_validator.require_matching_source_manifests(variant, k8)
+
+    def test_source_manifest_different_target_structure_fails(self) -> None:
+        k8 = make_source_manifest_fixture(self.root / "checkout_A")
+        variant = deepcopy(k8)
+        target = next(entry for entry in variant["entries"]
+                      if entry["source_role"] == "target_table")
+        target["target_column"] = "different_target"
+        variant["manifest_sha256"] = source_manifest_sha256(variant)
+        with self.assertRaisesRegex(ValueError, "scientific identity changed: entries"):
+            variant_validator.require_matching_source_manifests(variant, k8)
+
+    def test_source_manifest_different_entry_count_fails(self) -> None:
+        k8 = make_source_manifest_fixture(self.root / "checkout_A")
+        variant = deepcopy(k8)
+        variant["entry_count"] += 1
+        with self.assertRaisesRegex(ValueError, "scientific identity changed: entry_count"):
+            variant_validator.require_matching_source_manifests(variant, k8)
+
+    def test_source_manifest_different_manifest_sha_fails(self) -> None:
+        k8 = make_source_manifest_fixture(self.root / "checkout_A")
+        variant = deepcopy(k8)
+        variant["manifest_sha256"] = "f" * 64
+        with self.assertRaisesRegex(ValueError, "scientific identity changed: manifest_sha256"):
+            variant_validator.require_matching_source_manifests(variant, k8)
+
+    def test_source_manifest_schema_policy_and_hash_algorithm_are_fail_closed(self) -> None:
+        mutations = {
+            "schema_version": "future_schema",
+            "source_manifest_policy": "legacy_stat_only",
+            "hash_algorithm": "sha1",
+        }
+        for field, value in mutations.items():
+            with self.subTest(field=field):
+                k8 = make_source_manifest_fixture(self.root / field / "checkout_A")
+                variant = deepcopy(k8)
+                variant[field] = value
+                with self.assertRaisesRegex(ValueError, f"scientific identity changed: {field}"):
+                    variant_validator.require_matching_source_manifests(variant, k8)
+
+    def test_source_manifest_different_root_with_failed_own_verification_fails(self) -> None:
+        k8 = make_source_manifest_fixture(self.root / "checkout_A")
+        variant = make_source_manifest_fixture(self.root / "checkout_B")
+        variant_target = Path(variant["source_roots"]["target_table"]) / \
+            "target_inspection_1000u.csv"
+        variant_target.write_text("universe_id,omega_m\nLH_0,0.9\n", encoding="utf-8")
+        with self.assertRaisesRegex(ValueError, "variant recorded source roots failed verification"):
+            variant_validator.require_matching_source_manifests(variant, k8)
+
+    def test_source_manifest_identical_roots_preserve_historical_behavior(self) -> None:
+        k8 = make_source_manifest_fixture(self.root / "checkout_A")
+        variant_validator.require_matching_source_manifests(deepcopy(k8), k8)
+
+    def test_launcher_k_resolution_is_distinct_and_backward_compatible(self) -> None:
+        default_result = launcher_resolution()
+        explicit_k8_result = launcher_resolution("8")
+        self.assertEqual(default_result.returncode, 0, default_result.stderr)
+        self.assertEqual(explicit_k8_result.returncode, 0, explicit_k8_result.stderr)
+        default = parse_resolution(default_result.stdout)
+        explicit_k8 = parse_resolution(explicit_k8_result.stdout)
+        self.assertEqual(default, explicit_k8)
+        self.assertEqual(default["K"], "8")
+        self.assertEqual(default["VALIDATOR"],
+                         "scripts/validation/validate_u1000_top1500_sparse_dataset.py")
+        self.assertEqual(
+            default["OUTPUT_FILE"],
+            "data/processed/temporal_1000u_none_top1500_periodic_knn_sparse/"
+            "camels_1000u_temporal_logmass_none_top1500_periodic_knn_sparse.pt",
+        )
+
+        outputs = {8: default["OUTPUT_FILE"]}
+        for k in (4, 6, 12):
+            result = launcher_resolution(str(k))
+            self.assertEqual(result.returncode, 0, result.stderr)
+            resolved = parse_resolution(result.stdout)
+            self.assertEqual(resolved["K"], str(k))
+            self.assertEqual(resolved["GRAPH_MODE"], "knn")
+            self.assertEqual(resolved["TOP_N"], "1500")
+            self.assertIn(f"periodic_knn_k{k}_sparse", resolved["OUTPUT_FILE"])
+            self.assertIn(f"knn_k{k}_box25_sparse_v1", resolved["LOGICAL_DATASET_ID"])
+            self.assertIn(f"--k {k}", resolved["BUILDER_INVOCATION"])
+            self.assertEqual(
+                resolved["VALIDATOR"],
+                "scripts/validation/validate_u1000_top1500_knn_variants.py",
+            )
+            outputs[k] = resolved["OUTPUT_FILE"]
+        self.assertEqual(len(set(outputs.values())), 4)
+
+        invalid = launcher_resolution("5")
+        self.assertNotEqual(invalid.returncode, 0)
+        self.assertIn("Unsupported argument or k value: 5", invalid.stderr)
+
+    def test_launcher_interpreter_resolution_and_dirty_build_refusal(self) -> None:
+        selected = launcher_resolution("4")
+        self.assertEqual(selected.returncode, 0, selected.stderr)
+        self.assertEqual(parse_resolution(selected.stdout)["PYTHON"], ESTABLISHED_PYTHON)
+
+        invalid = launcher_resolution("4", python_override=str(self.root / "not-executable"))
+        self.assertNotEqual(invalid.returncode, 0)
+        self.assertIn("set CAMELS_PYTHON explicitly", invalid.stderr)
+
+        fixture_launcher = self.root / "scripts/production/run_u1000_top1500_sparse_build.sh"
+        fixture_launcher.parent.mkdir(parents=True)
+        fixture_launcher.write_text(TOP1500_LAUNCHER.read_text(encoding="utf-8"), encoding="utf-8")
+        local_python = self.root / "envs/camels-gnn/bin/python"
+        local_python.parent.mkdir(parents=True)
+        local_python.write_text("#!/bin/sh\n", encoding="utf-8")
+        local_python.chmod(0o755)
+        local = launcher_resolution(
+            "4", launcher=fixture_launcher, project_root=self.root, python_override=None,
+        )
+        self.assertEqual(local.returncode, 0, local.stderr)
+        self.assertEqual(parse_resolution(local.stdout)["PYTHON"], str(local_python))
+
+        subprocess.run(["git", "init", "-q"], cwd=self.root, check=True)
+        subprocess.run(["git", "config", "user.email", "fixture@example.invalid"],
+                       cwd=self.root, check=True)
+        subprocess.run(["git", "config", "user.name", "Fixture"], cwd=self.root, check=True)
+        subprocess.run(["git", "add", "scripts/production/run_u1000_top1500_sparse_build.sh",
+                        "envs/camels-gnn/bin/python"], cwd=self.root, check=True)
+        subprocess.run(["git", "commit", "-qm", "clean launcher fixture"],
+                       cwd=self.root, check=True)
+        self.assertEqual(
+            subprocess.check_output(
+                ["git", "status", "--porcelain", "--untracked-files=all"],
+                cwd=self.root, text=True,
+            ),
+            "",
+        )
+
+        k4_directory = self.root / "data/processed/temporal_1000u_none_top1500_periodic_knn_k4_sparse"
+        self.assertFalse(k4_directory.exists())
+        environment = os.environ.copy()
+        environment.pop("CAMELS_PYTHON", None)
+        sentinel = self.root / f".dirty-worktree-sentinel-{uuid.uuid4().hex}"
+        self.assertFalse(sentinel.exists())
+        sentinel.write_text("test-owned dirty-worktree sentinel\n", encoding="utf-8")
+        try:
+            status = subprocess.check_output(
+                ["git", "status", "--porcelain", "--untracked-files=all"],
+                cwd=self.root, text=True,
+            )
+            self.assertIn(sentinel.name, status)
+            refused = subprocess.run(
+                ["bash", str(fixture_launcher), "4"], cwd=self.root,
+                text=True, capture_output=True, check=False, env=environment,
+            )
+            self.assertNotEqual(refused.returncode, 0)
+            self.assertIn("production builds require a clean, reviewed Git worktree", refused.stderr)
+            self.assertFalse(k4_directory.exists())
+        finally:
+            sentinel.unlink()
+        self.assertFalse(sentinel.exists())
+        self.assertEqual(
+            subprocess.check_output(
+                ["git", "status", "--porcelain", "--untracked-files=all"],
+                cwd=self.root, text=True,
+            ),
+            "",
+        )
+        self.assertFalse(k4_directory.exists())
+
+    def test_variant_validator_names_and_supported_k_are_closed(self) -> None:
+        for k in (4, 6, 12):
+            path = variant_validator.variant_relative_path(k).as_posix()
+            self.assertIn(f"periodic_knn_k{k}_sparse", path)
+            self.assertIn(f"knn_k{k}_box25_sparse_v1", variant_validator.logical_dataset_id(k))
+        with self.assertRaisesRegex(ValueError, "unsupported k=8"):
+            variant_validator.variant_relative_path(8)
 
 
 if __name__ == "__main__":

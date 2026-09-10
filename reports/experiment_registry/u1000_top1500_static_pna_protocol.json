@@ -1,0 +1,157 @@
+{
+  "allowed_control_treatment_differences": [
+    "aggregators",
+    "conv_type",
+    "degree_histogram_content_sha256",
+    "degree_histogram_path",
+    "divide_input",
+    "edge_dim",
+    "experiment_name",
+    "model",
+    "post_layers",
+    "pre_layers",
+    "scalers",
+    "schema_version",
+    "self_loop_policy",
+    "towers",
+    "train_norm"
+  ],
+  "architecture": {
+    "activation": "relu",
+    "aggregators": [
+      "mean",
+      "min",
+      "max",
+      "std"
+    ],
+    "divide_input": false,
+    "dropout": 0.2,
+    "edge_dim": null,
+    "graph_pooling": "mean",
+    "head": [
+      32,
+      32,
+      16,
+      1
+    ],
+    "hidden_dim": 32,
+    "input_dim": 7,
+    "layer_norm": true,
+    "num_layers": 3,
+    "post_layers": 1,
+    "pre_layers": 1,
+    "residual": true,
+    "scalers": [
+      "identity",
+      "amplification",
+      "attenuation"
+    ],
+    "self_loop_policy": "torch_geometric.add_remaining_self_loops_once_before_all_layers",
+    "towers": 1,
+    "train_norm": false
+  },
+  "control": "StaticGCNRegressor",
+  "data": {
+    "features": [
+      "log10_Mvir",
+      "X",
+      "Y",
+      "Z",
+      "VX",
+      "VY",
+      "VZ"
+    ],
+    "normalization": "none",
+    "snapshot": "final",
+    "suite": "CAMELS-SIMBA",
+    "target": "Omega_m",
+    "top_n": 1500,
+    "universes": 1000
+  },
+  "dataset": {
+    "path": "data/processed/temporal_1000u_none_top1500_periodic_knn_sparse/camels_1000u_temporal_logmass_none_top1500_periodic_knn_sparse.pt",
+    "rebuilt": false,
+    "sha256": "ff6f6a89517c0b67a96a8733ce5778dba1524df441cc23c27fbfa4e2f5cdb113"
+  },
+  "degree_histograms": {
+    "123": {
+      "content_sha256": "633fbff3d5bacbf37260a63f40f0eac8fcae4cc64665c4c87eb04a401fa07b10",
+      "path": "reports/experiment_registry/pna_degree_histograms/u1000_top1500_k8_seed123_train700.json"
+    },
+    "2025": {
+      "content_sha256": "fe49dad4a6c8d47971f5a7e279ec8ab382d77da0941e22dd0f908600fd1a4355",
+      "path": "reports/experiment_registry/pna_degree_histograms/u1000_top1500_k8_seed2025_train700.json"
+    },
+    "42": {
+      "content_sha256": "64edafe58d3557f5706066eff1a72a4f580e932ed89bc81b0c9e0416440428ce",
+      "path": "reports/experiment_registry/pna_degree_histograms/u1000_top1500_k8_seed42_train700.json"
+    }
+  },
+  "graph": {
+    "box_size_h_inverse_mpc": 25.0,
+    "edge_features": false,
+    "family": "periodic_sparse_knn",
+    "k": 8
+  },
+  "no_pna_hyperparameter_tuning_performed": true,
+  "parameter_counts": {
+    "pna_to_gcn_ratio": 9.761976898314714,
+    "static_gcn": 5281,
+    "static_pna": 51553
+  },
+  "research_question": "Holding data, graph, features, splits, training, pooling, and head fixed, does Static PNA improve Omega_m prediction over Static GCN?",
+  "schema_version": "camels_u1000_top1500_static_pna_protocol_v1",
+  "seeds": [
+    42,
+    123,
+    2025
+  ],
+  "selection": {
+    "primary": "validation MAE",
+    "supporting": [
+      "validation RMSE",
+      "validation R2",
+      "prediction dispersion",
+      "calibration slope"
+    ],
+    "test_metrics_must_not_be_used_for_architecture_selection": true
+  },
+  "source_symmetry_closure_commit": "dc22f0af21c15611c2c010f83534a972e0fe6629",
+  "splits": {
+    "123": {
+      "path": "configs/splits/u1000_top1500_none_k8_sparse/seed123_train700.json",
+      "sha256": "18a295106ec844848053f3040d2be3cdf73a443010be31e6e2cd962362982471"
+    },
+    "2025": {
+      "path": "configs/splits/u1000_top1500_none_k8_sparse/seed2025_train700.json",
+      "sha256": "c233c0631b1a24d963ffccc7c6389054fddf135a7aabc4dc4ab7bf5976fab3a9"
+    },
+    "42": {
+      "path": "configs/splits/u1000_top1500_none_k8_sparse/seed42_train700.json",
+      "sha256": "f5556ec5c193e7cb80f2231705edbdae32d4de206889dec308a819bdde427ab7"
+    }
+  },
+  "status": "FROZEN_BEFORE_TRAINING",
+  "training": {
+    "batch_size": 8,
+    "deterministic_seeding": true,
+    "device": "cuda",
+    "early_stopping": {
+      "criterion": "validation MSE",
+      "patience": 40
+    },
+    "gradient_clip_norm": 1.0,
+    "learning_rate": 0.001,
+    "loss": "MSE",
+    "max_epochs": 300,
+    "optimizer": "AdamW",
+    "scheduler": {
+      "factor": 0.5,
+      "min_lr": 1e-06,
+      "name": "ReduceLROnPlateau",
+      "patience": 10
+    },
+    "weight_decay": 1e-05
+  },
+  "treatment": "StaticPNARegressor"
+}

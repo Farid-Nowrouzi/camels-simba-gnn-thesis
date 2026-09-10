@@ -1,0 +1,61 @@
+{
+  "creation_provenance": {
+    "tool": "scripts/validation/prepare_u1000_top1500_pna_training.py",
+    "tool_sha256": "11d781b8ad88b91fd8089691d1583d4216e2e2549355de9f0771ddddd609361a",
+    "torch_geometric_version": "2.7.0",
+    "torch_version": "2.6.0+cu124"
+  },
+  "dataset_path": "data/processed/temporal_1000u_none_top1500_periodic_knn_sparse/camels_1000u_temporal_logmass_none_top1500_periodic_knn_sparse.pt",
+  "dataset_sha256": "ff6f6a89517c0b67a96a8733ce5778dba1524df441cc23c27fbfa4e2f5cdb113",
+  "degree_direction": "incoming_target_index_edge_index_1",
+  "graph": {
+    "box_size_h_inverse_mpc": 25.0,
+    "family": "periodic_sparse_knn",
+    "k": 8
+  },
+  "histogram": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    244704,
+    240895,
+    204169,
+    150423,
+    98626,
+    58031,
+    30086,
+    14087,
+    5840,
+    2188,
+    708,
+    179,
+    50,
+    13,
+    1
+  ],
+  "histogram_content_sha256": "fe49dad4a6c8d47971f5a7e279ec8ab382d77da0941e22dd0f908600fd1a4355",
+  "max_degree": 23,
+  "number_of_training_universes": 700,
+  "partition_hygiene": {
+    "predictions_or_metrics_read": false,
+    "source": "train_ids_only",
+    "targets_read": false,
+    "test_ids_contributed": 0,
+    "validation_ids_contributed": 0
+  },
+  "schema_version": "camels_static_pna_degree_histogram_v1",
+  "seed": 2025,
+  "self_loop_policy": "torch_geometric.add_remaining_self_loops_once_before_all_layers",
+  "snapshot_policy": "final_snapshot_index_minus_one_only",
+  "split_manifest_path": "configs/splits/u1000_top1500_none_k8_sparse/seed2025_train700.json",
+  "split_manifest_sha256": "c233c0631b1a24d963ffccc7c6389054fddf135a7aabc4dc4ab7bf5976fab3a9",
+  "total_degree_count": 11590530,
+  "total_node_count": 1050000,
+  "training_id_order_sha256": "77e0812c10cf8b91401fe75d8e22ac513f41df62d50b157192997f3b5c61270d"
+}

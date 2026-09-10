@@ -1,0 +1,71 @@
+{
+  "schema_version": "camels_evolvegcn_o_protocol_v1",
+  "status": "pre_training_frozen",
+  "research_question": "Does the O formulation of EvolveGCN improve Omega_m regression relative to the existing EvolveGCN-H formulation under the same temporal data and matched experimental protocol?",
+  "predeclaration": "EvolveGCN-O is the final new temporal architecture and was not selected after viewing GCN-GRU or GCN-Transformer performance.",
+  "dataset": {
+    "path": "data/processed/temporal_1000u_none_top1500_periodic_knn_sparse/camels_1000u_temporal_logmass_none_top1500_periodic_knn_sparse.pt",
+    "resolved_path": "/home/ml/thesis-camels/data/processed/temporal_1000u_none_top1500_periodic_knn_sparse/camels_1000u_temporal_logmass_none_top1500_periodic_knn_sparse.pt",
+    "sha256": "ff6f6a89517c0b67a96a8733ce5778dba1524df441cc23c27fbfa4e2f5cdb113",
+    "universe_count": 1000,
+    "top_n": 1500,
+    "graph": "periodic sparse kNN",
+    "k": 8,
+    "box_size_h_inv_mpc": 25.0,
+    "features": ["log10_Mvir", "X", "Y", "Z", "VX", "VY", "VZ"],
+    "node_normalization": "none",
+    "target": "Omega_m",
+    "target_normalization": "none",
+    "snapshot_scale_factors": [0.2, 0.25, 0.51209, 0.75065, 1.0],
+    "dataset_rebuild_required": false
+  },
+  "seeds": [42, 123, 2025],
+  "split_manifests": [
+    {"seed": 42, "path": "configs/splits/u1000_top1500_none_k8_sparse/seed42_train700.json", "sha256": "f5556ec5c193e7cb80f2231705edbdae32d4de206889dec308a819bdde427ab7", "counts": {"train": 700, "validation": 99, "test": 201}},
+    {"seed": 123, "path": "configs/splits/u1000_top1500_none_k8_sparse/seed123_train700.json", "sha256": "18a295106ec844848053f3040d2be3cdf73a443010be31e6e2cd962362982471", "counts": {"train": 700, "validation": 99, "test": 201}},
+    {"seed": 2025, "path": "configs/splits/u1000_top1500_none_k8_sparse/seed2025_train700.json", "sha256": "c233c0631b1a24d963ffccc7c6389054fddf135a7aabc4dc4ab7bf5976fab3a9", "counts": {"train": 700, "validation": 99, "test": 201}}
+  ],
+  "canonical_implementation": {
+    "project_file": "src/models/evolvegcn_o.py",
+    "class": "EvolveGCNORegressor",
+    "formulation": "EvolveGCN-O matrix-GRU: each prior GCN weight matrix is both recurrent input and state; node embeddings are excluded from the recurrent update.",
+    "original_paper": "https://arxiv.org/abs/1902.10191",
+    "authors_reference_code": "https://github.com/IBM/EvolveGCN/blob/master/egcn_o.py",
+    "secondary_reference_inspected": "https://github.com/benedekrozemberczki/pytorch_geometric_temporal/blob/master/torch_geometric_temporal/nn/recurrent/evolvegcno.py",
+    "installed_canonical_dependency_available": false,
+    "new_dependency_added": false,
+    "node_correspondence_required": false,
+    "variable_snapshot_node_counts_supported": true,
+    "output_shape": "[B, 1]"
+  },
+  "h_reference_runs": [
+    "/home/ml/thesis-camels/experiments/evolvegcn_h_u1000_top1500_sparse_train700_seed42_none_h32_l2_mean_temporal_mean_linear",
+    "/home/ml/thesis-camels/experiments/evolvegcn_h_u1000_top1500_sparse_train700_seed123_none_h32_l2_mean_temporal_mean_linear",
+    "/home/ml/thesis-camels/experiments/evolvegcn_h_u1000_top1500_sparse_train700_seed2025_none_h32_l2_mean_temporal_mean_linear"
+  ],
+  "h_o_matched_settings": {
+    "hidden_dim": 32, "graph_layers": 2, "activation": "relu", "dropout": 0.2,
+    "graph_pooling": "mean", "temporal_pooling": "mean", "regression_head": "linear",
+    "self_loops": true, "loss": "MSELoss", "optimizer": "AdamW", "learning_rate": 0.001,
+    "weight_decay": 0.00001, "batch_size": 4, "max_epochs": 300,
+    "early_stopping_patience": 40, "scheduler": "ReduceLROnPlateau",
+    "scheduler_factor": 0.5, "scheduler_patience": 10, "scheduler_min_lr": 0.000001,
+    "gradient_clip_norm": 1.0
+  },
+  "unavoidable_h_o_differences": [
+    "H uses node-feature graph summaries to update per-graph GCN weights through a GRUCell; O evolves shared GCN weights from prior weights alone through the canonical matrix-GRU.",
+    "The recurrent parameterizations yield materially different trainable parameter counts: H=3408097 and O=11527. This capacity difference limits causal attribution to formulation alone."
+  ],
+  "parameter_counts": {"Static GCN": 5281, "EvolveGCN-H": 3408097, "EvolveGCN-O": 11527, "GCN-GRU": 11617, "GCN-Transformer": 13825},
+  "configs": [
+    "configs/production/u1000_top1500_evolvegcn_o/evolvegcn_o_seed42.json",
+    "configs/production/u1000_top1500_evolvegcn_o/evolvegcn_o_seed123.json",
+    "configs/production/u1000_top1500_evolvegcn_o/evolvegcn_o_seed2025.json"
+  ],
+  "production_training_performed": false,
+  "performance_selection_performed": false,
+  "test_metrics_used_for_selection": false,
+  "target_normalization_leakage": false,
+  "validation_preprocessing_leakage": false,
+  "test_preprocessing_leakage": false
+}
