@@ -288,8 +288,8 @@ def prepare() -> None:
 
 
 def audit(expected_head: str | None) -> None:
-    require(ROOT.resolve() == Path("/home/ml/thesis-camels-notebook15"), "wrong worktree")
-    require(git("branch", "--show-current") == "thesis-notebook15-graph-representation", "wrong branch")
+    require(ROOT.resolve() == Path("/home/ml/thesis-camels"), "wrong canonical repository")
+    require(git("branch", "--show-current") == "thesis-sparse-integrity-hardening", "wrong branch")
     if expected_head:
         require(git("rev-parse", "HEAD") == expected_head, "wrong PNA preparation HEAD")
     require(not git("diff", "--name-only") and not git("diff", "--cached", "--name-only"),

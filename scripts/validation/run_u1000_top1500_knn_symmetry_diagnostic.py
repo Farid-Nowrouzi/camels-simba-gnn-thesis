@@ -107,8 +107,8 @@ def canonical_paths() -> tuple[dict[int, Path], dict[int, Path], dict[int, Path]
 
 
 def audit_repository(expected_head: str | None) -> str:
-    require(ROOT.resolve() == Path("/home/ml/thesis-camels-notebook15"), f"wrong worktree: {ROOT}")
-    require(git("branch", "--show-current") == "thesis-notebook15-graph-representation", "wrong branch")
+    require(ROOT.resolve() == Path("/home/ml/thesis-camels"), f"wrong canonical repository: {ROOT}")
+    require(git("branch", "--show-current") == "thesis-sparse-integrity-hardening", "wrong branch")
     head = git("rev-parse", "HEAD")
     if expected_head:
         require(head == expected_head, f"HEAD mismatch: expected {expected_head}, got {head}")

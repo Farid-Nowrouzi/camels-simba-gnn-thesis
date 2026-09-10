@@ -34,8 +34,8 @@ SCALE_FACTORS = [0.2, 0.25, 0.51209, 0.75065, 1.0]
 CONFIG_DIR = Path("configs/production/u1000_top1500_evolvegcn_o")
 PROTOCOL = Path("reports/experiment_registry/u1000_top1500_evolvegcn_o_temporal_protocol.json")
 PROTOCOL_SHA = "45a21cc4500199a87116f72c707967a721cf9ead832cb04cde6f2dedf112cb2e"
-EXPECTED_WORKTREE = Path("/home/ml/thesis-camels-notebook16")
-EXPECTED_BRANCH = "thesis-notebook16-temporal-architectures"
+EXPECTED_WORKTREE = Path("/home/ml/thesis-camels")
+EXPECTED_BRANCH = "thesis-sparse-integrity-hardening"
 CONTROL_ROOT = Path("/home/ml/thesis-camels/experiments")
 EXPECTED_PARAMETERS = 11_527
 

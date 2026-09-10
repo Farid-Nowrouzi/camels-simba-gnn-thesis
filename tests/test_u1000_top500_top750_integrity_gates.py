@@ -170,9 +170,14 @@ def test_binding_rejects_unvalidated_missing_dataset(tmp_path: Path) -> None:
         splits.build_dataset_binding(tmp_path, 500)
 
 
-def test_preflight_does_not_create_manifests() -> None:
+def test_completed_bound_manifests_exist_and_preserve_reference_ids() -> None:
     expected = [splits.output_manifest_path(top_n, seed) for top_n in (500, 750) for seed in splits.SUPPORTED_SEEDS]
-    assert all(not (ROOT / path).exists() for path in expected)
+    assert all((ROOT / path).is_file() for path in expected)
+    for top_n in (500, 750):
+        for seed in splits.SUPPORTED_SEEDS:
+            top1000, top1500 = splits.load_reference_pair(ROOT, seed)
+            candidate = json.loads((ROOT / splits.output_manifest_path(top_n, seed)).read_text(encoding="utf-8"))
+            splits.verify_preserved_ids(candidate, top1000, top1500, seed)
 
 
 def test_no_random_resplitting_code_path() -> None:

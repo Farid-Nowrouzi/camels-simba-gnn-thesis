@@ -6,7 +6,7 @@ fail() { printf 'ERROR: %s\n' "$*" >&2; exit 1; }
 [[ $# -eq 2 ]] || fail "usage: $0 EXPECTED_HEAD EXPECTED_PROTOCOL_SHA256"
 expected_head="$1"
 expected_protocol_sha="$2"
-root="/home/ml/thesis-camels-notebook15"
+root="/home/ml/thesis-camels"
 python="/home/ml/thesis-camels/envs/camels-gnn/bin/python"
 dataset="data/processed/temporal_1000u_none_top1500_periodic_knn_sparse/camels_1000u_temporal_logmass_none_top1500_periodic_knn_sparse.pt"
 dataset_sha="ff6f6a89517c0b67a96a8733ce5778dba1524df441cc23c27fbfa4e2f5cdb113"

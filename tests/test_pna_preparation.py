@@ -61,9 +61,16 @@ class PNAPreparationTests(unittest.TestCase):
         self.assertTrue(protocol["selection"]["test_metrics_must_not_be_used_for_architecture_selection"])
         self.assertTrue(protocol["no_pna_hyperparameter_tuning_performed"])
 
-    def test_production_run_names_are_collision_free(self) -> None:
+    def test_completed_production_runs_are_present_and_complete(self) -> None:
         for seed in SEEDS:
-            self.assertFalse((ROOT / "experiments" / experiment_name(seed)).exists())
+            run = ROOT / "experiments" / experiment_name(seed)
+            for relative in (
+                "config.json", "metrics.json", "train_log.csv", "checkpoints/best_model.pt",
+                "predictions/train_predictions.csv", "predictions/val_predictions.csv",
+                "predictions/test_predictions.csv",
+            ):
+                artifact = run / relative
+                self.assertTrue(artifact.is_file() and artifact.stat().st_size > 0, artifact)
 
 
 if __name__ == "__main__":

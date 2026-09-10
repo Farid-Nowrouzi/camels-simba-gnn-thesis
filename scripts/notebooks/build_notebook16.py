@@ -128,7 +128,7 @@ table06=pd.DataFrame(rows,columns=['Model','Parameters','Validation MAE','Test M
 M(r'''# 19 — True versus predicted $\Omega_m$
 Seed 42 is the predefined common visualization seed and **was not selected based on performance**. Each panel shows all 201 held-out universes with common limits, identity and calibration lines, and MAE/$R^2$/slope annotations. Three-seed model supplements are also saved.''')
 C(r'''PAT={'Static GCN':'static_gcn_u1000_top1500_sparse_train700_seed{seed}_none_h32_l3_mean_mlp_final','EvolveGCN-H':'evolvegcn_h_u1000_top1500_sparse_train700_seed{seed}_none_h32_l2_mean_temporal_mean_linear','EvolveGCN-O':'evolvegcn_o_u1000_top1500_sparse_train700_seed{seed}_none_h32_l2_mean_temporal_mean_linear','GCN-GRU':'gcn_gru_u1000_top1500_sparse_train700_seed{seed}_none_h32_l3_final','GCN-Transformer':'gcn_temporal_transformer_u1000_top1500_sparse_train700_seed{seed}_none_h32_l3_final'}
-def rp(m,s): return (Path('/home/ml/thesis-camels/experiments') if m in MODELS[:2] else Path('/home/ml/thesis-camels-notebook16/experiments'))/PAT[m].format(seed=s)
+def rp(m,s): return ROOT/'experiments'/PAT[m].format(seed=s)
 frames={}
 for m in MODELS:
  for s in SEEDS:

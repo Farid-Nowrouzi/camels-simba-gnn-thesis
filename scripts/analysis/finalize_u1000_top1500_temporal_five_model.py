@@ -11,7 +11,7 @@ from src.models.evolvegcn_h import EvolveGCNHRegressor
 from src.models.gcn_gru import GCNGRURegressor
 from src.models.gcn_temporal_transformer import GCNTemporalTransformerRegressor
 from src.training.train_evolvegcn_o import build_model as build_o
-CTRL=Path('/home/ml/thesis-camels/experiments'); DATA=Path('data/processed/temporal_1000u_none_top1500_periodic_knn_sparse/camels_1000u_temporal_logmass_none_top1500_periodic_knn_sparse.pt')
+CTRL=R/'experiments'; DATA=Path('data/processed/temporal_1000u_none_top1500_periodic_knn_sparse/camels_1000u_temporal_logmass_none_top1500_periodic_knn_sparse.pt')
 DSHA='ff6f6a89517c0b67a96a8733ce5778dba1524df441cc23c27fbfa4e2f5cdb113'; SEEDS=(42,123,2025)
 MODELS=('Static GCN','EvolveGCN-H','EvolveGCN-O','GCN-GRU','GCN-Transformer')
 P={'Static GCN':5281,'EvolveGCN-H':3408097,'EvolveGCN-O':11527,'GCN-GRU':11617,'GCN-Transformer':13825}
@@ -77,7 +77,7 @@ def count_models():
  o={'Static GCN':StaticGCNRegressor(7,32,3,.2,'mean','gcn',True,True,True),'EvolveGCN-H':EvolveGCNHRegressor(node_features=7,hidden_dim=32,num_layers=2,dropout=.2,activation='relu',temporal_pooling='mean',graph_pooling='mean',head_type='linear',add_self_loops=True),'EvolveGCN-O':build_o(c['EvolveGCN-O']),'GCN-GRU':GCNGRURegressor(7,32,3,.2),'GCN-Transformer':GCNTemporalTransformerRegressor(7,32,3,.2,c['GCN-Transformer']['scale_factors'],4,1,64)}
  got={m:sum(p.numel() for p in x.parameters() if p.requires_grad) for m,x in o.items()}; req(got==P,str(got)); return got
 def audit():
- req(R==Path('/home/ml/thesis-camels-notebook16'),'wrong worktree'); req(sha(R/DATA)==DSHA,'dataset SHA'); rec=[]; vals={}
+ req(R==Path('/home/ml/thesis-camels'),'wrong canonical repository'); req(sha(R/DATA)==DSHA,'dataset SHA'); rec=[]; vals={}
  for m in MODELS:
   for s in SEEDS:
    rp=run(m,s); needed=('config.json','metrics.json','train_log.csv','checkpoints/best_model.pt','predictions/val_predictions.csv','predictions/test_predictions.csv')+(() if m in MODELS[:2] else ('run_metadata.json',))

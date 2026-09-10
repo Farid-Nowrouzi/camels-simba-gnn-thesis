@@ -35,8 +35,8 @@ PROTOCOL_HASHES = {
     "reports/experiment_registry/u1000_top1500_gcn_gru_temporal_protocol.json": "c9ff4cc99feedf75812dbc16fe5a4c19c201dba6281b61389eee70cecb97584e",
     "reports/experiment_registry/u1000_top1500_gcn_temporal_transformer_protocol.json": "f7dff97f4d545146adec913e3879ada6b3ed366d66a51d4880a22d95d5a483ac",
 }
-EXPECTED_BRANCH = "thesis-notebook16-temporal-architectures"
-EXPECTED_WORKTREE = Path("/home/ml/thesis-camels-notebook16")
+EXPECTED_BRANCH = "thesis-sparse-integrity-hardening"
+EXPECTED_WORKTREE = Path("/home/ml/thesis-camels")
 CONTROL_ROOT = Path("/home/ml/thesis-camels/experiments")
 
 

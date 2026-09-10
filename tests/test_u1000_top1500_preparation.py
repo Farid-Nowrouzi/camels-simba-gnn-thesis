@@ -25,7 +25,7 @@ def test_all_18_bound_manifests_preserve_ordered_partitions():
         assert bound_manifest["counts"] == source_manifest["counts"]
 
 
-def test_matrix_has_exactly_36_unique_planned_cells():
+def test_matrix_has_exactly_36_unique_completed_cells():
     registry = load(ROOT / "configs/experiment_registry/u1000_top1500_training_scaling_matrix.json")
     entries = registry["entries"]
     assert len(entries) == 36
@@ -34,7 +34,8 @@ def test_matrix_has_exactly_36_unique_planned_cells():
                 for entry in entries}) == 36
     assert sum(entry["model_key"] == "evolve" for entry in entries) == 18
     assert sum(entry["model_key"] == "static" for entry in entries) == 18
-    assert {entry["status"] for entry in entries} == {"planned"}
+    assert {entry["status"] for entry in entries} == {"completed"}
+    assert all((ROOT / entry["experiment_directory"]).is_dir() for entry in entries)
 
 
 def test_raw_audit_covers_all_catalogues_and_matches_padding_total():
