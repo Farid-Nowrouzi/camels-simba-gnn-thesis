@@ -227,6 +227,9 @@ Prediction collapse is captured in the registry by prediction_std_ratio, repeate
 |mean_baseline_u1000_train700_seed123_targetmean|mean|0.0990404238657||
 |mean_baseline_u1000_train700_seed2025_targetmean|mean|0.106098155966||
 |mean_baseline_u1000_train700_seed42_targetmean|mean|0.105754953471||
+|set_transformer_u1000_top1500_raw7_final_train700_seed123_none_d16_h2_m32_isab2_pma1|SetTransformerRegressor|0.0488341705716||
+|set_transformer_u1000_top1500_raw7_final_train700_seed2025_none_d16_h2_m32_isab2_pma1|SetTransformerRegressor|0.0513572415606||
+|set_transformer_u1000_top1500_raw7_final_train700_seed42_none_d16_h2_m32_isab2_pma1|SetTransformerRegressor|0.0491126032908||
 |summary_features_500u_minmax_seed42|SummaryFeatureBaseline|||
 |summary_features_500u_none_top500_matched_seed42|SummaryFeatureBaseline:GradientBoosting|0.0127685436028|summary baseline row uses best nested test MAE model: GradientBoosting / nested baseline metrics: GradientBoosting:mae=0.012768543602840387,rmse=0.016703009475213516 / RandomForest:mae=0.013858966215939317,rmse=0.018146980680640714 / Ridge:mae=0.021594392135739326,rmse=0.027276520591272505|
 |summary_features_500u_zscore_seed42|SummaryFeatureBaseline|||
@@ -237,11 +240,8 @@ Prediction collapse is captured in the registry by prediction_std_ratio, repeate
 |summary_mlp_u1000_top1000_summary20_final_train700_seed2025_trainzscore_h64x64_drop0p2|summary_mlp|0.011794674011||
 |summary_mlp_u1000_top1000_summary20_final_train700_seed42_trainzscore_h64x64_drop0p2|summary_mlp|0.0124714910169||
 |summary_mlp_u1000_top1500_summary20_final_train700_seed123_trainzscore_h64x64_drop0p2|summary_mlp|0.0107959984843||
-|summary_mlp_u1000_top1500_summary20_final_train700_seed2025_trainzscore_h64x64_drop0p2|summary_mlp|0.0110336781215||
-|summary_mlp_u1000_top1500_summary20_final_train700_seed42_trainzscore_h64x64_drop0p2|summary_mlp|0.0124851131988||
-|summary_mlp_u1000_top2000_summary20_final_train700_seed123_trainzscore_h64x64_drop0p2|summary_mlp|0.0106316234787||
 
-_Showing 30 of 35 rows._
+_Showing 30 of 38 rows._
 
 
 ## 14. Diagnostics and Validation Studies
@@ -304,6 +304,7 @@ _Showing 30 of 35 rows._
 
 |experiment_family|family_name|seeds|mean_test_mae|remaining_uncertainty|
 |---|---|---|---|---|
+|set_transformer|settransformerregressor_u1000_top1500_norm-none_hna_lna_gpool-na_tpool-na_head-na|42,123,2025|0.049768005141|Configs do not save git commit or exact command line.|
 |top_n_scaling|evolvegcn-h_u1000_top2000_norm-none_h32_l2_gpool-mean_tpool-mean_head-linear|42,123,2025|0.0546065368883|Configs do not save git commit or exact command line.|
 |top_n_scaling|evolvegcn-h_u500_top200_norm-minmax_h32_l2_gpool-mean_tpool-mean_head-mlp|42,123,2025|0.0921737516257|Configs do not save git commit or exact command line.|
 |top_n_scaling|gradient-boosting_u1000_top2000_norm-none_hna_lna_gpool-na_tpool-na_head-na|42,123,2025|0.00866383919375|Configs do not save git commit or exact command line.|

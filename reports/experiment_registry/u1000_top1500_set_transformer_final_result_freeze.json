@@ -1,0 +1,1655 @@
+{
+  "schema_version": "1.0",
+  "experiment_family": "u1000_top1500_set_transformer",
+  "scientific_hypothesis": "Can learned halo-to-halo attention without an explicit graph recover more Omega_m information than DeepSets and approach or outperform Static GCN?",
+  "status": "finalized",
+  "seeds": [
+    42,
+    123,
+    2025
+  ],
+  "run_directories": [
+    "experiments/set_transformer_u1000_top1500_raw7_final_train700_seed42_none_d16_h2_m32_isab2_pma1",
+    "experiments/set_transformer_u1000_top1500_raw7_final_train700_seed123_none_d16_h2_m32_isab2_pma1",
+    "experiments/set_transformer_u1000_top1500_raw7_final_train700_seed2025_none_d16_h2_m32_isab2_pma1"
+  ],
+  "architecture": {
+    "input_projection": [
+      7,
+      16
+    ],
+    "projection_order": [
+      "Linear",
+      "ReLU",
+      "Dropout",
+      "LayerNorm"
+    ],
+    "dim": 16,
+    "num_heads": 2,
+    "head_dim": 8,
+    "inducing_points": 32,
+    "isab_blocks": 2,
+    "pma_seeds": 1,
+    "mab_ffn": [
+      16,
+      16,
+      16
+    ],
+    "pma_preprocessing_ffn": [
+      16,
+      16,
+      16
+    ],
+    "regression_head": [
+      16,
+      32,
+      16,
+      1
+    ],
+    "activation": "ReLU",
+    "dropout": 0.2,
+    "attention_dropout": 0.2,
+    "attention_output_dropout": 0.2,
+    "ffn_dropout": "after ReLU and final linear",
+    "normalization": "post-residual LayerNorm",
+    "biased_projections": true,
+    "initialization": "Xavier uniform weights/inducing/seeds; zero biases; LayerNorm weight=1 bias=0",
+    "positional_encoding": false,
+    "halo_rank_embedding": false,
+    "output_activation": null
+  },
+  "parameter_count": 11313,
+  "dataset_path": "data/processed/temporal_1000u_none_top1500_periodic_knn_sparse/camels_1000u_temporal_logmass_none_top1500_periodic_knn_sparse.pt",
+  "dataset_sha256": "ff6f6a89517c0b67a96a8733ce5778dba1524df441cc23c27fbfa4e2f5cdb113",
+  "dataset_hash_verification": "Full file SHA256 independently recomputed during closure; no dataset deserialization.",
+  "feature_order": [
+    "log10_Mvir",
+    "X",
+    "Y",
+    "Z",
+    "VX",
+    "VY",
+    "VZ"
+  ],
+  "snapshot": "final a=1.0",
+  "split_paths": {
+    "42": "configs/splits/u1000_top1500_none_k8_sparse/seed42_train700.json",
+    "123": "configs/splits/u1000_top1500_none_k8_sparse/seed123_train700.json",
+    "2025": "configs/splits/u1000_top1500_none_k8_sparse/seed2025_train700.json"
+  },
+  "split_hashes": {
+    "42": "f5556ec5c193e7cb80f2231705edbdae32d4de206889dec308a819bdde427ab7",
+    "123": "18a295106ec844848053f3040d2be3cdf73a443010be31e6e2cd962362982471",
+    "2025": "c233c0631b1a24d963ffccc7c6389054fddf135a7aabc4dc4ab7bf5976fab3a9"
+  },
+  "split_counts": {
+    "train": 700,
+    "val": 99,
+    "test": 201
+  },
+  "protocol_freeze_path": "reports/experiment_registry/u1000_top1500_set_transformer_protocol_freeze.json",
+  "protocol_freeze_sha256": "a344737fcc06197d0ecde0fc3f7bc37980bbff665b5bb0022eb726c933c4e051",
+  "frozen_canonical_ancestor": "9b515aa70d785f691ccfa2f0ec4e7833875a4359",
+  "production_implementation_commit": "ff6b88f465bd0291980713fb7c595e745423839c",
+  "implementation_file_hashes": {
+    "src/models/set_transformer.py": "132cf2aebf498f5520d4534af2ec2a65d166adf8b6f3a4db79f6fe740aebcd44",
+    "src/evaluation/run_modern_set_transformer.py": "f1284eb5db6ee947ddcc192a6f1fefeb9c7941991f78094986abc3d12416bd3d",
+    "tests/test_modern_set_transformer.py": "7c1e458afc832762ead72e0062b222d173e5f57708dbe3b793bccebb13e9900b",
+    "src/models/deepsets.py": "da0ce5717dd25c9b2c023f5980e06a87e261705d761079550579453e1d75e488",
+    "src/evaluation/run_modern_deepsets.py": "977381225ce9426ac2eee1f407919cd19ca6caca5e6c554f7578814eb9e11b9a",
+    "src/evaluation/baseline_common.py": "c416400148f7daade7c14fd8cf52bdb8f392a72e78af713a37a42491957d5133",
+    "src/training/split_manifest.py": "86f417c8095f4ccce811059ebd71da675e46455ec74d3fb303c14b5092bf1b01",
+    "scripts/build_experiment_registry.py": "fe1e6d61fd3a0f40f75d74b89506898320fbe76a1007cac504c9d3478e7a58ef"
+  },
+  "implementation_hash_scope": "Production hashes, verified against clean initial files and exact Git blobs; closure registry-parser hash recorded separately under provenance_notes.",
+  "family_config_path": "configs/experiment_families/u1000_top1500_set_transformer.json",
+  "family_config_sha256": "153e01395fe4da0492db57d0e7c5009bd656ee99bb6162ef94180eb34d125efe",
+  "per_seed": [
+    {
+      "seed": 42,
+      "run_directory": "experiments/set_transformer_u1000_top1500_raw7_final_train700_seed42_none_d16_h2_m32_isab2_pma1",
+      "best_epoch": 51,
+      "artifact_hashes": {
+        "checkpoints/best_model.pt": "9b24075223edfc6c860595298fecfddc701eeb142b043e8df517a3ffb53a1f96",
+        "config.json": "e8c3af65e81d841659f5f6466c8dcb8f1c4b0c88ccb10d90b952683161c1ad61",
+        "metrics.json": "c46ade39b7e29c0e378956a865c1657c2fa02733aaefa279a95188ff2ec24920",
+        "predictions/test_predictions.csv": "55c136f43b92ae4e13039dba91f550dc50e60359bb249f9e1e110676f1c7a49b",
+        "predictions/train_predictions.csv": "6cd9cb1fb7ebf08b3a4946f6522b8bf77797473035ce276239966a53c497c104",
+        "predictions/val_predictions.csv": "cea5d8bbca83dbcef6f60de38f26f0f2cfdf21758fcbe43b6fe7b40ef10eb60d",
+        "run_metadata.json": "168c6799397c0996dc46a7b740987c0b7ba7baabcaf02d99c4084b4c9554a129",
+        "test_evaluation_started.json": "8e4ae5704fd71572ef4a80521b0ec60abbc6a1a01b7b3de8edc6e63b1c288188",
+        "train_log.csv": "9ea0620c759e2cb9b14f45f8c31cbf24f31225c6fc6e0cfb6f1c68199a13ab22"
+      },
+      "metrics": {
+        "train": {
+          "mae": 0.047581557972090585,
+          "mse": 0.003627999416494968,
+          "rmse": 0.06023287654176055,
+          "r2": 0.7207285926606164,
+          "num_samples": 700
+        },
+        "validation": {
+          "mae": 0.048183333843645426,
+          "mse": 0.004116317408918476,
+          "rmse": 0.06415853340685458,
+          "r2": 0.6745281624311401,
+          "num_samples": 99
+        },
+        "test": {
+          "mae": 0.04911260329075714,
+          "mse": 0.003724772084041399,
+          "rmse": 0.06103091088982204,
+          "r2": 0.7459020329076639,
+          "num_samples": 201
+        }
+      },
+      "finalized_utc": "2026-09-10T08:14:45.622794+00:00"
+    },
+    {
+      "seed": 123,
+      "run_directory": "experiments/set_transformer_u1000_top1500_raw7_final_train700_seed123_none_d16_h2_m32_isab2_pma1",
+      "best_epoch": 45,
+      "artifact_hashes": {
+        "checkpoints/best_model.pt": "16f45f73975f6c0e14e9b3a484805868ac243c15d4fbf3a5f2ecbcd0d33caf16",
+        "config.json": "e88c8d7bd9e67694b8351085f3d0175e6fcf4f7375cecbfcc03f822141b616cf",
+        "metrics.json": "1b94561025dea7fca4c54031402484c70780fb0507202b5506531814330cece6",
+        "predictions/test_predictions.csv": "eeae8b9b42359e81e76e8f01d38ceeaace6bf992bbf00a7e94923551c4698136",
+        "predictions/train_predictions.csv": "695c339bac09da7555dc831a537e287f8d80a3308b1654f91085a227998b4efd",
+        "predictions/val_predictions.csv": "510938888914ee55ecdd49e2e7074af2de5948dee1db8a0b89a7647be6b2e8ba",
+        "run_metadata.json": "1a7a992127035064ab0172d034b0ac5deacbc99e461f1d2186835bf3bc937f22",
+        "test_evaluation_started.json": "14b70d2ca7560ca4d34600f53bb483f714531aa61bd338128dc55cc3016b2815",
+        "train_log.csv": "a123a0c702f19ad895bd52731f604d5b3189c1732978a45d369e7d13bf4ec99e"
+      },
+      "metrics": {
+        "train": {
+          "mae": 0.04850231261125633,
+          "mse": 0.0036546153779019367,
+          "rmse": 0.06045341493995138,
+          "r2": 0.7269417520772943,
+          "num_samples": 700
+        },
+        "validation": {
+          "mae": 0.04893238925271564,
+          "mse": 0.0037872428102824806,
+          "rmse": 0.06154057856636124,
+          "r2": 0.7204351042484756,
+          "num_samples": 99
+        },
+        "test": {
+          "mae": 0.04883417057160715,
+          "mse": 0.003926224545794699,
+          "rmse": 0.0626595926079535,
+          "r2": 0.6984974314816148,
+          "num_samples": 201
+        }
+      },
+      "finalized_utc": "2026-09-10T08:14:51.196998+00:00"
+    },
+    {
+      "seed": 2025,
+      "run_directory": "experiments/set_transformer_u1000_top1500_raw7_final_train700_seed2025_none_d16_h2_m32_isab2_pma1",
+      "best_epoch": 49,
+      "artifact_hashes": {
+        "checkpoints/best_model.pt": "5f990e2c753c6bdb29b9012e68c6465e3e6686d0abef7daed41b89781c3a2862",
+        "config.json": "54c8d9dd7e867d16867cf5f709e6b6b6d7de6ed0bb6049fb4806483d1028d44a",
+        "metrics.json": "a91a9288974909a15f7add2aef628e0ae6c13fac70d7d8f15825c4190aad57f6",
+        "predictions/test_predictions.csv": "b62ae36a19aaddff1fccae74e87e9389983f5df87030b02e19cc522c73441266",
+        "predictions/train_predictions.csv": "7017032e0d904be22e0558c074a764cf5f561021e88eb934b5078c9e88b01613",
+        "predictions/val_predictions.csv": "f302977c8a38b2a0d9a6695c33a5aacaf890c9ade604c9096a6e6f1decd9c6fc",
+        "run_metadata.json": "a2c2528f79d3c1e296012a232c5203f24c900300d01638b0458237f22f77ce1c",
+        "test_evaluation_started.json": "761cfede95c7aa1fcce2e33c38c97cf9ff7aad8f1e94aa28512b61e289eaa031",
+        "train_log.csv": "120b22538969626d2218d3cbbc09e7d56f5ddd59310f872d8c2271a1e3c4b9ce"
+      },
+      "metrics": {
+        "train": {
+          "mae": 0.045665064145411764,
+          "mse": 0.0032764558729125883,
+          "rmse": 0.05724033431866544,
+          "r2": 0.7457351721479484,
+          "num_samples": 700
+        },
+        "validation": {
+          "mae": 0.04923281969145091,
+          "mse": 0.003716408083575033,
+          "rmse": 0.060962349721570226,
+          "r2": 0.7353078206814718,
+          "num_samples": 99
+        },
+        "test": {
+          "mae": 0.051357241560570636,
+          "mse": 0.004477932272087838,
+          "rmse": 0.06691735404278802,
+          "r2": 0.6909802110999028,
+          "num_samples": 201
+        }
+      },
+      "finalized_utc": "2026-09-10T08:14:55.888764+00:00"
+    }
+  ],
+  "mean_metrics": {
+    "validation": {
+      "mae": 0.048782847595937325,
+      "mse": 0.0038733227675919967,
+      "rmse": 0.062220487231595345,
+      "r2": 0.710090362453696
+    },
+    "test": {
+      "mae": 0.04976800514097831,
+      "mse": 0.0040429763006413115,
+      "rmse": 0.06353595251352119,
+      "r2": 0.7117932251630604
+    }
+  },
+  "sample_sd_metrics": {
+    "validation": {
+      "mae": 0.0005404878967377531,
+      "mse": 0.00021339912467479322,
+      "rmse": 0.0017031160801057545,
+      "r2": 0.03168283409604128
+    },
+    "test": {
+      "mae": 0.0013833421459611137,
+      "mse": 0.0003899176790161732,
+      "rmse": 0.0030394996728639358,
+      "r2": 0.02977726019776741
+    }
+  },
+  "aggregation_policy": "Equal-weight mean of three seed metrics and sample SD (ddof=1); not pooled predictions. Mean RMSE is mean of per-seed RMSE, not square root of mean MSE.",
+  "comparison_controls": {
+    "DeepSets": {
+      "parameter_count": 4161,
+      "runs": [
+        {
+          "seed": 42,
+          "run_directory": "experiments/deepsets_u1000_top1500_raw7_final_train700_seed42_none_h32_phi3_mean_statichead",
+          "best_epoch": 16,
+          "artifact_hashes": {
+            "checkpoints/best_model.pt": "9d9090b58b541648d3aad0933cd66248a30ad96e1a8c7777d00b42fee89622ab",
+            "config.json": "35fa1dba59be780c1a0fef391d604621b7e6d41a05326266799d3d2aa9bd43dc",
+            "metrics.json": "4dfc8bdab62b6619c9dc5aad3d2fda51189f1f3b06651c07efa81e121d5196e5",
+            "predictions/test_predictions.csv": "9aded7f8985a1d51ab473ef4c684346d0523e8b3889d266077be3c424af3c37d",
+            "predictions/train_predictions.csv": "4c2197f3769e7f61d0d158a080f49e6a2c3b6a806f185ea4040fc27f67ac5e9d",
+            "predictions/val_predictions.csv": "538b48458f2ed97ed8bb9f0fb398bdd6dc23abdcf015639f2be4253f77fd82a2",
+            "train_log.csv": "7f3546246fd569b1dc1689efc9f39f8ac18c416a383323038e0026bd6ff9084e"
+          },
+          "metrics": {
+            "train": {
+              "mae": 0.04792770809360913,
+              "mse": 0.003738375787490027,
+              "rmse": 0.061142258606384725,
+              "r2": 0.712232184330269,
+              "num_samples": 700
+            },
+            "validation": {
+              "mae": 0.04751820109709345,
+              "mse": 0.003957384263955901,
+              "rmse": 0.06290774406983532,
+              "r2": 0.6870947984805109,
+              "num_samples": 99
+            },
+            "test": {
+              "mae": 0.04917067230044313,
+              "mse": 0.0037972326524159847,
+              "rmse": 0.06162168978870983,
+              "r2": 0.7409588893533984,
+              "num_samples": 201
+            }
+          }
+        },
+        {
+          "seed": 123,
+          "run_directory": "experiments/deepsets_u1000_top1500_raw7_final_train700_seed123_none_h32_phi3_mean_statichead",
+          "best_epoch": 65,
+          "artifact_hashes": {
+            "checkpoints/best_model.pt": "965f66864d6089625d20b85b25e8c147410655d3cecb36d6784e13e49b1afaf0",
+            "config.json": "3ffa0093ecbf5bae9d1ba72a27f86ea5ae43e5e62950a5c8b6bcde831b6acec6",
+            "metrics.json": "915f96603797ea4a71c9469e12c9a452b03ff5db49f5a682110b9b4953e0e0f1",
+            "predictions/test_predictions.csv": "4f5024e3ffb59d727f963d0da32e8dd4dd01bcaf4e65619603c2568173f8d95e",
+            "predictions/train_predictions.csv": "1d5960f551c9f3470ab1a040581fc6d2d15a790ddef1bd18696dd81c8e24ca33",
+            "predictions/val_predictions.csv": "716b7cf00cf00364018c4eca3387f8164108df8f994fc4d16bbdc701fde6000a",
+            "train_log.csv": "d4fea7af63c3be39f8e2d8e032c08cdd834a573004872a4d8c8b1fbbb666fa5e"
+          },
+          "metrics": {
+            "train": {
+              "mae": 0.044928332790732384,
+              "mse": 0.0032657623377348242,
+              "rmse": 0.05714684888718558,
+              "r2": 0.7559952963953847,
+              "num_samples": 700
+            },
+            "validation": {
+              "mae": 0.04705134764163181,
+              "mse": 0.003431410934284731,
+              "rmse": 0.05857824625477218,
+              "r2": 0.7467017331132249,
+              "num_samples": 99
+            },
+            "test": {
+              "mae": 0.047666212219503984,
+              "mse": 0.003695031261344991,
+              "rmse": 0.06078676880164787,
+              "r2": 0.7162512222474662,
+              "num_samples": 201
+            }
+          }
+        },
+        {
+          "seed": 2025,
+          "run_directory": "experiments/deepsets_u1000_top1500_raw7_final_train700_seed2025_none_h32_phi3_mean_statichead",
+          "best_epoch": 57,
+          "artifact_hashes": {
+            "checkpoints/best_model.pt": "c5096fadad67903102019cf4d5761b2ed15b2a9ad186a9334edc30427c748701",
+            "config.json": "834fc3f29c6b43cda89e2caab04e0bdee54ced983affc5b441c8217475bc5569",
+            "metrics.json": "16b9b9a80f19d6499ef633bdefab45af7875b44ce13315f168a66f4a62a31e2d",
+            "predictions/test_predictions.csv": "2b5c7ffd02eb587e37baeabe4a261d4da72e0e989be548a61d326ff4d74a313f",
+            "predictions/train_predictions.csv": "88f70962bea52af236ac1affd5a0b3b81dbd40b2267ea06e46806cb5180af9f1",
+            "predictions/val_predictions.csv": "8bc98c0e07d27140529a40c3fb8dc6bb8c0ae6935b36a01f5bd825988c0170ef",
+            "train_log.csv": "36891fda897aa185633b57bcd89a95a17a81e22914e4e21dc09cd41b7faad067"
+          },
+          "metrics": {
+            "train": {
+              "mae": 0.04156682915985584,
+              "mse": 0.0028470068165499457,
+              "rmse": 0.053357350164245844,
+              "r2": 0.7790619723926913,
+              "num_samples": 700
+            },
+            "validation": {
+              "mae": 0.04437944721994978,
+              "mse": 0.0033202664805128484,
+              "rmse": 0.05762175353556023,
+              "r2": 0.7635220484721935,
+              "num_samples": 99
+            },
+            "test": {
+              "mae": 0.04731499029332725,
+              "mse": 0.00391870724161254,
+              "rmse": 0.0625995786057106,
+              "r2": 0.7295720410706927,
+              "num_samples": 201
+            }
+          }
+        }
+      ],
+      "aggregate": {
+        "validation": {
+          "mae": {
+            "mean": 0.046316331986225014,
+            "sample_sd": 0.001693555427374879
+          },
+          "mse": {
+            "mean": 0.00356968722625116,
+            "sample_sd": 0.00034032340087751235
+          },
+          "rmse": {
+            "mean": 0.059702581286722574,
+            "sample_sd": 0.002816650658169136
+          },
+          "r2": {
+            "mean": 0.7324395266886431,
+            "sample_sd": 0.04016016726055586
+          }
+        },
+        "test": {
+          "mae": {
+            "mean": 0.048050624937758114,
+            "sample_sd": 0.000985757973008614
+          },
+          "mse": {
+            "mean": 0.003803657051791172,
+            "sample_sd": 0.00011197629533817067
+          },
+          "rmse": {
+            "mean": 0.06166934573202276,
+            "sample_sd": 0.0009073440158651337
+          },
+          "r2": {
+            "mean": 0.7289273842238524,
+            "sample_sd": 0.012366442103209174
+          }
+        }
+      }
+    },
+    "Static GCN": {
+      "parameter_count": 5281,
+      "runs": [
+        {
+          "seed": 42,
+          "run_directory": "experiments/static_gcn_u1000_top1500_sparse_train700_seed42_none_h32_l3_mean_mlp_final",
+          "best_epoch": 110,
+          "artifact_hashes": {
+            "checkpoints/best_model.pt": "49ea8189bec30852bfa0879012144df8b7982291892b976368970c2c0926a487",
+            "config.json": "06b268df60c1c91d8282334f094a847f96d083aaec0f7bb8ea3afc061f88eb08",
+            "metrics.json": "1cdd3c35212a26f92357878d7a50f6433f9d25059d68304079b89c1b6b43a3d4",
+            "predictions/test_predictions.csv": "d7f89de153b282d8368ff40d69085259d755562ccbd040edd9011fcd9111b2e7",
+            "predictions/train_predictions.csv": "c8ad6c96c812c17ed2cdd27f91bf4664a98ffb5ae6d54d1b7b8240c7aea9e0a8",
+            "predictions/val_predictions.csv": "fe3d1d2ffabe4b791de124dea0316d7dfeed7032955623b4748e0a91809d3d74",
+            "train_log.csv": "b263a6d46cff9c1721077bf74c95866316982e34752038be0282a3d081619249"
+          },
+          "metrics": {
+            "train": {
+              "mae": 0.02893889307975769,
+              "mse": 0.001405050896572688,
+              "rmse": 0.0374840085446139,
+              "r2": 0.8918438245923399,
+              "num_samples": 700
+            },
+            "validation": {
+              "mae": 0.03655207608685349,
+              "mse": 0.002470401471047206,
+              "rmse": 0.0497031334127659,
+              "r2": 0.8046685844554917,
+              "num_samples": 99
+            },
+            "test": {
+              "mae": 0.038196001405739664,
+              "mse": 0.0023963024075679008,
+              "rmse": 0.04895204191418271,
+              "r2": 0.83652809982381,
+              "num_samples": 201
+            }
+          }
+        },
+        {
+          "seed": 123,
+          "run_directory": "experiments/static_gcn_u1000_top1500_sparse_train700_seed123_none_h32_l3_mean_mlp_final",
+          "best_epoch": 77,
+          "artifact_hashes": {
+            "checkpoints/best_model.pt": "dce2c8cac85ab8a3f8c3e6ae3247fcaa3cf818c9ae6364b3adf5598bd3ef50eb",
+            "config.json": "2f3fdb9c9cd87b0fc6c58d500dbb4ab8ce031283d84761717668a3741fb10f62",
+            "metrics.json": "9b001e7952f05b4a9df2d643645dc90ee921c3f7fa3d3e496fb818fd02a60288",
+            "predictions/test_predictions.csv": "8c7c447cdcf675ec993890ad80237067de37b95771f153e026104645d74e5a87",
+            "predictions/train_predictions.csv": "ed09af6f670881abf6f3d2cb65b69d466ebe4fad46a1fcf47a09d8c2af4dacc0",
+            "predictions/val_predictions.csv": "1c48761b8d6a5a8507def44b984e5da47c28f7eb64f978eaa1dcd1b462566827",
+            "train_log.csv": "f009c1d3fdf237b0f7030248891d179c505fed58957fbd5117fe10063f31af0e"
+          },
+          "metrics": {
+            "train": {
+              "mae": 0.033254048132470675,
+              "mse": 0.0017456857168765035,
+              "rmse": 0.04178140396009334,
+              "r2": 0.8695693434235908,
+              "num_samples": 700
+            },
+            "validation": {
+              "mae": 0.0412676798725369,
+              "mse": 0.002483046150549492,
+              "rmse": 0.04983017309371394,
+              "r2": 0.8167076754783472,
+              "num_samples": 99
+            },
+            "test": {
+              "mae": 0.036829303894469985,
+              "mse": 0.002403503015983567,
+              "rmse": 0.049025534326344336,
+              "r2": 0.8154302372907066,
+              "num_samples": 201
+            }
+          }
+        },
+        {
+          "seed": 2025,
+          "run_directory": "experiments/static_gcn_u1000_top1500_sparse_train700_seed2025_none_h32_l3_mean_mlp_final",
+          "best_epoch": 136,
+          "artifact_hashes": {
+            "checkpoints/best_model.pt": "8be14a8dc8e7bb9a6ffb2f20ab5afe9df80e98740dc9db12584426d656b3809f",
+            "config.json": "4262755c33bafcd232900caae8ed1e397fce98ec1f5f06d8bb1c70254bd99dd6",
+            "metrics.json": "11db144e9ab2c804acbc26163854a950d58705f428354c3ce331b1915d9a1942",
+            "predictions/test_predictions.csv": "fe3a7a3c1e258a5c3a8627b08b1d780209e13ae391e85786e8d924b2c288d061",
+            "predictions/train_predictions.csv": "61c4d76c63890132b7373dfa2349ce841b2bbbd76add135ffeda93fb2fa3e36d",
+            "predictions/val_predictions.csv": "38de11ee3937d809a9ed242896f8956254eef6248a3825cf5f3865c545afba79",
+            "train_log.csv": "619a35b77138e3b4733eefcf01f7fb556ffa34d1566cda063dec81e08fa76a75"
+          },
+          "metrics": {
+            "train": {
+              "mae": 0.029522637288485254,
+              "mse": 0.0014163750714509397,
+              "rmse": 0.03763475882015108,
+              "r2": 0.8900841709196372,
+              "num_samples": 700
+            },
+            "validation": {
+              "mae": 0.036247752155318405,
+              "mse": 0.0020868494705907495,
+              "rmse": 0.045682047574410994,
+              "r2": 0.8513691925486767,
+              "num_samples": 99
+            },
+            "test": {
+              "mae": 0.03863455318099824,
+              "mse": 0.0025067660260146814,
+              "rmse": 0.05006761454288272,
+              "r2": 0.8270093737215422,
+              "num_samples": 201
+            }
+          }
+        }
+      ],
+      "aggregate": {
+        "validation": {
+          "mae": {
+            "mean": 0.038022502704902934,
+            "sample_sd": 0.002814522055487548
+          },
+          "mse": {
+            "mean": 0.002346765697395816,
+            "sample_sd": 0.00022518282727012273
+          },
+          "rmse": {
+            "mean": 0.048405118026963616,
+            "sample_sd": 0.0023591034922842364
+          },
+          "r2": {
+            "mean": 0.8242484841608385,
+            "sample_sd": 0.024246330562742197
+          }
+        },
+        "test": {
+          "mae": {
+            "mean": 0.03788661949373596,
+            "sample_sd": 0.0009415514442843749
+          },
+          "mse": {
+            "mean": 0.00243552381652205,
+            "sample_sd": 6.180252017865421e-05
+          },
+          "rmse": {
+            "mean": 0.04934839692780326,
+            "sample_sd": 0.0006239437210532525
+          },
+          "r2": {
+            "mean": 0.8263225702786863,
+            "sample_sd": 0.010565686210240736
+          }
+        }
+      }
+    }
+  },
+  "paired_test_mae_differences": {
+    "DeepSets": {
+      "per_seed": [
+        {
+          "seed": 42,
+          "test_mae_difference": -5.806900968598899e-05
+        },
+        {
+          "seed": 123,
+          "test_mae_difference": 0.0011679583521031628
+        },
+        {
+          "seed": 2025,
+          "test_mae_difference": 0.004042251267243384
+        }
+      ],
+      "mean": 0.0017173802032201858,
+      "sample_sd": 0.0021046507717940245
+    },
+    "Static GCN": {
+      "per_seed": [
+        {
+          "seed": 42,
+          "test_mae_difference": 0.010916601885017474
+        },
+        {
+          "seed": 123,
+          "test_mae_difference": 0.012004866677137162
+        },
+        {
+          "seed": 2025,
+          "test_mae_difference": 0.012722688379572397
+        }
+      ],
+      "mean": 0.011881385647242344,
+      "sample_sd": 0.000909352945786913
+    }
+  },
+  "paired_difference_direction": "Set Transformer minus named control; positive means higher error.",
+  "metric_verification": {
+    "input": "Existing saved train/validation/test prediction CSVs only",
+    "dtype": "float64 (Python binary64 floats)",
+    "absolute_tolerance": 1e-10,
+    "relative_tolerance": 0,
+    "maximum_absolute_difference": 1.1102230246251565e-15,
+    "checked_metrics": [
+      "mae",
+      "mse",
+      "rmse",
+      "r2"
+    ],
+    "controlled_runs": 9,
+    "broad_runs": 39,
+    "split_ids": "Exact ordered IDs match frozen manifests; no duplicates; 700/99/201 counts.",
+    "cross_family_target_absolute_tolerance": 1e-07
+  },
+  "finalized_utc": "2026-09-10T08:14:55.888764+00:00",
+  "result_freeze_created_utc": "2026-09-10T08:31:57.700524+00:00",
+  "registry_update": {
+    "before": 394,
+    "after": 397,
+    "lost": [],
+    "added": [
+      "set_transformer_u1000_top1500_raw7_final_train700_seed123_none_d16_h2_m32_isab2_pma1",
+      "set_transformer_u1000_top1500_raw7_final_train700_seed2025_none_d16_h2_m32_isab2_pma1",
+      "set_transformer_u1000_top1500_raw7_final_train700_seed42_none_d16_h2_m32_isab2_pma1"
+    ],
+    "historical_changes": {}
+  },
+  "final_selection_policy": {
+    "choice": "A",
+    "action": "Unchanged; controlled Top1500 baseline added only to this Notebook17-specific result record.",
+    "path": "reports/experiment_registry/thesis_final_selection.csv",
+    "sha256": "309f155d700c182231d7d8bf744bbf72167951d52788a9b3bf40d5afdc78a431"
+  },
+  "broad_model_availability": [
+    {
+      "model": "Target mean",
+      "available": true,
+      "final": true,
+      "matched_split_ids": true,
+      "seeds": [
+        42,
+        123,
+        2025
+      ],
+      "top_n": null,
+      "representation": "target only",
+      "safe_to_use": true,
+      "qualification": "Target-only control; Top1000 dataset binding but identical split IDs/targets; Top-N independent.",
+      "runs": [
+        {
+          "seed": 42,
+          "run_directory": "experiments/mean_baseline_u1000_train700_seed42_targetmean",
+          "metrics": {
+            "val": {
+              "mae": 0.10106883147169674,
+              "mse": 0.01290631804182952,
+              "rmse": 0.11360597713953928,
+              "r2": -0.02048569923718846
+            },
+            "test": {
+              "mae": 0.10575495347147641,
+              "mse": 0.014822202059280965,
+              "rmse": 0.12174646631126904,
+              "r2": -0.011146810091178905
+            }
+          }
+        },
+        {
+          "seed": 123,
+          "run_directory": "experiments/mean_baseline_u1000_train700_seed123_targetmean",
+          "metrics": {
+            "val": {
+              "mae": 0.10154520561136467,
+              "mse": 0.01355115655537553,
+              "rmse": 0.11640943499294003,
+              "r2": -0.00031285541831360675
+            },
+            "test": {
+              "mae": 0.09904042386567033,
+              "mse": 0.013053739844962603,
+              "rmse": 0.1142529642721037,
+              "r2": -0.002422568073061848
+            }
+          }
+        },
+        {
+          "seed": 2025,
+          "run_directory": "experiments/mean_baseline_u1000_train700_seed2025_targetmean",
+          "metrics": {
+            "val": {
+              "mae": 0.10405786939029828,
+              "mse": 0.014070862926787334,
+              "rmse": 0.11862066821084484,
+              "r2": -0.0021631880105195123
+            },
+            "test": {
+              "mae": 0.10609815596639263,
+              "mse": 0.014549559682389345,
+              "rmse": 0.12062155562912188,
+              "r2": -0.004057584717558127
+            }
+          }
+        }
+      ]
+    },
+    {
+      "model": "Ridge",
+      "available": true,
+      "final": true,
+      "matched_split_ids": true,
+      "seeds": [
+        42,
+        123,
+        2025
+      ],
+      "top_n": 1500,
+      "representation": "static summary20",
+      "safe_to_use": true,
+      "qualification": "Broad context only: engineered features differ from raw7.",
+      "runs": [
+        {
+          "seed": 42,
+          "run_directory": "experiments/ridge_u1000_top1500_summary20_final_train700_seed42_trainzscore_alpha1",
+          "metrics": {
+            "val": {
+              "mae": 0.025727996924129654,
+              "mse": 0.00099404669095007,
+              "rmse": 0.03152850600567794,
+              "r2": 0.921402027348088
+            },
+            "test": {
+              "mae": 0.02372116499370824,
+              "mse": 0.0009365836014720704,
+              "rmse": 0.03060365340073094,
+              "r2": 0.9361077714887033
+            }
+          }
+        },
+        {
+          "seed": 123,
+          "run_directory": "experiments/ridge_u1000_top1500_summary20_final_train700_seed123_trainzscore_alpha1",
+          "metrics": {
+            "val": {
+              "mae": 0.021420906823126962,
+              "mse": 0.0007288807629968997,
+              "rmse": 0.026997791817052367,
+              "r2": 0.9461958251081025
+            },
+            "test": {
+              "mae": 0.02452324887519956,
+              "mse": 0.0008951813253097062,
+              "rmse": 0.029919580968150377,
+              "r2": 0.9312572508977734
+            }
+          }
+        },
+        {
+          "seed": 2025,
+          "run_directory": "experiments/ridge_u1000_top1500_summary20_final_train700_seed2025_trainzscore_alpha1",
+          "metrics": {
+            "val": {
+              "mae": 0.025362398752750263,
+              "mse": 0.0010265781923026141,
+              "rmse": 0.03204025893001825,
+              "r2": 0.9268844505633345
+            },
+            "test": {
+              "mae": 0.02366537576339731,
+              "mse": 0.0009123006104410416,
+              "rmse": 0.03020431443421687,
+              "r2": 0.9370426069618789
+            }
+          }
+        }
+      ]
+    },
+    {
+      "model": "Random Forest",
+      "available": true,
+      "final": true,
+      "matched_split_ids": true,
+      "seeds": [
+        42,
+        123,
+        2025
+      ],
+      "top_n": 1500,
+      "representation": "static summary20",
+      "safe_to_use": true,
+      "qualification": "Broad context only: engineered features differ from raw7.",
+      "runs": [
+        {
+          "seed": 42,
+          "run_directory": "experiments/random_forest_u1000_top1500_summary20_final_train700_seed42_none_t300_leaf2",
+          "metrics": {
+            "val": {
+              "mae": 0.010606146500501325,
+              "mse": 0.00018156163347413828,
+              "rmse": 0.013474480823918162,
+              "r2": 0.9856441589390558
+            },
+            "test": {
+              "mae": 0.008894146430876902,
+              "mse": 0.00014235007660622434,
+              "rmse": 0.011931055133818817,
+              "r2": 0.9902891064835746
+            }
+          }
+        },
+        {
+          "seed": 123,
+          "run_directory": "experiments/random_forest_u1000_top1500_summary20_final_train700_seed123_none_t300_leaf2",
+          "metrics": {
+            "val": {
+              "mae": 0.009124791743406534,
+              "mse": 0.00013908334942879023,
+              "rmse": 0.0117933603959512,
+              "r2": 0.9897332111956845
+            },
+            "test": {
+              "mae": 0.009279227709922616,
+              "mse": 0.00014818655298085029,
+              "rmse": 0.01217318992626215,
+              "r2": 0.988620460744797
+            }
+          }
+        },
+        {
+          "seed": 2025,
+          "run_directory": "experiments/random_forest_u1000_top1500_summary20_final_train700_seed2025_none_t300_leaf2",
+          "metrics": {
+            "val": {
+              "mae": 0.009030009618459121,
+              "mse": 0.00014954318453115623,
+              "rmse": 0.01222878507993154,
+              "r2": 0.9893491482836009
+            },
+            "test": {
+              "mae": 0.00995390904489486,
+              "mse": 0.00017417625345106312,
+              "rmse": 0.013197585137102284,
+              "r2": 0.9879801868803697
+            }
+          }
+        }
+      ]
+    },
+    {
+      "model": "Gradient Boosting",
+      "available": true,
+      "final": true,
+      "matched_split_ids": true,
+      "seeds": [
+        42,
+        123,
+        2025
+      ],
+      "top_n": 1500,
+      "representation": "static summary20",
+      "safe_to_use": true,
+      "qualification": "Broad context only: engineered features differ from raw7.",
+      "runs": [
+        {
+          "seed": 42,
+          "run_directory": "experiments/gradient_boosting_u1000_top1500_summary20_final_train700_seed42_none_t300_lr0p03_d3",
+          "metrics": {
+            "val": {
+              "mae": 0.008736071134649945,
+              "mse": 0.00013579551506557805,
+              "rmse": 0.011653133272454154,
+              "r2": 0.9892628261061103
+            },
+            "test": {
+              "mae": 0.008949248140904661,
+              "mse": 0.0001461955813350825,
+              "rmse": 0.012091136478225796,
+              "r2": 0.9900267723294305
+            }
+          }
+        },
+        {
+          "seed": 123,
+          "run_directory": "experiments/gradient_boosting_u1000_top1500_summary20_final_train700_seed123_none_t300_lr0p03_d3",
+          "metrics": {
+            "val": {
+              "mae": 0.00776256525121198,
+              "mse": 0.00010420501742959426,
+              "rmse": 0.010208085884708958,
+              "r2": 0.9923078433853262
+            },
+            "test": {
+              "mae": 0.00881166636157078,
+              "mse": 0.00014055717254461678,
+              "rmse": 0.0118556810240752,
+              "r2": 0.9892063359974471
+            }
+          }
+        },
+        {
+          "seed": 2025,
+          "run_directory": "experiments/gradient_boosting_u1000_top1500_summary20_final_train700_seed2025_none_t300_lr0p03_d3",
+          "metrics": {
+            "val": {
+              "mae": 0.008742999320905191,
+              "mse": 0.000127484972277741,
+              "rmse": 0.011290924332300745,
+              "r2": 0.9909201911136474
+            },
+            "test": {
+              "mae": 0.009758116315237613,
+              "mse": 0.00016732894979821573,
+              "rmse": 0.012935569171792007,
+              "r2": 0.9884527157621769
+            }
+          }
+        }
+      ]
+    },
+    {
+      "model": "Summary MLP",
+      "available": true,
+      "final": true,
+      "matched_split_ids": true,
+      "seeds": [
+        42,
+        123,
+        2025
+      ],
+      "top_n": 1500,
+      "representation": "static summary20",
+      "safe_to_use": true,
+      "qualification": "Broad context only: engineered features differ from raw7.",
+      "runs": [
+        {
+          "seed": 42,
+          "run_directory": "experiments/summary_mlp_u1000_top1500_summary20_final_train700_seed42_trainzscore_h64x64_drop0p2",
+          "metrics": {
+            "val": {
+              "mae": 0.011211850727447356,
+              "mse": 0.0002041580205971954,
+              "rmse": 0.014288387613625109,
+              "r2": 0.9838574921423154
+            },
+            "test": {
+              "mae": 0.012485113198780895,
+              "mse": 0.00024397998973152535,
+              "rmse": 0.015619858825595235,
+              "r2": 0.9833560770959374
+            }
+          }
+        },
+        {
+          "seed": 123,
+          "run_directory": "experiments/summary_mlp_u1000_top1500_summary20_final_train700_seed123_trainzscore_h64x64_drop0p2",
+          "metrics": {
+            "val": {
+              "mae": 0.0098978772458404,
+              "mse": 0.00015441477574872287,
+              "rmse": 0.01242637419960959,
+              "r2": 0.9886014832301003
+            },
+            "test": {
+              "mae": 0.010795998484341067,
+              "mse": 0.0001895897004382701,
+              "rmse": 0.01376915757910665,
+              "r2": 0.9854410309496958
+            }
+          }
+        },
+        {
+          "seed": 2025,
+          "run_directory": "experiments/summary_mlp_u1000_top1500_summary20_final_train700_seed2025_trainzscore_h64x64_drop0p2",
+          "metrics": {
+            "val": {
+              "mae": 0.009791217518575264,
+              "mse": 0.00015445653532098597,
+              "rmse": 0.012428054365868616,
+              "r2": 0.9889992067542882
+            },
+            "test": {
+              "mae": 0.011033678121531188,
+              "mse": 0.0001922808517892971,
+              "rmse": 0.013866537123207694,
+              "r2": 0.986730797917639
+            }
+          }
+        }
+      ]
+    },
+    {
+      "model": "DeepSets",
+      "available": true,
+      "final": true,
+      "matched_split_ids": true,
+      "seeds": [
+        42,
+        123,
+        2025
+      ],
+      "top_n": 1500,
+      "representation": "static raw7",
+      "safe_to_use": true,
+      "qualification": "Use Top1500 controlled record; retain existing Top1000 headline.",
+      "runs": [
+        {
+          "seed": 42,
+          "run_directory": "experiments/deepsets_u1000_top1500_raw7_final_train700_seed42_none_h32_phi3_mean_statichead",
+          "metrics": {
+            "val": {
+              "mae": 0.04751820109709345,
+              "mse": 0.003957384263955901,
+              "rmse": 0.06290774406983532,
+              "r2": 0.6870947984805109
+            },
+            "test": {
+              "mae": 0.04917067230044313,
+              "mse": 0.0037972326524159847,
+              "rmse": 0.06162168978870983,
+              "r2": 0.7409588893533984
+            }
+          }
+        },
+        {
+          "seed": 123,
+          "run_directory": "experiments/deepsets_u1000_top1500_raw7_final_train700_seed123_none_h32_phi3_mean_statichead",
+          "metrics": {
+            "val": {
+              "mae": 0.04705134764163181,
+              "mse": 0.003431410934284731,
+              "rmse": 0.05857824625477218,
+              "r2": 0.7467017331132249
+            },
+            "test": {
+              "mae": 0.047666212219503984,
+              "mse": 0.003695031261344991,
+              "rmse": 0.06078676880164787,
+              "r2": 0.7162512222474662
+            }
+          }
+        },
+        {
+          "seed": 2025,
+          "run_directory": "experiments/deepsets_u1000_top1500_raw7_final_train700_seed2025_none_h32_phi3_mean_statichead",
+          "metrics": {
+            "val": {
+              "mae": 0.04437944721994978,
+              "mse": 0.0033202664805128484,
+              "rmse": 0.05762175353556023,
+              "r2": 0.7635220484721935
+            },
+            "test": {
+              "mae": 0.04731499029332725,
+              "mse": 0.00391870724161254,
+              "rmse": 0.0625995786057106,
+              "r2": 0.7295720410706927
+            }
+          }
+        }
+      ]
+    },
+    {
+      "model": "Set Transformer",
+      "available": true,
+      "final": true,
+      "matched_split_ids": true,
+      "seeds": [
+        42,
+        123,
+        2025
+      ],
+      "top_n": 1500,
+      "representation": "static raw7",
+      "safe_to_use": true,
+      "qualification": "Matched Top1500 protocol; model architecture differs.",
+      "runs": [
+        {
+          "seed": 42,
+          "run_directory": "experiments/set_transformer_u1000_top1500_raw7_final_train700_seed42_none_d16_h2_m32_isab2_pma1",
+          "metrics": {
+            "val": {
+              "mae": 0.048183333843645426,
+              "mse": 0.004116317408918476,
+              "rmse": 0.06415853340685458,
+              "r2": 0.6745281624311401
+            },
+            "test": {
+              "mae": 0.04911260329075714,
+              "mse": 0.003724772084041399,
+              "rmse": 0.06103091088982204,
+              "r2": 0.7459020329076639
+            }
+          }
+        },
+        {
+          "seed": 123,
+          "run_directory": "experiments/set_transformer_u1000_top1500_raw7_final_train700_seed123_none_d16_h2_m32_isab2_pma1",
+          "metrics": {
+            "val": {
+              "mae": 0.04893238925271564,
+              "mse": 0.0037872428102824806,
+              "rmse": 0.06154057856636124,
+              "r2": 0.7204351042484756
+            },
+            "test": {
+              "mae": 0.04883417057160715,
+              "mse": 0.003926224545794699,
+              "rmse": 0.0626595926079535,
+              "r2": 0.6984974314816148
+            }
+          }
+        },
+        {
+          "seed": 2025,
+          "run_directory": "experiments/set_transformer_u1000_top1500_raw7_final_train700_seed2025_none_d16_h2_m32_isab2_pma1",
+          "metrics": {
+            "val": {
+              "mae": 0.04923281969145091,
+              "mse": 0.003716408083575033,
+              "rmse": 0.060962349721570226,
+              "r2": 0.7353078206814718
+            },
+            "test": {
+              "mae": 0.051357241560570636,
+              "mse": 0.004477932272087838,
+              "rmse": 0.06691735404278802,
+              "r2": 0.6909802110999028
+            }
+          }
+        }
+      ]
+    },
+    {
+      "model": "Static GCN",
+      "available": true,
+      "final": true,
+      "matched_split_ids": true,
+      "seeds": [
+        42,
+        123,
+        2025
+      ],
+      "top_n": 1500,
+      "representation": "static raw7 graph",
+      "safe_to_use": true,
+      "qualification": "Matched Top1500 protocol; model architecture differs.",
+      "runs": [
+        {
+          "seed": 42,
+          "run_directory": "experiments/static_gcn_u1000_top1500_sparse_train700_seed42_none_h32_l3_mean_mlp_final",
+          "metrics": {
+            "val": {
+              "mae": 0.03655207608685349,
+              "mse": 0.002470401471047206,
+              "rmse": 0.0497031334127659,
+              "r2": 0.8046685844554917
+            },
+            "test": {
+              "mae": 0.038196001405739664,
+              "mse": 0.0023963024075679008,
+              "rmse": 0.04895204191418271,
+              "r2": 0.83652809982381
+            }
+          }
+        },
+        {
+          "seed": 123,
+          "run_directory": "experiments/static_gcn_u1000_top1500_sparse_train700_seed123_none_h32_l3_mean_mlp_final",
+          "metrics": {
+            "val": {
+              "mae": 0.0412676798725369,
+              "mse": 0.002483046150549492,
+              "rmse": 0.04983017309371394,
+              "r2": 0.8167076754783472
+            },
+            "test": {
+              "mae": 0.036829303894469985,
+              "mse": 0.002403503015983567,
+              "rmse": 0.049025534326344336,
+              "r2": 0.8154302372907066
+            }
+          }
+        },
+        {
+          "seed": 2025,
+          "run_directory": "experiments/static_gcn_u1000_top1500_sparse_train700_seed2025_none_h32_l3_mean_mlp_final",
+          "metrics": {
+            "val": {
+              "mae": 0.036247752155318405,
+              "mse": 0.0020868494705907495,
+              "rmse": 0.045682047574410994,
+              "r2": 0.8513691925486767
+            },
+            "test": {
+              "mae": 0.03863455318099824,
+              "mse": 0.0025067660260146814,
+              "rmse": 0.05006761454288272,
+              "r2": 0.8270093737215422
+            }
+          }
+        }
+      ]
+    },
+    {
+      "model": "PNA",
+      "available": true,
+      "final": true,
+      "matched_split_ids": true,
+      "seeds": [
+        42,
+        123,
+        2025
+      ],
+      "top_n": 1500,
+      "representation": "static raw7 graph",
+      "safe_to_use": true,
+      "qualification": "Matched Top1500 protocol; model architecture differs.",
+      "runs": [
+        {
+          "seed": 42,
+          "run_directory": "experiments/static_pna_u1000_top1500_sparse_train700_seed42_none_h32_l3_mean_mlp_final",
+          "metrics": {
+            "val": {
+              "mae": 0.036957770736530574,
+              "mse": 0.0022311879614748432,
+              "rmse": 0.04723545237927592,
+              "r2": 0.8235828840095363
+            },
+            "test": {
+              "mae": 0.03998273588828186,
+              "mse": 0.0025191263593010204,
+              "rmse": 0.050190899168086445,
+              "r2": 0.8281492471741815
+            }
+          }
+        },
+        {
+          "seed": 123,
+          "run_directory": "experiments/static_pna_u1000_top1500_sparse_train700_seed123_none_h32_l3_mean_mlp_final",
+          "metrics": {
+            "val": {
+              "mae": 0.04344748705625534,
+              "mse": 0.0030553133838157115,
+              "rmse": 0.05527488927004478,
+              "r2": 0.7744643239362392
+            },
+            "test": {
+              "mae": 0.040116620375149285,
+              "mse": 0.0025922610779577546,
+              "rmse": 0.050914252208568815,
+              "r2": 0.8009351314071864
+            }
+          }
+        },
+        {
+          "seed": 2025,
+          "run_directory": "experiments/static_pna_u1000_top1500_sparse_train700_seed2025_none_h32_l3_mean_mlp_final",
+          "metrics": {
+            "val": {
+              "mae": 0.05583955806614173,
+              "mse": 0.004588905025162693,
+              "rmse": 0.06774145721168606,
+              "r2": 0.6731663357519078
+            },
+            "test": {
+              "mae": 0.05443470168914368,
+              "mse": 0.004784048425873565,
+              "rmse": 0.06916681592984865,
+              "r2": 0.6698552937331491
+            }
+          }
+        }
+      ]
+    },
+    {
+      "model": "EvolveGCN-H",
+      "available": true,
+      "final": true,
+      "matched_split_ids": true,
+      "seeds": [
+        42,
+        123,
+        2025
+      ],
+      "top_n": 1500,
+      "representation": "temporal raw7 graph, 5 snapshots",
+      "safe_to_use": true,
+      "qualification": "Five-snapshot temporal context differs from final-snapshot primary comparison.",
+      "runs": [
+        {
+          "seed": 42,
+          "run_directory": "experiments/evolvegcn_h_u1000_top1500_sparse_train700_seed42_none_h32_l2_mean_temporal_mean_linear",
+          "metrics": {
+            "val": {
+              "mae": 0.056782242625650736,
+              "mse": 0.004480161758846307,
+              "rmse": 0.06693401047932439,
+              "r2": 0.645759465220501
+            },
+            "test": {
+              "mae": 0.06025855836287067,
+              "mse": 0.01350010154844791,
+              "rmse": 0.1161899373803425,
+              "r2": 0.07904476257812743
+            }
+          }
+        },
+        {
+          "seed": 123,
+          "run_directory": "experiments/evolvegcn_h_u1000_top1500_sparse_train700_seed123_none_h32_l2_mean_temporal_mean_linear",
+          "metrics": {
+            "val": {
+              "mae": 0.05232462926645472,
+              "mse": 0.00414396733861773,
+              "rmse": 0.06437365407228124,
+              "r2": 0.6941025819963262
+            },
+            "test": {
+              "mae": 0.05098572128744268,
+              "mse": 0.004243920633946737,
+              "rmse": 0.06514538075678687,
+              "r2": 0.6741009188856459
+            }
+          }
+        },
+        {
+          "seed": 2025,
+          "run_directory": "experiments/evolvegcn_h_u1000_top1500_sparse_train700_seed2025_none_h32_l2_mean_temporal_mean_linear",
+          "metrics": {
+            "val": {
+              "mae": 0.048439751445042964,
+              "mse": 0.0035163907354131317,
+              "rmse": 0.05929916302455821,
+              "r2": 0.7495535726537789
+            },
+            "test": {
+              "mae": 0.054932502816565594,
+              "mse": 0.005312507687776605,
+              "rmse": 0.0728869514232596,
+              "r2": 0.633386593531161
+            }
+          }
+        }
+      ]
+    },
+    {
+      "model": "EvolveGCN-O",
+      "available": true,
+      "final": true,
+      "matched_split_ids": true,
+      "seeds": [
+        42,
+        123,
+        2025
+      ],
+      "top_n": 1500,
+      "representation": "temporal raw7 graph, 5 snapshots",
+      "safe_to_use": true,
+      "qualification": "Five-snapshot temporal context differs from final-snapshot primary comparison.",
+      "runs": [
+        {
+          "seed": 42,
+          "run_directory": "experiments/evolvegcn_o_u1000_top1500_sparse_train700_seed42_none_h32_l2_mean_temporal_mean_linear",
+          "metrics": {
+            "val": {
+              "mae": 0.037124816290657926,
+              "mse": 0.002150471741219087,
+              "rmse": 0.04637317911486215,
+              "r2": 0.8299650100504813
+            },
+            "test": {
+              "mae": 0.02994742125865832,
+              "mse": 0.001521515535721743,
+              "rmse": 0.03900660887236601,
+              "r2": 0.896204654727002
+            }
+          }
+        },
+        {
+          "seed": 123,
+          "run_directory": "experiments/evolvegcn_o_u1000_top1500_sparse_train700_seed123_none_h32_l2_mean_temporal_mean_linear",
+          "metrics": {
+            "val": {
+              "mae": 0.031740307582147194,
+              "mse": 0.0015151287080705997,
+              "rmse": 0.038924654244714876,
+              "r2": 0.888156946744509
+            },
+            "test": {
+              "mae": 0.03304271429628875,
+              "mse": 0.0018329569290434183,
+              "rmse": 0.04281304624811715,
+              "r2": 0.8592436026915259
+            }
+          }
+        },
+        {
+          "seed": 2025,
+          "run_directory": "experiments/evolvegcn_o_u1000_top1500_sparse_train700_seed2025_none_h32_l2_mean_temporal_mean_linear",
+          "metrics": {
+            "val": {
+              "mae": 0.03279886274325727,
+              "mse": 0.0019165141410270288,
+              "rmse": 0.04377800978832899,
+              "r2": 0.863500914518722
+            },
+            "test": {
+              "mae": 0.034921327633644215,
+              "mse": 0.001841753106632777,
+              "rmse": 0.04291565106849454,
+              "r2": 0.8729015711636929
+            }
+          }
+        }
+      ]
+    },
+    {
+      "model": "GCN-GRU",
+      "available": true,
+      "final": true,
+      "matched_split_ids": true,
+      "seeds": [
+        42,
+        123,
+        2025
+      ],
+      "top_n": 1500,
+      "representation": "temporal raw7 graph, 5 snapshots",
+      "safe_to_use": true,
+      "qualification": "Five-snapshot temporal context differs from final-snapshot primary comparison.",
+      "runs": [
+        {
+          "seed": 42,
+          "run_directory": "experiments/gcn_gru_u1000_top1500_sparse_train700_seed42_none_h32_l3_final",
+          "metrics": {
+            "val": {
+              "mae": 0.030202338039272962,
+              "mse": 0.0014614588650243823,
+              "rmse": 0.038229031703986206,
+              "r2": 0.8844443576435078
+            },
+            "test": {
+              "mae": 0.029121713555274317,
+              "mse": 0.0013553691931429402,
+              "rmse": 0.03681533910128956,
+              "r2": 0.907538891275321
+            }
+          }
+        },
+        {
+          "seed": 123,
+          "run_directory": "experiments/gcn_gru_u1000_top1500_sparse_train700_seed123_none_h32_l3_final",
+          "metrics": {
+            "val": {
+              "mae": 0.027756459107904724,
+              "mse": 0.0012035920835974732,
+              "rmse": 0.0346928246702034,
+              "r2": 0.9111538097148859
+            },
+            "test": {
+              "mae": 0.02910822177704294,
+              "mse": 0.0013189353556567263,
+              "rmse": 0.03631714960809461,
+              "r2": 0.8987163386092777
+            }
+          }
+        },
+        {
+          "seed": 2025,
+          "run_directory": "experiments/gcn_gru_u1000_top1500_sparse_train700_seed2025_none_h32_l3_final",
+          "metrics": {
+            "val": {
+              "mae": 0.02623585792201938,
+              "mse": 0.00117326545535286,
+              "rmse": 0.034252962723724495,
+              "r2": 0.9164370049486725
+            },
+            "test": {
+              "mae": 0.02994827674099462,
+              "mse": 0.0015528264913867496,
+              "rmse": 0.03940591949678055,
+              "r2": 0.8928402473708965
+            }
+          }
+        }
+      ]
+    },
+    {
+      "model": "GCN Temporal Transformer",
+      "available": true,
+      "final": true,
+      "matched_split_ids": true,
+      "seeds": [
+        42,
+        123,
+        2025
+      ],
+      "top_n": 1500,
+      "representation": "temporal raw7 graph, 5 snapshots",
+      "safe_to_use": true,
+      "qualification": "Five-snapshot temporal context differs from final-snapshot primary comparison.",
+      "runs": [
+        {
+          "seed": 42,
+          "run_directory": "experiments/gcn_temporal_transformer_u1000_top1500_sparse_train700_seed42_none_h32_l3_final",
+          "metrics": {
+            "val": {
+              "mae": 0.032294402670378634,
+              "mse": 0.001599236090780664,
+              "rmse": 0.03999044999472579,
+              "r2": 0.8735504924753651
+            },
+            "test": {
+              "mae": 0.03365953963490861,
+              "mse": 0.0017047067257806618,
+              "rmse": 0.04128809423769353,
+              "r2": 0.8837076460690408
+            }
+          }
+        },
+        {
+          "seed": 123,
+          "run_directory": "experiments/gcn_temporal_transformer_u1000_top1500_sparse_train700_seed123_none_h32_l3_final",
+          "metrics": {
+            "val": {
+              "mae": 0.035264528685747976,
+              "mse": 0.0018152343552297245,
+              "rmse": 0.042605567185870497,
+              "r2": 0.8660038902426401
+            },
+            "test": {
+              "mae": 0.033460758218717815,
+              "mse": 0.0015771979718396843,
+              "rmse": 0.03971395185372118,
+              "r2": 0.8788838401815345
+            }
+          }
+        },
+        {
+          "seed": 2025,
+          "run_directory": "experiments/gcn_temporal_transformer_u1000_top1500_sparse_train700_seed2025_none_h32_l3_final",
+          "metrics": {
+            "val": {
+              "mae": 0.03553716770627282,
+              "mse": 0.0019140284546923687,
+              "rmse": 0.043749610909039734,
+              "r2": 0.863677951517412
+            },
+            "test": {
+              "mae": 0.038908228945376266,
+              "mse": 0.002475569695036072,
+              "rmse": 0.0497550971764308,
+              "r2": 0.8291622163792032
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "notebook17_readiness": [
+    {
+      "id": "A",
+      "purpose": "Primary controlled comparison",
+      "ready": true,
+      "evidence": "Nine verified Top1500 runs in this result freeze."
+    },
+    {
+      "id": "B",
+      "purpose": "True-vs-predicted plots",
+      "ready": true,
+      "evidence": "Saved universe IDs, targets and predictions for all nine runs."
+    },
+    {
+      "id": "C",
+      "purpose": "Residual plots",
+      "ready": true,
+      "evidence": "Residual = prediction minus target from saved CSVs."
+    },
+    {
+      "id": "D",
+      "purpose": "Prediction range/compression",
+      "ready": true,
+      "evidence": "Saved targets and predictions; registry prediction ranges and standard-deviation ratios."
+    },
+    {
+      "id": "E",
+      "purpose": "Validation/test tables",
+      "ready": true,
+      "evidence": "Float64 recomputation and seed-level means/sample SDs in this record."
+    },
+    {
+      "id": "F",
+      "purpose": "Parameter comparison",
+      "ready": true,
+      "evidence": "Finite checkpoint tensor counts: 4161, 11313, 5281; no forward pass."
+    },
+    {
+      "id": "G",
+      "purpose": "Broad model leaderboard",
+      "ready": true,
+      "evidence": "13 families, 39 runs with matched split IDs and independently verified validation/test metrics; representation and temporal qualifications retained."
+    },
+    {
+      "id": "H",
+      "purpose": "Historical context / experiment progression",
+      "ready": true,
+      "evidence": "All 394 historical registry rows preserved; Notebooks 1-16, selection freezes, final-thesis manifest and authoritative replacement tables retained."
+    }
+  ],
+  "provenance_notes": {
+    "control_manifest_line_endings": {
+      "path": "reports/reproducibility/notebook17_control_artifact_manifest.csv",
+      "frozen_crlf_sha256": "b329b1995facd81d4c38ba815d90faf3f8f66297fb7ed51e076eb523bac82ec3",
+      "committed_lf_sha256": "cfb16e0241942752075e2ddc90499c41a5aff93b3a61d295abfbaec6bccad831",
+      "resolution": "Exact frozen hash reproduced by LF-to-CRLF conversion in memory; all 42 referenced artifact hashes match. No files normalized or rewritten."
+    },
+    "registry_parser_closure_change": {
+      "path": "scripts/build_experiment_registry.py",
+      "production_sha256": "fe1e6d61fd3a0f40f75d74b89506898320fbe76a1007cac504c9d3478e7a58ef",
+      "closure_sha256": "31267356207eb8e25ec25898d09a590e90c1327b13696a5a0989a93f722514b9",
+      "reason": "Existing family recognition did not parse nested Set Transformer configuration, manifest split counts, final snapshot protocol, or finalized state. Family-scoped reporting correction and smoke artifact-index exclusion; all 394 historical rows unchanged.",
+      "scope": "Reporting only. Frozen model/runner/config/protocol and scientific artifacts unchanged. The frozen runner verifies the production registry-script hash; its whole-tree freeze check will reject the closure parser. Production source remains recoverable from the implementation commit. Do not rerun training/finalization."
+    },
+    "production_commit_attribution": "Requested production commit verified against clean initial HEAD and every frozen implementation Git blob. Set Transformer run config does not itself save a Git commit; attribution is the verified source/protocol chain, not a per-run recorded commit.",
+    "persistent_test_attempt_markers": "Expected retained exclusive claims under runner lines 267-282; all three have later finalized metadata, evaluated_once metrics and 201 complete predictions. No incomplete attempt remains.",
+    "historical_registry_findings": "50 stale output mismatches and one legacy duplicate group pre-exist this closure; no metric disagreements or scan errors. Use authoritative raw predictions and the documented deprecated-table replacements, not stale outputs."
+  },
+  "scientific_conclusion": "Under the tested fixed architecture and matched data protocol, Set Transformer did not improve mean test MAE over DeepSets and remained behind Static GCN on every seed. Generic learned set attention in this configuration was insufficient to reproduce the advantage observed with explicit periodic kNN graph message passing. Set Transformer has more parameters than both controls, so additional parameter count alone does not explain the Static GCN gain.",
+  "limitations": [
+    "Three seeds; sample SD is descriptive variability, not a confidence interval or significance test.",
+    "No claim that all Set Transformers are inferior to GCNs.",
+    "No pure causal topology claim: capacity, depth and optimization are not perfectly identical.",
+    "Broad leaderboard uses engineered summaries and temporal sequences alongside raw final-snapshot inputs; it is contextual, not a single controlled architecture ablation.",
+    "Existing DeepSets headline is Top1000 and remains unchanged; primary Notebook17 controls are explicitly Top1500."
+  ],
+  "no_retuning_policy": "Training and scientific test evaluation are complete. No retuning, model selection, architecture changes, or hyperparameter changes from these test results is permitted. Do not repeat training, inference, or test evaluation for model selection.",
+  "audit_actions": {
+    "training_rerun": false,
+    "inference_rerun": false,
+    "test_evaluation_rerun": false,
+    "existing_scientific_artifacts_modified": false,
+    "notebooks_created_or_modified": false,
+    "committed": false,
+    "pushed": false,
+    "active_sibling_worktree_dependency": false
+  }
+}

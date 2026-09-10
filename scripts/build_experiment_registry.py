@@ -850,7 +850,7 @@ def expected_artifacts(row: dict[str, Any]) -> list[str]:
         missing.append("metrics.json")
     if model in {"EvolveGCNHRegressor", "EvolveGCNORegressor", "StaticGCNRegressor",
                  "StaticPNARegressor", "GCNGRURegressor", "GCNTemporalTransformerRegressor",
-                 "DeepSetsRegressor", "DeepSets"}:
+                 "DeepSetsRegressor", "DeepSets", "SetTransformerRegressor"}:
         for field, name in [
             ("predictions_exist", "predictions/test_predictions.csv"),
             ("train_log_exists", "train_log.csv"),
@@ -1014,6 +1014,55 @@ def build_experiment_rows(repo_root: Path, experiments_root: Path) -> tuple[list
             row["status"] = "complete_gnn" if not missing else "partial"
         else:
             row["status"] = "complete_validation" if metrics_exists else "unknown"
+        if family == "set_transformer":
+            # This family saves split IDs in a bound manifest and training
+            # settings in nested config blocks. Keep historical rows untouched.
+            split_path = str(config.get("split_manifest_path") or "")
+            manifest, split_error = read_json(repo_root / split_path) if split_path else ({}, "missing split manifest")
+            metadata, metadata_error = read_json(exp_dir / "run_metadata.json")
+            if split_path and not split_error:
+                digest = hashlib.sha256((repo_root / split_path).read_bytes()).hexdigest()
+                if digest != config.get("split_manifest_sha256"):
+                    split_error = "split manifest SHA256 mismatch"
+            for error in (split_error, metadata_error):
+                if error:
+                    errors.append(f"{exp_path}: {error}")
+            for partition in ("train", "val", "test"):
+                ids = manifest.get(partition + "_ids", [])
+                row[partition + "_count"] = len(ids)
+                row[partition + "_ids_available"] = bool(ids)
+            row.update({
+                "split_signature": split_signature(manifest),
+                "split_manifest_path": split_path,
+                "split_manifest_sha256": config.get("split_manifest_sha256"),
+                "dataset_sha256": config.get("dataset_sha256"),
+                "snapshot_input_protocol": config.get("snapshot_protocol"),
+                "final_snapshot_only": config.get("snapshot_protocol") == "final",
+                "snapshots": 1 if config.get("snapshot_protocol") == "final" else row["snapshots"],
+                "dataset_format": config.get("representation"),
+                "node_features": len(config.get("feature_names", [])),
+                "top_n": config.get("top_n"),
+                "k": "",  # Stored graph edges are not inputs to this model.
+                "experiment_type": "baseline",
+                "scientific_role": "controlled raw7 set attention baseline",
+                "comparison_quality": "partly_controlled",
+                "completion_timestamp": metadata.get("finalized_utc", ""),
+            })
+            training = config.get("training", {})
+            for field in ("batch_size", "patience", "learning_rate", "weight_decay", "optimizer"):
+                row[field] = training.get(field)
+            row["epochs"] = training.get("max_epochs")
+            row["grad_clip_norm"] = training.get("gradient_clipping")
+            for metric in ("mae", "mse", "rmse", "r2"):
+                row["test_" + metric] = row.get("test_" + metric + "_saved")
+            finalized = (
+                metadata.get("state") == "finalized"
+                and metadata.get("test_status") == metrics.get("test_status") == "evaluated_once"
+                and config.get("scientific_run") is True
+                and not any((missing, config_error, metrics_error, split_error, metadata_error, disagreement))
+                and row["test_prediction_count"] == row["test_count"] > 0
+            )
+            row["status"] = "completed" if finalized else "partial"
         if not any([row["git_commit_saved_in_config"], row["command_line_saved"], row["timestamp_saved"], row["environment_saved"]]):
             row["reproducibility_level"] = "settings_and_split_only"
         elif row["git_commit_saved_in_config"] and row["command_line_saved"] and row["timestamp_saved"]:
@@ -1223,6 +1272,8 @@ def discover_artifacts(repo_root: Path, experiment_names: list[str]) -> list[dic
         if not root.exists():
             continue
         for path in sorted(p for p in root.rglob("*") if p.is_file()):
+            if "notebook17_set_transformer" in path.parts:
+                continue
             rel = relpath(path, repo_root)
             suffix = path.suffix.lower()
             if rel.startswith("outputs/") and suffix in {".png", ".html", ".csv", ".json", ".md", ".txt"}:
