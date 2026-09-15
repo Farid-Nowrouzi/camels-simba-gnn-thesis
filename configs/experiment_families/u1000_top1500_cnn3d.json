@@ -1,0 +1,68 @@
+{
+  "architecture": {
+    "conv_channels": [8, 16, 32],
+    "dropout": 0.2,
+    "expected_trainable_parameters": 20017,
+    "head": [32, 32, 16, 1],
+    "internal_normalization": "none",
+    "kernel_size": 3,
+    "periodic_padding": "circular"
+  },
+  "dataset": {
+    "box_size_mpc_h": 25.0,
+    "path": "data/processed/temporal_1000u_none_top1500_periodic_knn_sparse/camels_1000u_temporal_logmass_none_top1500_periodic_knn_sparse.pt",
+    "sha256": "ff6f6a89517c0b67a96a8733ce5778dba1524df441cc23c27fbfa4e2f5cdb113",
+    "snapshot": "final",
+    "source_feature_order": ["log10_Mvir", "X", "Y", "Z", "VX", "VY", "VZ"],
+    "target": "Omega_m",
+    "target_normalization": "none",
+    "top_n": 1500
+  },
+  "experiment_family": "cnn3d",
+  "model": "StaticCNN3DRegressor",
+  "protocol_freeze_path": "reports/experiment_registry/u1000_top1500_cnn3d_protocol_freeze.json",
+  "protocol_freeze_sha256": "ce934560d21b7823924f235787dd972cdb72abd8f0ebcf452ddd85db11e5b490",
+  "representation": "periodic_halo_field",
+  "representation_family": "grid",
+  "schema_version": 1,
+  "seeds": [42, 123, 2025],
+  "splits": {
+    "123": {"path": "configs/splits/u1000_top1500_none_k8_sparse/seed123_train700.json", "sha256": "18a295106ec844848053f3040d2be3cdf73a443010be31e6e2cd962362982471"},
+    "2025": {"path": "configs/splits/u1000_top1500_none_k8_sparse/seed2025_train700.json", "sha256": "c233c0631b1a24d963ffccc7c6389054fddf135a7aabc4dc4ab7bf5976fab3a9"},
+    "42": {"path": "configs/splits/u1000_top1500_none_k8_sparse/seed42_train700.json", "sha256": "f5556ec5c193e7cb80f2231705edbdae32d4de206889dec308a819bdde427ab7"}
+  },
+  "test_policy": {
+    "finalize_requires_all_seeds": true,
+    "test_selection_forbidden": true,
+    "test_status_before_finalize": "pending",
+    "test_status_smoke": "forbidden"
+  },
+  "training": {
+    "amp": false,
+    "batch_size": 8,
+    "checkpoint_criterion": "strict minimum validation MSE; retain earlier checkpoint on exact ties",
+    "dtype": "float32",
+    "gradient_clipping": 1.0,
+    "learning_rate": 0.001,
+    "loss": "MSELoss(mean)",
+    "max_epochs": 300,
+    "num_workers": 0,
+    "optimizer": "AdamW",
+    "patience": 40,
+    "scheduler": {"factor": 0.5, "min_lr": 1e-06, "mode": "min", "name": "ReduceLROnPlateau", "patience": 10},
+    "weight_decay": 1e-05
+  },
+  "uses_graph_edges": false,
+  "voxelization": {
+    "accumulation_dtype": "float64",
+    "channel_count": 5,
+    "channel_definition": "count; deposited_log_mass_mark; deposited_VX_mark; deposited_VY_mark; deposited_VZ_mark",
+    "deposition_method": "cic",
+    "fixed_scaling_divisors": [1.0, 10.0, 100.0, 100.0, 100.0],
+    "grid_origin": "cell_centered",
+    "grid_resolution": 32,
+    "input_shape": [5, 32, 32, 32],
+    "output_dtype": "float32",
+    "representation_fingerprint": "1c3b66855ae1597fdf15a448818f1711c01c4ca1f801877b0e8ca8dee2358865"
+  }
+}

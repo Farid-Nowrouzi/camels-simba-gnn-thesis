@@ -1,0 +1,330 @@
+{
+  "analysis_only": {
+    "descriptive_mae_threshold": 0.001,
+    "purpose": "reporting-only; not training, checkpoint, hyperparameter, selection, or registry-completion logic"
+  },
+  "cnn": {
+    "bias_initialization": "zeros",
+    "canonical_model_family": "cnn3d",
+    "class_name": "StaticCNN3DRegressor",
+    "conv_channels": [
+      8,
+      16,
+      32
+    ],
+    "conv_specification": [
+      {
+        "bias": true,
+        "in_channels": 5,
+        "kernel_size": 3,
+        "out_channels": 8,
+        "padding": 1,
+        "padding_mode": "circular",
+        "stride": 1
+      },
+      {
+        "bias": true,
+        "in_channels": 8,
+        "kernel_size": 3,
+        "out_channels": 16,
+        "padding": 1,
+        "padding_mode": "circular",
+        "stride": 1
+      },
+      {
+        "bias": true,
+        "in_channels": 16,
+        "kernel_size": 3,
+        "out_channels": 32,
+        "padding": 1,
+        "padding_mode": "circular",
+        "stride": 1
+      }
+    ],
+    "downsampling": "avgpool3d_kernel2_stride2_after_conv2",
+    "dropout": 0.2,
+    "expected_parameter_breakdown": {
+      "conv1": 1088,
+      "conv2": 3472,
+      "conv3": 13856,
+      "linear_16_1": 17,
+      "linear_32_16": 528,
+      "linear_32_32": 1056
+    },
+    "expected_trainable_parameters": 20017,
+    "global_readout": "adaptive_avg_pool3d_1",
+    "head": [
+      32,
+      32,
+      16,
+      1
+    ],
+    "internal_normalization": "none",
+    "kernel_size": 3,
+    "periodic_padding": "circular",
+    "relu_followed_weight_gain": "relu",
+    "weight_initialization": "xavier_uniform",
+    "zero_padding": false
+  },
+  "comparison_scope": {
+    "architecture_only_ablation": false,
+    "intervention_changes": [
+      "spatial_representation",
+      "local_aggregation",
+      "architectural_inductive_bias",
+      "parameter_capacity"
+    ],
+    "supported_comparison": "periodic voxel field plus 3D CNN versus sparse graph plus GCN/PNA and unordered set plus DeepSets/Set Transformer"
+  },
+  "cuda_preproduction_gate": "required",
+  "dataset": {
+    "box_size_mpc_h": 25.0,
+    "ids": "LH_0..LH_999",
+    "path": "data/processed/temporal_1000u_none_top1500_periodic_knn_sparse/camels_1000u_temporal_logmass_none_top1500_periodic_knn_sparse.pt",
+    "population": 1000,
+    "scale_factor": 1.0,
+    "sha256": "ff6f6a89517c0b67a96a8733ce5778dba1524df441cc23c27fbfa4e2f5cdb113",
+    "snapshot": "final",
+    "source_feature_order": [
+      "log10_Mvir",
+      "X",
+      "Y",
+      "Z",
+      "VX",
+      "VY",
+      "VZ"
+    ],
+    "target": "raw Omega_m",
+    "top_n": 1500
+  },
+  "excluded_from_experiment_1": [
+    "all_halos",
+    "temporal_cnn",
+    "multiple_snapshots",
+    "cnn_lstm",
+    "four_dimensional_convolution",
+    "mass_density_channels",
+    "momentum_density_channels",
+    "physical_Mvir_exponentiation",
+    "speed_magnitude",
+    "velocity_dispersion",
+    "BatchNorm",
+    "GroupNorm",
+    "InstanceNorm",
+    "LayerNorm",
+    "rotation_augmentation",
+    "reflection_augmentation",
+    "random_translation_augmentation",
+    "three_dimensional_ResNet",
+    "architecture_sweep",
+    "resolution_sweep",
+    "optimizer_sweep",
+    "learning_rate_sweep",
+    "dropout_sweep",
+    "AMP",
+    "test_based_model_selection",
+    "persistent_voxel_cache"
+  ],
+  "experiment_family": "cnn3d",
+  "experiment_phase": "scientific_protocol_freeze",
+  "optional_future_ablations": {
+    "grid_48_cubed": "not part of experiment 1"
+  },
+  "primary_controls": [
+    "Static GCN",
+    "PNA",
+    "DeepSets",
+    "Set Transformer"
+  ],
+  "repository_context": {
+    "branch": "thesis-notebook17-set-transformer",
+    "head": "e2f58f269a6941b3a5c621f84dad1d4dcd89b5ac",
+    "tracked_tree_clean": false,
+    "unrelated_existing_tracked_modifications": [
+      {
+        "classification": "notebook_metadata_only",
+        "path": "notebooks/visualization/14_u1000_temporal_context_and_pooling_analysis.ipynb",
+        "summary": "kernelspec display_name gains a closing parenthesis; no code, output, markdown, or scientific-result change"
+      }
+    ]
+  },
+  "schema_version": 1,
+  "scientific_question": "Holding the CAMELS-SIMBA universe population, selected Top1500 halos, final snapshot, raw source information, target, seed-specific split manifests and neural training protocol fixed, does representing the halo catalogue as a periodic three-dimensional CIC field and processing it with a compact 3D CNN improve Omega_m regression relative to the existing sparse-graph and unordered-set pipelines?",
+  "seeds": [
+    42,
+    123,
+    2025
+  ],
+  "source_provenance": {
+    "recomputation_status": "source_manifest_sha256 and target_table_sha256 provenance-verified only; processed dataset SHA256 recomputed",
+    "source_manifest_sha256": "ba22c3611a70763566ffb38a20f9b5a36fb6c1a27c3ad8030c4a7e189ce87618",
+    "target_table_sha256": "9692a97760ee0e3a97cf3293f1b73911ee0a1af028617f03fe85f88f431703c2"
+  },
+  "splits": {
+    "123": {
+      "historical_qualification": "seed-specific historical manifest; LH_750..LH_999 are training-only",
+      "manifest": "configs/splits/u1000_top1500_none_k8_sparse/seed123_train700.json",
+      "sha256": "18a295106ec844848053f3040d2be3cdf73a443010be31e6e2cd962362982471",
+      "test": 201,
+      "train": 700,
+      "val": 99
+    },
+    "2025": {
+      "historical_qualification": "seed-specific historical manifest; LH_750..LH_999 are training-only",
+      "manifest": "configs/splits/u1000_top1500_none_k8_sparse/seed2025_train700.json",
+      "sha256": "c233c0631b1a24d963ffccc7c6389054fddf135a7aabc4dc4ab7bf5976fab3a9",
+      "test": 201,
+      "train": 700,
+      "val": 99
+    },
+    "42": {
+      "historical_qualification": "seed-specific historical manifest; LH_750..LH_999 are training-only",
+      "manifest": "configs/splits/u1000_top1500_none_k8_sparse/seed42_train700.json",
+      "sha256": "f5556ec5c193e7cb80f2231705edbdae32d4de206889dec308a819bdde427ab7",
+      "test": 201,
+      "train": 700,
+      "val": 99
+    }
+  },
+  "summary_context": [
+    "Random Forest Top1500",
+    "Gradient Boosting Top1500"
+  ],
+  "test_policy": {
+    "final_metrics": {
+      "aggregate": "mean plus sample standard deviation with ddof=1 across seeds",
+      "test": [
+        "MAE",
+        "MSE",
+        "RMSE",
+        "R2"
+      ],
+      "validation": [
+        "MAE"
+      ]
+    },
+    "forbidden_test_uses": [
+      "model_selection",
+      "grid_selection",
+      "channel_selection",
+      "normalization_selection",
+      "hyperparameter_selection"
+    ],
+    "required_stages": [
+      "tests",
+      "CPU real-data smoke",
+      "CUDA readiness and deterministic backward check",
+      "implementation/source freeze",
+      "train seed 42",
+      "train seed 123",
+      "train seed 2025",
+      "verify all three frozen checkpoints and training artifacts",
+      "one protected final test evaluation"
+    ],
+    "test_evaluation": "only after complete three-seed family freeze; interrupted finalization leaves a persistent attempt marker and cannot automatically retry"
+  },
+  "training_protocol": {
+    "amp": false,
+    "batch_size": 8,
+    "checkpoint_criterion": "strict minimum validation MSE; retain earlier checkpoint on exact ties",
+    "dtype": "float32",
+    "evaluation_shuffle": false,
+    "gradient_clipping_global_norm": 1.0,
+    "learning_rate": 0.001,
+    "loss": "MSELoss(mean)",
+    "max_epochs": 300,
+    "num_workers": 0,
+    "optimizer": "AdamW",
+    "patience": 40,
+    "scheduler": {
+      "factor": 0.5,
+      "min_lr": 1e-06,
+      "mode": "min",
+      "monitor": "validation MSE",
+      "name": "ReduceLROnPlateau",
+      "patience": 10
+    },
+    "target": "raw Omega_m",
+    "test_used_for_model_selection": false,
+    "train_shuffle": "seeded",
+    "weight_decay": 1e-05
+  },
+  "voxelization": {
+    "accumulation_dtype": "float64",
+    "batched_input_shape": [
+      "B",
+      5,
+      32,
+      32,
+      32
+    ],
+    "box_size_mpc_h": 25.0,
+    "channels": [
+      {
+        "formula": "C0(g) = sum_i w_ig",
+        "index": 0,
+        "name": "fractional_deposited_halo_count"
+      },
+      {
+        "formula": "C1(g) = sum_i w_ig * log10(Mvir_i)",
+        "index": 1,
+        "name": "deposited_log_mass_mark",
+        "not_mass_density": true
+      },
+      {
+        "formula": "C2(g) = sum_i w_ig * VX_i",
+        "index": 2,
+        "name": "deposited_VX_mark",
+        "not_momentum_density": true
+      },
+      {
+        "formula": "C3(g) = sum_i w_ig * VY_i",
+        "index": 3,
+        "name": "deposited_VY_mark",
+        "not_momentum_density": true
+      },
+      {
+        "formula": "C4(g) = sum_i w_ig * VZ_i",
+        "index": 4,
+        "name": "deposited_VZ_mark",
+        "not_momentum_density": true
+      }
+    ],
+    "computation_strategy": "deterministic_on_the_fly_CPU_voxelization",
+    "coordinates_are_channels": false,
+    "deposition": "periodic_cic",
+    "fixed_scaling_divisors": [
+      1,
+      10,
+      100,
+      100,
+      100
+    ],
+    "grid_origin": "cell_centered",
+    "grid_shape": [
+      32,
+      32,
+      32
+    ],
+    "input_shape": [
+      5,
+      32,
+      32,
+      32
+    ],
+    "output_dtype": "float32",
+    "periodic_cic_geometry": {
+      "cell_center": "x_j = (j + 1/2) * Delta",
+      "coordinate_wrapping": "x_wrapped = x mod L",
+      "delta": 0.78125,
+      "fraction": "f = u - floor(u)",
+      "index_wrapping": "every CIC index modulo R",
+      "lower_index": "b = floor(u)",
+      "resolution": 32,
+      "scaled_coordinate": "u = x_wrapped / Delta - 1/2",
+      "weights": "deposit to b and b+1 with weights 1-f and f; use the product of the three one-dimensional weights"
+    },
+    "resolution": 32,
+    "scaling_policy": "fixed divisors only; no fitted standardization, validation/test statistics, per-universe normalization, clipping, log1p, or scaling search"
+  }
+}

@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "experiment_family": "cnn3d",
+  "experiment_phase": "implementation_freeze",
+  "scientific_protocol_freeze": {
+    "path": "reports/experiment_registry/u1000_top1500_cnn3d_protocol_freeze.json",
+    "sha256": "ce934560d21b7823924f235787dd972cdb72abd8f0ebcf452ddd85db11e5b490"
+  },
+  "repository": {
+    "branch": "thesis-notebook17-set-transformer",
+    "head": "e2f58f269a6941b3a5c621f84dad1d4dcd89b5ac",
+    "known_unrelated_tracked_modification": "notebooks/visualization/14_u1000_temporal_context_and_pooling_analysis.ipynb (kernelspec display-name punctuation only)"
+  },
+  "source_files": [
+    {"path": "src/data/halo_voxelization.py", "sha256": "38076c879480113ffffe284b31be788d2c27cb40982d22cc9a370d9eb63e58e3"},
+    {"path": "src/models/static_cnn3d.py", "sha256": "9fe84e73d74ab7239c1f50904574c782083a70b1e974fa13ef99d4866bb97d14"},
+    {"path": "src/evaluation/run_modern_cnn3d.py", "sha256": "c61ec20e7f14e5a0dca3a0b8db2ed55fa7adfa3b7052d136c53179b3401ddf15"},
+    {"path": "configs/experiment_families/u1000_top1500_cnn3d.json", "sha256": "a8a2f487ef24929f6c4c995f306667983ce9ff23e43bf51340b1ab30b0674c8d"}
+  ],
+  "tests": [
+    {"path": "tests/test_halo_voxelization.py", "sha256": "5d402c5777c235117aa5c8e2edca5fd14d52679d6fb75be05942be899d9c8b1c"},
+    {"path": "tests/test_modern_cnn3d.py", "sha256": "a8b325459755132a93799c3ffd162fb9735a3a7f61db46ccc5590dce6458f44c"},
+    {"path": "tests/test_cnn3d_registry.py", "sha256": "5bf500d15be490d8db7e5d487ad1788476c369a98ad7a62fa406773920f5e84b"}
+  ],
+  "dataset": {"path": "data/processed/temporal_1000u_none_top1500_periodic_knn_sparse/camels_1000u_temporal_logmass_none_top1500_periodic_knn_sparse.pt", "sha256": "ff6f6a89517c0b67a96a8733ce5778dba1524df441cc23c27fbfa4e2f5cdb113"},
+  "split_manifests": [
+    {"seed": 42, "path": "configs/splits/u1000_top1500_none_k8_sparse/seed42_train700.json", "sha256": "f5556ec5c193e7cb80f2231705edbdae32d4de206889dec308a819bdde427ab7"},
+    {"seed": 123, "path": "configs/splits/u1000_top1500_none_k8_sparse/seed123_train700.json", "sha256": "18a295106ec844848053f3040d2be3cdf73a443010be31e6e2cd962362982471"},
+    {"seed": 2025, "path": "configs/splits/u1000_top1500_none_k8_sparse/seed2025_train700.json", "sha256": "c233c0631b1a24d963ffccc7c6389054fddf135a7aabc4dc4ab7bf5976fab3a9"}
+  ],
+  "representation_fingerprint": "1c3b66855ae1597fdf15a448818f1711c01c4ca1f801877b0e8ca8dee2358865",
+  "expected_trainable_parameters": 20017,
+  "completed_checks": {
+    "focused_unit_tests": "passed; tests/test_modern_cnn3d.py and tests/test_halo_voxelization.py: 12 tests",
+    "pooling_equivalence": "passed; DeterministicAvgPool3d2 equals nn.AvgPool3d(kernel_size=2, stride=2) on CPU with max_abs_difference=0.0",
+    "cpu_forward_backward": "passed; finite output, MSE, and gradients; parameters=20017",
+    "test_feature_access": "forbidden and not performed"
+  },
+  "cuda_preproduction_gate": "passed manually in tmux on NVIDIA L40 with CUBLAS_WORKSPACE_CONFIG=:4096:8; strict deterministic CUDA smoke completed successfully",
+  "successful_cuda_smoke": {
+    "path": "outputs/smoke/u1000_top1500_cnn3d_cuda_phase3",
+    "state": "smoke_complete",
+    "scientific_run": false,
+    "test_status": "forbidden",
+    "test_predictions_present": false
+  },
+  "production_training_started": false,
+  "test_evaluation_started": false
+}
