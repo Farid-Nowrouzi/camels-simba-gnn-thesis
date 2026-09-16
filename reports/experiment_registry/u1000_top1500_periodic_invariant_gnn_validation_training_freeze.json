@@ -1,0 +1,94 @@
+{
+  "dataset": {
+    "path": "data/processed/temporal_1000u_none_top1500_periodic_knn_sparse/camels_1000u_temporal_logmass_none_top1500_periodic_knn_sparse.pt",
+    "sha256": "ff6f6a89517c0b67a96a8733ce5778dba1524df441cc23c27fbfa4e2f5cdb113"
+  },
+  "implementation_freeze": {
+    "path": "reports/experiment_registry/u1000_top1500_periodic_invariant_gnn_implementation_freeze.json",
+    "sha256": "139afbdde8f5402a9be861af4d56adff8644e9843c7fa8a0d250089470ad3654"
+  },
+  "production_runs": {
+    "42": {
+      "best_epoch": 7,
+      "best_validation_mse": 0.012339155434282741,
+      "checkpoint_path": "experiments/periodic_invariant_gnn_u1000_top1500_final_train700_seed42_k8_fixedscale_h17_l3_mean/best_validation_checkpoint.pt",
+      "checkpoint_sha256": "4f361c0373214532e73babba0adc6c96ce7052a3fa9b0d29e933e2bfef922269",
+      "epoch_metrics_path": "experiments/periodic_invariant_gnn_u1000_top1500_final_train700_seed42_k8_fixedscale_h17_l3_mean/epoch_metrics.csv",
+      "epoch_metrics_sha256": "d2e224d64d37bf8b0ecb10a69937d1c62610b89dbe3a4fc87ddb38119178c6e0",
+      "metadata_path": "experiments/periodic_invariant_gnn_u1000_top1500_final_train700_seed42_k8_fixedscale_h17_l3_mean/metadata.json",
+      "metadata_sha256": "1607920daa1dc9ab1934032f913c57b3b2c3ecbbd6ac27aec94a64d6c5175513",
+      "parameter_count": 5270,
+      "split": {
+        "path": "configs/splits/u1000_top1500_none_k8_sparse/seed42_train700.json",
+        "sha256": "f5556ec5c193e7cb80f2231705edbdae32d4de206889dec308a819bdde427ab7"
+      },
+      "test_status": "pending / forbidden",
+      "validation": {
+        "calibration_intercept": 0.3124605772649304,
+        "calibration_slope": 0.01313488901383821,
+        "mae": 0.09894846771100554,
+        "mse": 0.012339162501783876,
+        "prediction_sd_ratio": 0.014842541343450763,
+        "r2": 0.024358548051923168,
+        "rmse": 0.11108178294294647
+      }
+    },
+    "123": {
+      "best_epoch": 155,
+      "best_validation_mse": 0.001943585133612758,
+      "checkpoint_path": "experiments/periodic_invariant_gnn_u1000_top1500_final_train700_seed123_k8_fixedscale_h17_l3_mean/best_validation_checkpoint.pt",
+      "checkpoint_sha256": "6410f6823be3e8c54dd5263791421848f2f966c3e2312e7811e2847a26f58d10",
+      "epoch_metrics_path": "experiments/periodic_invariant_gnn_u1000_top1500_final_train700_seed123_k8_fixedscale_h17_l3_mean/epoch_metrics.csv",
+      "epoch_metrics_sha256": "a7fdd8f99017cc809ad3738effd37126c49b57eb2bc0b416254eaa35a5d64cbf",
+      "metadata_path": "experiments/periodic_invariant_gnn_u1000_top1500_final_train700_seed123_k8_fixedscale_h17_l3_mean/metadata.json",
+      "metadata_sha256": "cfb61d72b8e0ce2be0d9856102d75c328698bed5a0d559cf7db5482219e59bcb",
+      "parameter_count": 5270,
+      "split": {
+        "path": "configs/splits/u1000_top1500_none_k8_sparse/seed123_train700.json",
+        "sha256": "18a295106ec844848053f3040d2be3cdf73a443010be31e6e2cd962362982471"
+      },
+      "test_status": "pending / forbidden",
+      "validation": {
+        "calibration_intercept": 0.045830083402394015,
+        "calibration_slope": 0.8678599238128955,
+        "mae": 0.03539385857305141,
+        "mse": 0.0019435881470281926,
+        "prediction_sd_ratio": 0.9363294408974643,
+        "r2": 0.8565291308408854,
+        "rmse": 0.044086144615153096
+      }
+    },
+    "2025": {
+      "best_epoch": 5,
+      "best_validation_mse": 0.014041650325360925,
+      "checkpoint_path": "experiments/periodic_invariant_gnn_u1000_top1500_final_train700_seed2025_k8_fixedscale_h17_l3_mean/best_validation_checkpoint.pt",
+      "checkpoint_sha256": "32b803e7e65f0038681465feb9ab328db59710a58159559cec011ac6440d8220",
+      "epoch_metrics_path": "experiments/periodic_invariant_gnn_u1000_top1500_final_train700_seed2025_k8_fixedscale_h17_l3_mean/epoch_metrics.csv",
+      "epoch_metrics_sha256": "7b268fbabaaef5bce7220ca64bd8c73dc69ac9af77531968402ec13c399caccc",
+      "metadata_path": "experiments/periodic_invariant_gnn_u1000_top1500_final_train700_seed2025_k8_fixedscale_h17_l3_mean/metadata.json",
+      "metadata_sha256": "2f1cedce060d1ae88ff1604481af0c702aec242c95828d66f71adece13332d6c",
+      "parameter_count": 5270,
+      "split": {
+        "path": "configs/splits/u1000_top1500_none_k8_sparse/seed2025_train700.json",
+        "sha256": "c233c0631b1a24d963ffccc7c6389054fddf135a7aabc4dc4ab7bf5976fab3a9"
+      },
+      "test_status": "pending / forbidden",
+      "validation": {
+        "calibration_intercept": 0.3023475408554079,
+        "calibration_slope": -2.690515190129879e-16,
+        "mae": 0.10355426363571725,
+        "mse": 0.014041649991835905,
+        "prediction_sd_ratio": 0.0,
+        "r2": -8.256735673328741e-05,
+        "rmse": 0.11849746829293825
+      }
+    }
+  },
+  "protected_test_evaluated": false,
+  "protocol_freeze": {
+    "path": "reports/experiment_registry/u1000_top1500_periodic_invariant_gnn_protocol_freeze.json",
+    "sha256": "edff75346e61070735eeb9cae5d404d9827338f695835c139e9db37a19a1cbf6"
+  },
+  "repository_commit": "6a046d2945f06ff80dd2adcc07a952b4f2c2cbeb",
+  "schema_version": "camels_u1000_top1500_periodic_invariant_gnn_validation_training_freeze_v1"
+}

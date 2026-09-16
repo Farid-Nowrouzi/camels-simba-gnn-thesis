@@ -1,0 +1,55 @@
+{
+  "base_production_implementation_freeze_sha256": "139afbdde8f5402a9be861af4d56adff8644e9843c7fa8a0d250089470ad3654",
+  "base_validation_training_freeze_sha256": "97bb9c404f82c3f0ad860df28ba5b0f3f5e42872231aecdfe1b3fd6c7b482be8",
+  "backward_compatibility_evidence": {
+    "after": {
+      "best_epoch": 2,
+      "best_validation_mse": 0.1041538268327713,
+      "historical_checkpoint_seed": 42,
+      "training_rng_seed": 42
+    },
+    "before": {
+      "best_epoch": 2,
+      "best_validation_mse": 0.10415381193161011,
+      "historical_checkpoint_seed": 42
+    },
+    "comparison": {
+      "best_epoch_equal": true,
+      "checkpoint_epoch_equal": true,
+      "epoch_metrics_max_abs_difference": 1.4901161193847656e-08,
+      "historical_checkpoint_seed_equal": true,
+      "max_checkpoint_tensor_abs_difference": 2.9802322387695312e-08,
+      "post_edit_repeat_max_checkpoint_tensor_abs_difference": 2.9802322387695312e-08,
+      "result": "behaviorally equivalent; residual differences are repeatable CPU floating-point variation"
+    },
+    "old_cli": "--seed 42, 16 train, 8 validation, 2 epochs, batch size 8, CPU"
+  },
+  "cli_semantics": {
+    "seed": "Required immutable split-manifest identity seed; the manifest must match it.",
+    "training_rng_seed": "Optional training stochasticity seed for Python, NumPy, PyTorch CPU/CUDA, model initialization, training shuffle, and dropout. Defaults to --seed and does not change split-manifest identity."
+  },
+  "diagnostic_trainer_sha256": "6f54d93b09682f7e5f5576df0593228958ddecc19e39738250092b8962d3bca7",
+  "implementation_file_sha256": {
+    "reports/experiment_registry/u1000_top1500_periodic_invariant_gnn_protocol_freeze.json": "edff75346e61070735eeb9cae5d404d9827338f695835c139e9db37a19a1cbf6",
+    "src/data/periodic_geometry.py": "f0da910a2b319b72ab7699b51ac6d0d1721f9dd9127dcb1d335e3c106bb90981",
+    "src/data/periodic_invariant_features.py": "8e9562ccec7b35066000396094cf28e4796f1e90b93f156c3972c5e7859799b9",
+    "src/models/periodic_invariant_gnn.py": "a096237b1e9a93f68a710eea903c54e3839a54d5d1bec575e5e3aba4f573203a",
+    "src/training/train_periodic_invariant_gnn.py": "6f54d93b09682f7e5f5576df0593228958ddecc19e39738250092b8962d3bca7",
+    "tests/test_periodic_invariant_rng_seed_decoupling.py": "f49b1125370d15e9ac3e2606f5eb375489a97ad1ac1a56212406d785e32ec534"
+  },
+  "off_diagonal_smoke_evidence": {
+    "best_epoch": 2,
+    "best_validation_mse": 0.6743403673171997,
+    "parameter_count": 5270,
+    "split_manifest_path": "configs/splits/u1000_top1500_none_k8_sparse/seed42_train700.json",
+    "split_manifest_sha256": "f5556ec5c193e7cb80f2231705edbdae32d4de206889dec308a819bdde427ab7",
+    "split_seed": 42,
+    "test_status": "pending / forbidden",
+    "training_rng_seed": 123
+  },
+  "original_trainer_sha256": "81e236b53c6df9be0879dd23c5f020db313fd2fea4e6fd1bab99821d814187e7",
+  "production_artifacts_modified": false,
+  "protected_test_evaluated": false,
+  "purpose": "Separate split identity from training RNG for validation-only diagnostic.",
+  "schema_version": "camels_u1000_top1500_periodic_invariant_gnn_split_rng_diagnostic_implementation_freeze_v1"
+}

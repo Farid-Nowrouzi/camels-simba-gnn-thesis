@@ -16,6 +16,14 @@ def set_seed(seed: int) -> None:
     random.seed(seed); np.random.seed(seed); torch.manual_seed(seed); torch.cuda.manual_seed_all(seed)
     torch.backends.cudnn.deterministic = True; torch.backends.cudnn.benchmark = False
 
+def resolve_seed_roles(split_seed: int, training_rng_seed: int | None = None) -> tuple[int, int]:
+    """Keep immutable split identity separate from training stochasticity."""
+    return split_seed, split_seed if training_rng_seed is None else training_rng_seed
+
+def training_shuffle_generator(training_rng_seed: int) -> torch.Generator:
+    """Create the explicit generator used only for shuffled training batches."""
+    return torch.Generator().manual_seed(training_rng_seed)
+
 def _load(path: Path) -> dict[str, Any]:
     try: return torch.load(path, map_location="cpu", weights_only=False)
     except TypeError: return torch.load(path, map_location="cpu")
@@ -41,18 +49,20 @@ def _sha(path: Path) -> str: return hashlib.sha256(path.read_bytes()).hexdigest(
 
 def train(*, dataset_path: str | Path, split_manifest_path: str | Path, seed: int, output_dir: str | Path,
           protocol_freeze_path: str | Path, epochs: int = 300, batch_size: int = 8, patience: int = 40,
-          max_train_universes: int | None = None, max_val_universes: int | None = None, device: str = "cpu") -> dict[str, Any]:
+          max_train_universes: int | None = None, max_val_universes: int | None = None, device: str = "cpu",
+          training_rng_seed: int | None = None) -> dict[str, Any]:
     """Fit only train/validation samples. This function never creates a test loader."""
-    set_seed(seed); dataset_path, split_path, out = Path(dataset_path), Path(split_manifest_path), Path(output_dir)
+    split_seed, training_rng_seed = resolve_seed_roles(seed, training_rng_seed)
+    set_seed(training_rng_seed); dataset_path, split_path, out = Path(dataset_path), Path(split_manifest_path), Path(output_dir)
     protocol = Path(protocol_freeze_path)
     if not protocol.exists(): raise FileNotFoundError("protocol freeze is required")
     samples = _final_samples(_load(dataset_path)); identity = load_dataset_provenance(dataset_path).get("dataset_sha256", _sha(dataset_path))
-    manifest = load_split_manifest(split_path, sorted(samples), identity, expected_seed=seed)
+    manifest = load_split_manifest(split_path, sorted(samples), identity, expected_seed=split_seed)
     train_ids, val_ids = list(manifest["train_ids"]), list(manifest["val_ids"])
     if max_train_universes is not None: train_ids = train_ids[:max_train_universes]
     if max_val_universes is not None: val_ids = val_ids[:max_val_universes]
     if not train_ids or not val_ids: raise ValueError("train and validation partitions must be nonempty")
-    train_loader = DataLoader(_Dataset(samples, train_ids), batch_size=batch_size, shuffle=True, generator=torch.Generator().manual_seed(seed), collate_fn=_collate)
+    train_loader = DataLoader(_Dataset(samples, train_ids), batch_size=batch_size, shuffle=True, generator=training_shuffle_generator(training_rng_seed), collate_fn=_collate)
     val_loader = DataLoader(_Dataset(samples, val_ids), batch_size=batch_size, shuffle=False, collate_fn=_collate)
     dev = torch.device(device); model = PeriodicInvariantGNNRegressor().to(dev)
     if count_parameters(model) != 5270: raise RuntimeError("parameter-count guard failed")
@@ -76,10 +86,10 @@ def train(*, dataset_path: str | Path, split_manifest_path: str | Path, seed: in
             best, stale, best_epoch = val_mse, 0, epoch; torch.save({"model_state_dict":model.state_dict(),"seed":seed,"epoch":epoch},ckpt)
         else: stale += 1
         if stale >= patience: break
-    payload={"seed":seed,"dataset_path":str(dataset_path),"dataset_sha256":_sha(dataset_path),"split_manifest_path":str(split_path),"split_manifest_sha256":_sha(split_path),"protocol_freeze_sha256":_sha(protocol),"test_status":"pending / forbidden","scientific_run":not(max_train_universes or max_val_universes or epochs < 300),"best_epoch":best_epoch,"best_validation_mse":best,"checkpoint":"best_validation_checkpoint.pt","checkpoint_sha256":_sha(ckpt),"history":history,"parameter_count":5270}
+    payload={"seed":split_seed,"split_seed":split_seed,"training_rng_seed":training_rng_seed,"dataset_path":str(dataset_path),"dataset_sha256":_sha(dataset_path),"split_manifest_path":str(split_path),"split_manifest_sha256":_sha(split_path),"protocol_freeze_sha256":_sha(protocol),"test_status":"pending / forbidden","scientific_run":not(max_train_universes or max_val_universes or epochs < 300),"best_epoch":best_epoch,"best_validation_mse":best,"checkpoint":"best_validation_checkpoint.pt","checkpoint_sha256":_sha(ckpt),"history":history,"parameter_count":5270}
     (out/"metadata.json").write_text(json.dumps(payload,indent=2,sort_keys=True)+"\n");
     with (out/"epoch_metrics.csv").open("w",newline="") as f: w=csv.DictWriter(f,fieldnames=history[0]); w.writeheader(); w.writerows(history)
     return payload
 
 if __name__ == "__main__":
-    p=argparse.ArgumentParser(); p.add_argument("--dataset-path",required=True); p.add_argument("--split-manifest-path",required=True); p.add_argument("--seed",type=int,required=True); p.add_argument("--output-dir",required=True); p.add_argument("--protocol-freeze-path",required=True); p.add_argument("--epochs",type=int,default=300); p.add_argument("--batch-size",type=int,default=8); p.add_argument("--patience",type=int,default=40); p.add_argument("--max-train-universes",type=int); p.add_argument("--max-val-universes",type=int); p.add_argument("--device",default="cpu"); a=p.parse_args(); train(dataset_path=a.dataset_path,split_manifest_path=a.split_manifest_path,seed=a.seed,output_dir=a.output_dir,protocol_freeze_path=a.protocol_freeze_path,epochs=a.epochs,batch_size=a.batch_size,patience=a.patience,max_train_universes=a.max_train_universes,max_val_universes=a.max_val_universes,device=a.device)
+    p=argparse.ArgumentParser(); p.add_argument("--dataset-path",required=True); p.add_argument("--split-manifest-path",required=True); p.add_argument("--seed",type=int,required=True,help="Immutable split-manifest identity seed."); p.add_argument("--training-rng-seed",type=int,default=None,help="Optional training stochasticity seed. If omitted, defaults to --seed for exact backward compatibility. Does not change split-manifest identity."); p.add_argument("--output-dir",required=True); p.add_argument("--protocol-freeze-path",required=True); p.add_argument("--epochs",type=int,default=300); p.add_argument("--batch-size",type=int,default=8); p.add_argument("--patience",type=int,default=40); p.add_argument("--max-train-universes",type=int); p.add_argument("--max-val-universes",type=int); p.add_argument("--device",default="cpu"); a=p.parse_args(); train(dataset_path=a.dataset_path,split_manifest_path=a.split_manifest_path,seed=a.seed,training_rng_seed=a.training_rng_seed,output_dir=a.output_dir,protocol_freeze_path=a.protocol_freeze_path,epochs=a.epochs,batch_size=a.batch_size,patience=a.patience,max_train_universes=a.max_train_universes,max_val_universes=a.max_val_universes,device=a.device)
