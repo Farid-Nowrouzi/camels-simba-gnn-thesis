@@ -1,0 +1,28 @@
+{
+  "aggregation_rule": "Arithmetic mean and sample standard deviation across the three pre-specified original production seeds; no pooled-603-prediction primary metric.",
+  "authorized_cells": [
+    {"checkpoint_sha256": "4f361c0373214532e73babba0adc6c96ce7052a3fa9b0d29e933e2bfef922269", "run_path": "experiments/periodic_invariant_gnn_u1000_top1500_final_train700_seed42_k8_fixedscale_h17_l3_mean", "split_seed": 42, "training_rng_seed": 42},
+    {"checkpoint_sha256": "6410f6823be3e8c54dd5263791421848f2f966c3e2312e7811e2847a26f58d10", "run_path": "experiments/periodic_invariant_gnn_u1000_top1500_final_train700_seed123_k8_fixedscale_h17_l3_mean", "split_seed": 123, "training_rng_seed": 123},
+    {"checkpoint_sha256": "32b803e7e65f0038681465feb9ab328db59710a58159559cec011ac6440d8220", "run_path": "experiments/periodic_invariant_gnn_u1000_top1500_final_train700_seed2025_k8_fixedscale_h17_l3_mean", "split_seed": 2025, "training_rng_seed": 2025}
+  ],
+  "dataset_sha256": "ff6f6a89517c0b67a96a8733ce5778dba1524df441cc23c27fbfa4e2f5cdb113",
+  "diagnostic_implementation_freeze_sha256": "4f3010d3a8fa08002d36f31b4a058efc7eb18df6e57e47776b8548fa7d2b8057",
+  "diagnostic_off_diagonal_runs": {"explicitly_excluded_from_test": true, "cells": ["42/123", "42/2025", "123/42", "123/2025", "2025/42", "2025/123"], "remain_validation_only": true},
+  "diagnostic_result_freeze_sha256": "3cb17cedc30f01f1f97b8a4fda52d287d29116f30c1fd813015c4963e02ddcf7",
+  "final_metrics": ["MAE", "MSE", "RMSE", "R2"],
+  "optional_descriptive_diagnostics": ["prediction_mean", "prediction_sd", "true_mean", "true_sd", "spread_ratio", "calibration_slope", "calibration_intercept", "prediction_min", "prediction_max"],
+  "no_further_tuning_permitted_after_protected_test_access": true,
+  "no_model_selection_using_protected_test_results": true,
+  "pre_test_parent_commit": "f196460e947497269cdfe30a1dfadb31b54d510d",
+  "production_implementation_freeze_sha256": "139afbdde8f5402a9be861af4d56adff8644e9843c7fa8a0d250089470ad3654",
+  "protected_test_evaluated": false,
+  "protocol_freeze_sha256": "edff75346e61070735eeb9cae5d404d9827338f695835c139e9db37a19a1cbf6",
+  "repository_branch": "thesis-notebook19-physics-informed-invariant-gnn",
+  "schema_version": "1.0",
+  "split_manifests": {
+    "42": {"sha256": "f5556ec5c193e7cb80f2231705edbdae32d4de206889dec308a819bdde427ab7", "test_size": 201},
+    "123": {"sha256": "18a295106ec844848053f3040d2be3cdf73a443010be31e6e2cd962362982471", "test_size": 201},
+    "2025": {"sha256": "c233c0631b1a24d963ffccc7c6389054fddf135a7aabc4dc4ab7bf5976fab3a9", "test_size": 201}
+  },
+  "validation_training_freeze_sha256": "97bb9c404f82c3f0ad860df28ba5b0f3f5e42872231aecdfe1b3fd6c7b482be8"
+}
