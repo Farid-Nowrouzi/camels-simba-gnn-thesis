@@ -1,0 +1,132 @@
+{
+  "aggregate_metrics": {
+    "mae": {
+      "mean": 0.08039740170313549,
+      "sample_sd": 0.041532110390848524
+    },
+    "mse": {
+      "mean": 0.01015366438109558,
+      "sample_sd": 0.007357377354105071
+    },
+    "r2": {
+      "mean": 0.298768546611187,
+      "sample_sd": 0.4971210584917156
+    },
+    "rmse": {
+      "mean": 0.09357891241080361,
+      "sample_sd": 0.04577092198831141
+    }
+  },
+  "dataset_sha256": "ff6f6a89517c0b67a96a8733ce5778dba1524df441cc23c27fbfa4e2f5cdb113",
+  "diagnostic_implementation_freeze_sha256": "4f3010d3a8fa08002d36f31b4a058efc7eb18df6e57e47776b8548fa7d2b8057",
+  "diagnostic_off_diagonal_test_evaluated": false,
+  "diagnostic_result_freeze_sha256": "3cb17cedc30f01f1f97b8a4fda52d287d29116f30c1fd813015c4963e02ddcf7",
+  "final_interpretation": "The three pre-specified production trajectories retain substantial heterogeneity on their corresponding protected test partitions. The healthy seed123 trajectory generalizes strongly, whereas seeds42 and2025 remain compressed and weak. The final held-out result therefore corroborates the validation diagnosis of a fragile training recipe, without motivating or permitting post-test selection or tuning.",
+  "final_test_decision_commit": "0692d0c4fe253d6a4789345156799e56af43b2e6",
+  "final_test_decision_freeze": {
+    "path": "reports/experiment_registry/u1000_top1500_periodic_invariant_gnn_final_test_decision_freeze.json",
+    "sha256": "4cac9e04768f33a7a5b557099cb5b8461500e9547eb980c1aa42dd4ab263f887"
+  },
+  "no_further_tuning_permitted": true,
+  "production_cells": [
+    {
+      "artifacts": {
+        "epoch_metrics_sha256": "d2e224d64d37bf8b0ecb10a69937d1c62610b89dbe3a4fc87ddb38119178c6e0",
+        "finalization_report_sha256": "89879b5adb69568e59a5e3280c5b29a13bcd491d38e90973f0716dbadc3346ef",
+        "metadata_sha256": "1607920daa1dc9ab1934032f913c57b3b2c3ecbbd6ac27aec94a64d6c5175513",
+        "test_evaluation_started_sha256": "a2372a754a080d907207cf13d6b87290127d98b16b3810ada8cfdb64ab4bf567",
+        "test_metrics_sha256": "37b97ff282f5cc558f94cfd6f1c134aa17ee432a54507d0de5e7ec66f9bcfc3d",
+        "test_predictions_sha256": "1237168776d92297fca6b95d5162d746e42658a3483d5430f4306c901626a6a3"
+      },
+      "checkpoint_sha256": "4f361c0373214532e73babba0adc6c96ce7052a3fa9b0d29e933e2bfef922269",
+      "metrics": {
+        "calibration_intercept": 0.3119665857964929,
+        "calibration_slope": 0.014400990579077174,
+        "mae": 0.10287513661740431,
+        "mse": 0.01430089096576621,
+        "prediction_max": 0.32216137647628784,
+        "prediction_mean": 0.3164110180750415,
+        "prediction_min": 0.31242865324020386,
+        "prediction_sd": 0.0018944286303449803,
+        "r2": 0.02441619513330695,
+        "rmse": 0.11958633268800499,
+        "spread_ratio": 0.015646924677425615,
+        "true_mean": 0.30861990042586823,
+        "true_sd": 0.1210735444440492
+      },
+      "run_path": "experiments/periodic_invariant_gnn_u1000_top1500_final_train700_seed42_k8_fixedscale_h17_l3_mean",
+      "split_manifest_sha256": "f5556ec5c193e7cb80f2231705edbdae32d4de206889dec308a819bdde427ab7",
+      "split_seed": 42,
+      "test_rows": 201,
+      "training_rng_seed": 42
+    },
+    {
+      "artifacts": {
+        "epoch_metrics_sha256": "a7fdd8f99017cc809ad3738effd37126c49b57eb2bc0b416254eaa35a5d64cbf",
+        "finalization_report_sha256": "2b53edb23539666280560a04259a46d2b27236134a6403286e0569e01b8dfb23",
+        "metadata_sha256": "cfb61d72b8e0ce2be0d9856102d75c328698bed5a0d559cf7db5482219e59bcb",
+        "test_evaluation_started_sha256": "a2372a754a080d907207cf13d6b87290127d98b16b3810ada8cfdb64ab4bf567",
+        "test_metrics_sha256": "a9085e353b7dbf526ca75f3633c2d45c9c04c97e19108df63ea5d3164cc36e3c",
+        "test_predictions_sha256": "5f5e6c7c47f97953cd54ba540977922fcfb148243eec5e85aed05c57346d8020"
+      },
+      "checkpoint_sha256": "6410f6823be3e8c54dd5263791421848f2f966c3e2312e7811e2847a26f58d10",
+      "metrics": {
+        "calibration_intercept": 0.040127615955989376,
+        "calibration_slope": 0.8957182959749508,
+        "mae": 0.032470937317876675,
+        "mse": 0.0016588841175431935,
+        "prediction_max": 0.5526334047317505,
+        "prediction_mean": 0.3046408046537371,
+        "prediction_min": 0.08778664469718933,
+        "prediction_sd": 0.10898638093454485,
+        "r2": 0.87261099907051,
+        "rmse": 0.04072940114393033,
+        "spread_ratio": 0.95505893643069,
+        "true_mean": 0.29530845790063565,
+        "true_sd": 0.11411482242326954
+      },
+      "run_path": "experiments/periodic_invariant_gnn_u1000_top1500_final_train700_seed123_k8_fixedscale_h17_l3_mean",
+      "split_manifest_sha256": "18a295106ec844848053f3040d2be3cdf73a443010be31e6e2cd962362982471",
+      "split_seed": 123,
+      "test_rows": 201,
+      "training_rng_seed": 123
+    },
+    {
+      "artifacts": {
+        "epoch_metrics_sha256": "7b268fbabaaef5bce7220ca64bd8c73dc69ac9af77531968402ec13c399caccc",
+        "finalization_report_sha256": "f38f662ba6f48599d4edbe56d8166880fc39338bdee281d0c20b0d94ded2acc7",
+        "metadata_sha256": "2f1cedce060d1ae88ff1604481af0c702aec242c95828d66f71adece13332d6c",
+        "test_evaluation_started_sha256": "a2372a754a080d907207cf13d6b87290127d98b16b3810ada8cfdb64ab4bf567",
+        "test_metrics_sha256": "adc3446cf82f266f2d4e8013dba5f9eb481ab7734eba9bc9455e6f7a05df95d8",
+        "test_predictions_sha256": "de2dc5b424085892d82d697686e74f388e941733f0b9b49f6f9f174d3aaf1345"
+      },
+      "checkpoint_sha256": "32b803e7e65f0038681465feb9ab328db59710a58159559cec011ac6440d8220",
+      "metrics": {
+        "calibration_intercept": 0.3023475408554077,
+        "calibration_slope": -1.739017741763963e-16,
+        "mae": 0.10584613117412549,
+        "mse": 0.014501218059977337,
+        "prediction_max": 0.3023475408554077,
+        "prediction_mean": 0.3023475408554077,
+        "prediction_min": 0.3023475408554077,
+        "prediction_sd": 0.0,
+        "r2": -0.0007215543702558946,
+        "rmse": 0.12042100340047553,
+        "spread_ratio": 0.0,
+        "true_mean": 0.30558109505852654,
+        "true_sd": 0.120377581746739
+      },
+      "run_path": "experiments/periodic_invariant_gnn_u1000_top1500_final_train700_seed2025_k8_fixedscale_h17_l3_mean",
+      "split_manifest_sha256": "c233c0631b1a24d963ffccc7c6389054fddf135a7aabc4dc4ab7bf5976fab3a9",
+      "split_seed": 2025,
+      "test_rows": 201,
+      "training_rng_seed": 2025
+    }
+  ],
+  "production_implementation_freeze_sha256": "139afbdde8f5402a9be861af4d56adff8644e9843c7fa8a0d250089470ad3654",
+  "protected_test_evaluated": true,
+  "protocol_freeze_sha256": "edff75346e61070735eeb9cae5d404d9827338f695835c139e9db37a19a1cbf6",
+  "repository_branch": "thesis-notebook19-physics-informed-invariant-gnn",
+  "schema_version": "1.0",
+  "validation_training_freeze_sha256": "97bb9c404f82c3f0ad860df28ba5b0f3f5e42872231aecdfe1b3fd6c7b482be8"
+}
