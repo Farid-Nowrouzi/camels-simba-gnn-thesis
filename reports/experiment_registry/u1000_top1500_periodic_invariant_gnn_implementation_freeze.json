@@ -1,0 +1,28 @@
+{
+  "base_sha": "4157fa3c30202408aa708d3c660c78bfd316061c",
+  "dataset_sha256": "ff6f6a89517c0b67a96a8733ce5778dba1524df441cc23c27fbfa4e2f5cdb113",
+  "feature_definitions": {"node": "log10_Mvir", "edge": ["r/25", "relative_speed/1000 km/s", "radial_velocity/1000 km/s"], "velocity_unit": "km/s physical peculiar", "velocity_scale": 1000.0},
+  "implementation_file_sha256": {
+    "configs/experiment_families/u1000_top1500_periodic_invariant_gnn.json": "da271010fe8465fd40d66a5f65d429fcff9b4b646ac13d1db1f4bd3476a00701",
+    "src/data/periodic_geometry.py": "f0da910a2b319b72ab7699b51ac6d0d1721f9dd9127dcb1d335e3c106bb90981",
+    "src/data/periodic_invariant_features.py": "8e9562ccec7b35066000396094cf28e4796f1e90b93f156c3972c5e7859799b9",
+    "src/evaluation/finalize_periodic_invariant_gnn.py": "57168a0b8736ad8da68ffb8d08a8181a08cffc04ff624c2cc26d0f8c59605579",
+    "src/models/periodic_invariant_gnn.py": "a096237b1e9a93f68a710eea903c54e3839a54d5d1bec575e5e3aba4f573203a",
+    "src/training/train_periodic_invariant_gnn.py": "81e236b53c6df9be0879dd23c5f020db313fd2fea4e6fd1bab99821d814187e7",
+    "tests/test_periodic_geometry.py": "07a43793a663858417a304dbc19ae3e10b520661f83df0bdfc9ef19d1913644a",
+    "tests/test_periodic_invariant_features.py": "9da4cc2a4398875a5e68ede9c0b7bd6ed7cb1052d131a578a0587c0491f06316",
+    "tests/test_periodic_invariant_gnn.py": "9c1fac89fb302cd24db3fe1d8207e78a68a350ed6870a3f9b864625dcbb5eb24",
+    "tests/test_periodic_invariant_protected_workflow.py": "26fbf92246e14b4738431c967c6dae88f287d1eaa40a8c4410768280a2770eb5"
+  },
+  "model_parameter_count": 5270,
+  "protocol_freeze": {"path": "reports/experiment_registry/u1000_top1500_periodic_invariant_gnn_protocol_freeze.json", "sha256": "edff75346e61070735eeb9cae5d404d9827338f695835c139e9db37a19a1cbf6"},
+  "real_test_accessed": false,
+  "scientific_run": false,
+  "smoke": {"identity": "seed42, train=16, validation=8, epochs=2, CPU", "artifact_path": "/tmp/periodic_invariant_smoke", "checkpoint_sha256": "463351fe51d580823da30f9646eacba465ea2315bdc5dfe693aef3f18e40cd7b", "metadata_sha256": "b3b4243c5a2a8f9274b3acaca46b740ddc34b2f86f8c5486ffdf3e4047779365", "reload_max_abs_difference": 0.0},
+  "split_manifest_sha256": {"42": "f5556ec5c193e7cb80f2231705edbdae32d4de206889dec308a819bdde427ab7", "123": "18a295106ec844848053f3040d2be3cdf73a443010be31e6e2cd962362982471", "2025": "c233c0631b1a24d963ffccc7c6389054fddf135a7aabc4dc4ab7bf5976fab3a9"},
+  "prior_supersedes_sha256": "ca47df84d100be627a82bd1652954480c45d83787d69b54559b9679083f253d9",
+  "supersedes_sha256": "f1da23934bb25b238a109fd2d244981adf848c738cdd04a7296a6812b00f612e",
+  "reason": "canonical protected final-output set enforced internally by finalizer; caller omission can no longer bypass overwrite protection",
+  "test_results_summary": "13 focused tests passed via dependency-free canonical-environment runner; compileall and JSON validation passed; pytest unavailable in canonical environment; CUDA unavailable.",
+  "test_status": "pending / forbidden"
+}

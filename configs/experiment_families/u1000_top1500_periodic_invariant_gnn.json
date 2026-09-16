@@ -1,0 +1,14 @@
+{
+  "schema_version": "1.0",
+  "family_id": "u1000_top1500_periodic_invariant_gnn",
+  "model": "PeriodicInvariantGNNRegressor",
+  "training_module": "src.training.train_periodic_invariant_gnn",
+  "dataset": {"path": "data/processed/temporal_1000u_none_top1500_periodic_knn_sparse/camels_1000u_temporal_logmass_none_top1500_periodic_knn_sparse.pt", "sha256": "ff6f6a89517c0b67a96a8733ce5778dba1524df441cc23c27fbfa4e2f5cdb113"},
+  "split_manifests": {"42": "configs/splits/u1000_top1500_none_k8_sparse/seed42_train700.json", "123": "configs/splits/u1000_top1500_none_k8_sparse/seed123_train700.json", "2025": "configs/splits/u1000_top1500_none_k8_sparse/seed2025_train700.json"},
+  "seeds": [42, 123, 2025], "target": "Omega_m", "top_n": 1500, "snapshot": "final", "graph": {"periodic": true, "mode": "knn", "k": 8, "box_size": 25.0},
+  "raw7_feature_order": ["log10_Mvir", "X", "Y", "Z", "VX", "VY", "VZ"],
+  "invariant_features": {"node": "log10_Mvir", "edge": ["r/25", "relative_speed/1000_km_s", "radial_velocity/1000_km_s"], "epsilon": 1e-08},
+  "architecture": {"hidden_dim": 17, "layers": 3, "dropout": 0.2, "pooling": "mean", "expected_parameter_count": 5270},
+  "training": {"optimizer": "AdamW", "learning_rate": 0.001, "weight_decay": 1e-05, "loss": "MSE", "scheduler": "ReduceLROnPlateau(factor=0.5, patience=10, min_lr=1e-6)", "batch_size": 8, "max_epochs": 300, "early_stopping_patience": 40, "gradient_clip_norm": 1.0, "checkpoint_selection": "strict minimum validation MSE"},
+  "protected_test_policy": "pending / forbidden; no test loader or inference in training"
+}

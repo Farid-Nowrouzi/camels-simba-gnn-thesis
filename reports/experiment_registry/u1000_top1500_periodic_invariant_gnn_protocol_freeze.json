@@ -1,0 +1,19 @@
+{
+  "approved_architecture": "PeriodicInvariantGNNRegressor: hidden=17, 3 mean-message layers, residual updates, mean pooling, 17-17-8-1 head",
+  "batch_size": 8,
+  "box_size_L": 25.0,
+  "checkpoint_selection_criterion": "strict minimum validation MSE; earlier checkpoint on ties",
+  "dataset": {"path": "data/processed/temporal_1000u_none_top1500_periodic_knn_sparse/camels_1000u_temporal_logmass_none_top1500_periodic_knn_sparse.pt", "sha256": "ff6f6a89517c0b67a96a8733ce5778dba1524df441cc23c27fbfa4e2f5cdb113", "target_table_sha256": "9692a97760ee0e3a97cf3293f1b73911ee0a1af028617f03fe85f88f431703c2", "source_manifest_sha256": "ba22c3611a70763566ffb38a20f9b5a36fb6c1a27c3ad8030c4a7e189ce87618"},
+  "deterministic_settings": "random, NumPy, Torch seeds; cuDNN deterministic and benchmark false",
+  "dropout": 0.2, "early_stopping_patience": 40, "epsilon": 1e-08,
+  "experiment_name": "u1000_top1500_periodic_invariant_gnn",
+  "feature_definitions": {"raw7_input_order": ["log10_Mvir", "X", "Y", "Z", "VX", "VY", "VZ"], "node": "log10(Mvir), [N,1]", "edge": ["r/L", "||v_i-v_j||/V0", "dot(v_i-v_j, delta_x_ji)/max(r,epsilon)/V0"]},
+  "final_snapshot": true, "gradient_clipping_norm": 1.0, "graph": "periodic directed kNN, k=8", "hidden_dimension": 17, "loss": "MSE", "max_epochs": 300, "number_message_passing_layers": 3, "optimizer": "AdamW", "learning_rate": 0.001, "weight_decay": 1e-05,
+  "pooling": "mean", "primary_comparison": "frozen raw-coordinate Static GCN (5281 parameters)", "primary_reporting_metric": "MAE", "repository_starting_sha": "4157fa3c30202408aa708d3c660c78bfd316061c", "regression_head": "Linear(17,17), ReLU, Dropout, Linear(17,8), ReLU, Dropout, Linear(8,1)",
+  "scheduler": {"name": "ReduceLROnPlateau", "factor": 0.5, "patience": 10, "min_lr": 1e-06}, "scientific_hypothesis": "Physically meaningful periodic invariant relative quantities improve Omega_m regression versus frozen raw-coordinate Static GCN.",
+  "seeds": [42, 123, 2025], "signed_displacement": "delta_x_ji=(x_i-x_j)-L*round((x_i-x_j)/L)", "source_target_edge_convention": "edge_index[0]=source j; edge_index[1]=target i", "split_counts": {"train": 700, "validation": 99, "test": 201},
+  "split_manifests": {"42": {"path": "configs/splits/u1000_top1500_none_k8_sparse/seed42_train700.json", "sha256": "f5556ec5c193e7cb80f2231705edbdae32d4de206889dec308a819bdde427ab7"}, "123": {"path": "configs/splits/u1000_top1500_none_k8_sparse/seed123_train700.json", "sha256": "18a295106ec844848053f3040d2be3cdf73a443010be31e6e2cd962362982471"}, "2025": {"path": "configs/splits/u1000_top1500_none_k8_sparse/seed2025_train700.json", "sha256": "c233c0631b1a24d963ffccc7c6389054fddf135a7aabc4dc4ab7bf5976fab3a9"}},
+  "success_failure_interpretation": "Compare held-out finalization MAE descriptively only after protected release; no test-driven model selection.", "target": "Omega_m", "target_parameter_count": 5270, "top_n": 1500,
+  "velocity_unit_evidence": {"raw_source_fields": "Rockstar col_20,col_21,col_22", "unit": "km/s physical peculiar", "conversion": "none", "scale_factor_treatment": "none", "h_treatment": "none", "processed_tensor_unit": "km/s", "evidence_path": "reports/experiment_registry/u1000_top1500_prebuild_integrity_audit.md"}, "velocity_scale_V0_km_s": 1000.0,
+  "protected_test_policy": "NO TEST EVALUATION BEFORE PROTECTED FINALIZATION", "secondary_descriptive_comparisons": "only fixed matched controls; no architecture or hyperparameter search"
+}
